@@ -1,0 +1,18 @@
+{application, dungeon_base,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, { dungeon_base_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    epgsql,
+    poolboy
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {maintainers, []},
+  {licenses, []},
+  {links, []}
+ ]}.
