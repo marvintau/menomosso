@@ -1,8 +1,8 @@
--module(dungeon_base_server).
+-module(dungeon_base_test_server).
 
 -author('Yue Marvin Tao').
 
-% -behaviour(gen_server).
+-behaviour(gen_server).
 
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
@@ -28,6 +28,7 @@
 
 
 start(Args) ->
+    erlang:display("asdasdasd"),
     gen_server:start({local, ?MODULE}, ?MODULE, Args, []).
 
 stop() ->
@@ -82,7 +83,7 @@ init(Args)->
     Database = proplists:get_value(database, Args),
     Timeout = proplists:get_value(timeout, Args),
 
-    case dungeon_base_worker:connect(Host, User, Password, Database, Timeout) of
+    case dungeon_query:connect(Host, User, Password, Database, Timeout) of
         {ok, Conn} ->
             error_logger:info_report("DungenBase connected."),
             {ok, #{conn=>Conn}};
@@ -92,34 +93,34 @@ init(Args)->
     end.
 
 handle_call({add_new_player}, _From, #{conn:=Conn}=State) ->
-    {reply, dungeon_base_worker:add_new_player(Conn), State};
+    {reply, dungeon_query:add_new_player(Conn), State};
 
 handle_call({get_player, PlayerID}, _From, State) ->
-    {reply, dungeon_base_worker:get_player(PlayerID), State};
+    {reply, dungeon_query:get_player(PlayerID), State};
 
 handle_call({get_player_list}, _From, State) ->
-    {reply, dungeon_base_worker:get_player_list(), State};
+    {reply, dungeon_query:get_player_list(), State};
 
 handle_call({update_preset_card, CardID, PlayerID}, _From, State) ->
-	{reply, dungeon_base_worker:update_preset_card(CardID, PlayerID), State};
+	{reply, dungeon_query:update_preset_card(CardID, PlayerID), State};
 
 handle_call({update_preset_skills, Skills, PlayerID}, _From, State) ->
-	{reply, dungeon_base_worker:update_preset_skills(Skills, PlayerID), State};
+	{reply, dungeon_query:update_preset_skills(Skills, PlayerID), State};
 
 handle_call({update_player_ranking, Ranking, PlayerID}, _From, State) ->
-	{reply, dungeon_base_worker:update_player_ranking(Ranking, PlayerID), State};
+	{reply, dungeon_query:update_player_ranking(Ranking, PlayerID), State};
 
 handle_call({update_player_level, Level, PlayerID}, _From, State) ->
-	{reply, dungeon_base_worker:update_player_level(Level, PlayerID), State};
+	{reply, dungeon_query:update_player_level(Level, PlayerID), State};
 
 handle_call({add_player_card, CardID, PlayerID}, _From, #{conn:=Conn}=State) ->
-    {reply, dungeon_base_worker:add_new_player(Conn, CardID, PlayerID), State};
+    {reply, dungeon_query:add_new_player(Conn, CardID, PlayerID), State};
 
 handle_call({check_chest, PlayerID}, _From, State) ->
-    {reply, dungeon_base_worker:check_chest(PlayerID), State};
+    {reply, dungeon_query:check_chest(PlayerID), State};
 
 handle_call({open_chest, PlayerID}, _From, State) ->
-    {reply, dungeon_base_worker:open_chest(PlayerID), State};
+    {reply, dungeon_query:open_chest(PlayerID), State};
 
 handle_call(stop, _From, State) ->
     {stop, normal, user_terminates, State}.

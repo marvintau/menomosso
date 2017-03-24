@@ -1,4 +1,4 @@
--module(dungeon_base_worker).
+-module(dungeon_query).
 
 -author('Yue Marvin Tao').
 
@@ -6,20 +6,20 @@
     connect/5,
     close/1,
 
-    add_new_player/1,
-    add_new_card/1,
-    add_player_card/3,
+    add_new_player/2,
+    add_new_card/2,
+    add_player_card/2, 
 
     get_player/2,
-    get_player_list/1,
+    get_player_list/2,
     get_player_card/2,
     get_card/2,
 
-    update_preset_card/3,
-    update_preset_skills/3,
-    update_ranking/3,
-    update_level/3,
-    update_card/3,
+    update_preset_card/2,
+    update_preset_skills/2,
+    update_ranking/2,
+    update_level/2,
+    update_card/2,
 
     check_chest_update/2,
     open_chest_update/2
@@ -30,6 +30,7 @@
 %% 开始和结束数据库会话
 
 connect(Host, User, Password, Database, Timeout) ->
+    erlang:display(connecting),
     epgsql:connect(Host, User, Password, [{database, Database}, {timeout, Timeout}]).
 
 close(Conn) ->
@@ -80,13 +81,20 @@ add_player(Conn, PlayerUUID, PlayerName) ->
     '", PlayerUUID, "',
     '", PlayerName,"', 1,
     '946ae77c-183b-4538-b439-ac9036024676',
-    '{\"talisman_of_death\", \"rune_of_the_void\", \"talisman_of_spellshrouding\", \"holy_hand_grenade\", \"poison_gas\"}',
+    '{\"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\",
+      \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\"}',
     9999, now(), now()
     );"]),
 
     case epgsql:squery(Conn,binary_to_list(Query)) of
-        {ok, 1} -> {ok, new_player_added};
-        _ -> {error, add_player_failed}
+        {ok, 1} ->
+            {ok, new_player_added};
+        {error, Err} when element(3, Err) =:= <<"23514">> ->
+            erlang:display(mismatch_preset_skill_length),
+            {error, {add_player_failed, preset_skill, length}};
+        Error ->
+            erlang:display(Error),
+            {error, add_player_failed}
     end.
 
 %% ------------------------------------------------------------------------
@@ -107,7 +115,7 @@ add_chest_record(Conn, PlayerUUID) ->
 %% 向player_card表内添加给定玩家ID的卡牌条目
 %% NOTE: 不要单独export
 
-add_player_card(Conn, CardUUID, PlayerUUID) ->
+add_player_card(Conn, {CardUUID, PlayerUUID}) ->
     Query = list_to_binary(["insert into player_card_info values
     (uuid_generate_v4(), ", CardUUID, ", '", PlayerUUID, "', now(), now());"]),
 
@@ -121,7 +129,7 @@ add_player_card(Conn, CardUUID, PlayerUUID) ->
 %% 添加完整的玩家档案，添加玩家档案条目，添加玩家开宝箱档案条目，并返回
 %% 玩家档案条目记录（来自players表）
 
-add_new_player(Conn) ->
+add_new_player(Conn, _) ->
     Name = random_name(),
     {ok, ColumnNumber} = get_number_of_columns(Conn, Name),
     erlang:display({duplicates, ColumnNumber}),
@@ -140,26 +148,22 @@ add_new_player(Conn) ->
     {ok, new_player_added} = add_player(Conn, NewID, CheckedName),
     {ok, new_chest_record_created} = add_chest_record(Conn, NewID),
 
-    {ok, _, [Res]} = epgsql:squery(Conn, list_to_binary(["select * from players where id='", NewID, "';"])),
-    {ok, Res}.
+    {ok, NewID}.
 
 %% ------------------------------------------------------------------------
 %% 添加一个新卡牌，并且返回生成的ID
 
-add_new_card(Conn) ->
+add_new_card(Conn, _) ->
     quickrand:seed(),
     CardID = uuid:uuid_to_string(uuid:get_v4_urandom()),
 
     Query = list_to_binary(["insert into cards(
         id, card_name, image_name, profession,
         range_type, hp, armor, agi, hit, block,
-        dodge, resist, critical, prim_type,
-        prim_max, prim_min, secd_type, secd_max,
-        secd_min, last_added, last_modified) value
+        dodge, resist, critical, last_added, last_modified) value
         ('", CardID, "', '新卡牌', 'image_placehoder',
         'rogue', 'near', 2700, 4500, 75, 35, 0,
-        30, 35, 30, 'physical', 205, 190, 'physical',
-        190, 175, now(), now())"]),
+        30, 35, 30, now(), now())"]),
 
     {ok, _, [Res]} = epgsql:squery(Conn, binary_to_list(Query)),
     {ok, Res}.
@@ -171,11 +175,11 @@ add_new_card(Conn) ->
 %% 得到玩家列表，仅提供players的信息
 %% TODO: 未来将会加上更多限定条件，譬如排名等，来限制获取的玩家数目
 
-get_player_list(Conn) ->
+get_player_list(Conn, _) ->
     Query = list_to_binary(["select * from players ;"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, _, Res} -> {ok, Res};
+        {ok, _, Players} -> {ok, [get_player_ejson(Player) || Player <- Players]};
         _ -> {error, get_player_list_failed}
     end.
 
@@ -184,8 +188,32 @@ get_player_list(Conn) ->
 %% 得到玩家信息，包含玩家信息，和玩家所持的所有卡牌的具体信息
 %% NOTE: 一般情况下主要用于自己
 
-get_player(Conn, PlayerUUID) ->
+reform_preset_skills(PresetSkillBinary) ->
+    
+    Trimmed = list_to_binary(tl(lists:droplast(binary_to_list(PresetSkillBinary)))),
+    binary:split(Trimmed, <<",">>, [global]).
+
+get_player_ejson({ID, Name, Level, PresetCardID, PresetSkills, Rank, _, _}) ->
+    
+    {[{id, ID}, {player_name, Name}, {level, Level}, {preset_card_id, PresetCardID}, {preset_skills, PresetSkills}, {rank, Rank}]}.
+
+get_card_ejson({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, _, _}) ->
+    
+    {[{id, ID}, {card_name, CardName}, {image_name, ImageName}, {class, Class},
+         {range_type, RangeType}, {hp, HP}, {armor, Armor}, {agility, Agility},
+         {hit, Hit}, {block, Block}, {dodge, Dodge}, {resist, Resist},
+         {critical, Critical}]}.
+
+get_profile_ejson(PlayerRes, CardRes) ->
+    
+    UpdatedPlayerRes = setelement(5, PlayerRes, reform_preset_skills(element(5, PlayerRes))),
+
+    {[{player_profile, get_player_ejson(UpdatedPlayerRes)}, {card_profiles, [get_card_ejson(Card) || Card <- CardRes]}]}.
+
+
+get_player(Conn, {PlayerUUID}) ->
     QueryProfile = list_to_binary(["select * from players where id='", PlayerUUID,"';"]),
+    
     Profile = epgsql:squery(Conn,binary_to_list(QueryProfile)),
 
     QueryCard = list_to_binary(["select cards.* from (
@@ -195,9 +223,10 @@ get_player(Conn, PlayerUUID) ->
         inner join cards on cards.id=tem.card_id;"]),
 
     case Profile of
-        {ok, _, [Res]} ->
+        {ok, _, [PlayerRes]} ->
+
             {ok, _, CardRes} = epgsql:squery(Conn,binary_to_list(QueryCard)),
-            {ok, {Res, CardRes}};
+            {ok, get_profile_ejson(PlayerRes, CardRes)};
         {ok, _, []} -> {error, player_not_found};
         _ -> {error, get_player_failed}
     end.
@@ -207,7 +236,7 @@ get_player(Conn, PlayerUUID) ->
 %% 得到玩家信息，包含玩家信息，和玩家所持的所有卡牌的具体信息
 %% NOTE: 一般情况下主要用于自己
 
-get_card(Conn, CardUUID) ->
+get_card(Conn, {CardUUID}) ->
     Query = list_to_binary(["select * from cards where id='",CardUUID , "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
@@ -218,7 +247,7 @@ get_card(Conn, CardUUID) ->
 %% ------------------------------------------------------------------------
 %% 获得某位玩家的所有卡牌ID
 %% NOTE: consider to deprecate
-get_player_card(Conn, PlayerUUID) ->
+get_player_card(Conn, {PlayerUUID}) ->
     Query = list_to_binary(["select card_id from player_card_info where player_id = '", PlayerUUID, "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
@@ -230,7 +259,7 @@ get_player_card(Conn, PlayerUUID) ->
 %% ------------------------------------------------------------------------
 %% 更新玩家的预设卡牌ID
 
-update_preset_card(Conn, CardUUID, PlayerUUID) ->
+update_preset_card(Conn, {CardUUID, PlayerUUID}) ->
     Query = list_to_binary(["update players set
         preset_card = '", CardUUID, "', last_modified=now()
         where id = '", PlayerUUID, "';"]),
@@ -242,7 +271,7 @@ update_preset_card(Conn, CardUUID, PlayerUUID) ->
 
 %% ------------------------------------------------------------------------
 %% 更新玩家的预设技能
-update_preset_skills(Conn, SkillList, PlayerUUID) ->
+update_preset_skills(Conn, {SkillList, PlayerUUID}) ->
     Query = list_to_binary(["update players set
         preset_skills= '", SkillList, "', last_modified=now()
         where id = '", PlayerUUID, "';"]),
@@ -256,7 +285,7 @@ update_preset_skills(Conn, SkillList, PlayerUUID) ->
 %% 更新玩家的排名
 %% NOTE: 服务器完成，不提供webAPI
 
-update_ranking(Conn, Ranking, PlayerUUID) ->
+update_ranking(Conn, {Ranking, PlayerUUID}) ->
     Query = list_to_binary(["update players set
         player_ranking = ", Ranking, ", last_modified=now()
         where id = '", PlayerUUID, "';"]),
@@ -270,9 +299,9 @@ update_ranking(Conn, Ranking, PlayerUUID) ->
 %% 更新玩家的级别
 %% NOTE: 服务器完成，不提供webAPI
 
-update_level(Conn, Ranking, PlayerUUID) ->
+update_level(Conn, {Level, PlayerUUID}) ->
     Query = list_to_binary(["update players set
-        player_level = ", Ranking, ", last_modified=now()
+        player_level = ", Level, ", last_modified=now()
         where id = '", PlayerUUID, "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
@@ -282,8 +311,7 @@ update_level(Conn, Ranking, PlayerUUID) ->
 
 %% ------------------------------------------------------------------------
 %% 更新卡牌
-%% NOTE: 服务器完成，不提供webAPI
-update_card( Conn, UpdatedProfile, CardID) ->
+update_card( Conn, {UpdatedProfile, CardUUID}) ->
 
     Query = list_to_binary(["
         update cards set
@@ -306,7 +334,7 @@ update_card( Conn, UpdatedProfile, CardID) ->
         secd_max='", maps:get(secd_max, UpdatedProfile), "',
         secd_min='", maps:get(secd_min, UpdatedProfile), "',
             last_modified=now()
-            where id='", CardID, "';"]),
+            where id='", CardUUID, "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} -> {ok, card_updated};
@@ -364,7 +392,7 @@ is_okay_to_open(Conn, PlayerUUID) ->
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, _, [{<<"t">>}]} -> {ok, okay_to_open};
-        {ok, _} -> {ok, not_okay_to_open};
+        {ok, _, [{<<"f">>}]} -> {ok, not_okay_to_open};
         _ -> {error, is_okay_to_open_failed}
     end.
 
@@ -421,7 +449,11 @@ get_chest_items(Conn, ChestID) ->
     end.
 
 
-check_chest_update(Conn, PlayerID) ->
+check_chest_to_ejson({ID, ChestID, NextChestName, NextOpenTime, IsSameDay}) ->
+    {[{id, ID}, {next_chest_id, ChestID}, {next_chest_name, NextChestName}, {next_open_time, NextOpenTime}, {is_same_day, IsSameDay}]}.
+
+
+check_chest_update(Conn, {PlayerID}) ->
     {ok, CheckResult, IsSameDay} = check_chest(Conn, PlayerID),
 
     case IsSameDay of
@@ -430,18 +462,20 @@ check_chest_update(Conn, PlayerID) ->
             {ok, NewCheckResult, _IsSameDay} = check_chest(Conn, PlayerID),
             {ok, NewCheckResult};
         _ ->
-            {ok, CheckResult}
+            {ok, check_chest_to_ejson(CheckResult)}
     end.
 
-open_chest_update(Conn, PlayerID) ->
-    {ok, IsOkayToOpen} = is_okay_to_open(Conn, PlayerID),
+open_chest_update(Conn, {PlayerID}) ->
+    {_, IsOkayToOpen} = is_okay_to_open(Conn, PlayerID),
 
-    {ok, Res} = case IsOkayToOpen of
+    {_Status, Res} = case IsOkayToOpen of
         okay_to_open ->
             {ok, opened_chest} = open_chest(Conn, PlayerID),
             {ok, {ChestID, _DroppedNumberBin}} = get_chest_item_types(Conn, PlayerID),
             get_chest_items(Conn, ChestID);
-        _ ->
-            {ok, not_okay_to_open}
+        not_okay_to_open ->
+            {ok, not_okay_to_open};
+        Reason ->
+            {error, Reason}
         end,
     {ok, Res}.

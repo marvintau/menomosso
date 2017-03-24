@@ -9,21 +9,22 @@
 -export([add_new_player_test/1]).
 
 all() ->
-    [{group, dungeon_base_server_group}].
+    [{group, dungeon_group}].
 
 groups() ->
-    [{dungeon_base_server_group, [], [add_new_player_test]}].
+    [{dungeon_group, [], [add_new_player_test]}].
 
-init_per_group(dungeon_base_server_group, Config) ->
+init_per_group(dungeon_group, Config) ->
     Args = [{host, "localhost"}, {username, "yuetao"}, {password, "asdsadasd"}, {database, "dungeon"}, {timeout, 100}],
-    dungeon_base_server:start(Args),
+    dungeon_base_test_server:start(Args),
+    ct:print(default, 90, "hahaha"),
     Config.
 
-end_per_group(dungeon_base_server_group, _Config)->
-    dungeon_base_server:stop().
+end_per_group(dungeon_group, _Config)->
+    dungeon_base_test_server:stop().
 
 add_new_player_test(_Config) ->
-    {ok, Res} = dungeon_base_server:add_new_player(),
+    {ok, Res} = dungeon_base_test_server:add_new_player(),
     ct:print(default, 90, "hahaha ~62tp~n", [Res]).
 
 chest(Config) ->

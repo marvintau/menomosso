@@ -7,7 +7,9 @@
    [kernel,
     stdlib,
     epgsql,
-    poolboy
+    cowboy,
+    poolboy,
+    gun
    ]},
   {env,[]},
   {modules, []},
