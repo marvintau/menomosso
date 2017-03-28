@@ -7,6 +7,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -export([
+    start/1,
     start_link/1,
     stop/0,
 
@@ -17,6 +18,7 @@
     get_player/1,
     get_player_list/0,
     get_card/1,
+    get_card_battle/1,
 
     update_preset_card/2,
     update_preset_skills/2,
@@ -27,6 +29,9 @@
     open_chest/1
 ]).
 
+
+start(Args) ->
+    gen_server:start({local, ?MODULE}, ?MODULE, Args, []).
 
 start_link(Args) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
@@ -40,7 +45,7 @@ add_new_player() ->
     gen_server:call(?MODULE, {q, add_new_player, {}}).
 
 add_new_card() ->
-    gen_server:call(?MODULE, {q, add_card, {}}).
+    gen_server:call(?MODULE, {q, add_new_card, {}}).
 
 get_player_list() ->
     gen_server:call(?MODULE, {q, get_player_list, {}}).
@@ -59,6 +64,9 @@ get_player(PlayerID) ->
 get_card(CardID) ->
     gen_server:call(?MODULE, {q, get_card, {CardID}}).
 
+
+get_card_battle(CardID) ->
+    gen_server:call(?MODULE, {q, get_card_battle, {CardID}}).
 
 
 update_preset_card(CardID, PlayerID) ->
@@ -92,14 +100,17 @@ init(Args)->
     Database = proplists:get_value(database, Args),
     Timeout = proplists:get_value(timeout, Args),
 
-    case dungeon_query:connect(Host, User, Password, Database, Timeout) of
+
+    Res = case dungeon_query:connect(Host, User, Password, Database, Timeout) of
         {ok, Conn} ->
-            error_logger:info_report("DungenBase connected."),
+            erlang:display({'DungenBase', connected}),
             {ok, #{conn=>Conn}};
         {error, Error} ->
-            error_logger:info_report("DungenBase connection failed."),
+            erlang:display({'DungenBase', connection, failed}),
             {error, Error}
-    end.
+    end,
+
+    Res.
 
 handle_call({q, Operation, Args}, _From, #{conn:=Conn}=State) ->
     {reply, dungeon_query:Operation(Conn, Args), State};

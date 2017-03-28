@@ -13,7 +13,9 @@
     get_player/2,
     get_player_list/2,
     get_player_card/2,
+
     get_card/2,
+    get_card_battle/2,
 
     update_preset_card/2,
     update_preset_skills/2,
@@ -157,16 +159,16 @@ add_new_card(Conn, _) ->
     quickrand:seed(),
     CardID = uuid:uuid_to_string(uuid:get_v4_urandom()),
 
-    Query = list_to_binary(["insert into cards(
-        id, card_name, image_name, profession,
-        range_type, hp, armor, agi, hit, block,
-        dodge, resist, critical, last_added, last_modified) value
-        ('", CardID, "', '新卡牌', 'image_placehoder',
-        'rogue', 'near', 2700, 4500, 75, 35, 0,
-        30, 35, 30, now(), now())"]),
+    Query = list_to_binary([
+        "insert into cards(id, card_name, image_name, profession,
+         range_type, hp, armor, agi, hit, block, dodge, resist,
+         critical, atk_type, atk_max, atk_min, last_added, last_modified) values
+        ('", CardID, "', 'NEWCARD', 'image_placehoder','rogue',
+        'near', 2700, 4500, 75, 35, 0, 30, 35, 30, 'physical',
+        350, 300, now(), now())"]),
 
-    {ok, _, [Res]} = epgsql:squery(Conn, binary_to_list(Query)),
-    {ok, Res}.
+    {ok, 1} = epgsql:squery(Conn, binary_to_list(Query)),
+    {ok, CardID}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -179,7 +181,7 @@ get_player_list(Conn, _) ->
     Query = list_to_binary(["select * from players ;"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, _, Players} -> {ok, [get_player_ejson(Player) || Player <- Players]};
+        {ok, _, Players} -> {ok, [get_player_map(Player) || Player <- Players]};
         _ -> {error, get_player_list_failed}
     end.
 
@@ -193,22 +195,68 @@ reform_preset_skills(PresetSkillBinary) ->
     Trimmed = list_to_binary(tl(lists:droplast(binary_to_list(PresetSkillBinary)))),
     binary:split(Trimmed, <<",">>, [global]).
 
-get_player_ejson({ID, Name, Level, PresetCardID, PresetSkills, Rank, _, _}) ->
+get_player_map({ID, Name, Level, PresetCardID, PresetSkills, Rank, _, _}) ->
     
-    {[{id, ID}, {player_name, Name}, {level, Level}, {preset_card_id, PresetCardID}, {preset_skills, PresetSkills}, {rank, Rank}]}.
+    #{id => ID, player_name => Name, level => Level, preset_card_id => PresetCardID, preset_skills => PresetSkills, rank => Rank}.
 
-get_card_ejson({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, _, _}) ->
+get_card_map({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
     
-    {[{id, ID}, {card_name, CardName}, {image_name, ImageName}, {class, Class},
-         {range_type, RangeType}, {hp, HP}, {armor, Armor}, {agility, Agility},
-         {hit, Hit}, {block, Block}, {dodge, Dodge}, {resist, Resist},
-         {critical, Critical}]}.
+    #{id => ID, card_name => CardName, image_name => ImageName, class => Class,
+         range_type => RangeType, hp => HP, armor => Armor, agility => Agility,
+         hit => Hit, block => Block, dodge => Dodge, resist => Resist,
+         critical => Critical}.
 
-get_profile_ejson(PlayerRes, CardRes) ->
+
+get_card_map_battle({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
+    
+    Attr = #{
+
+        diff => 0,
+        attack_disabled => 0,
+        cast_disabled => 0,
+        is_frozen => 0,
+        is_stunned => 0,
+        is_disarmed => 0,
+        damage_multiplier => 1,
+        critical_multiplier => 2,
+        damage_addon => 0,
+        damage_taken => 0,
+
+        atk_type => binary_to_atom(AtkType, utf8),
+        atk_range => {range, binary_to_integer(AtkMin), binary_to_integer(AtkMax)},
+        armor => binary_to_integer(Armor),
+        agility => binary_to_integer(Agility),
+        hit => binary_to_integer(Hit),
+        block => binary_to_integer(Block),
+        dodge => binary_to_integer(Dodge),
+        resist => binary_to_integer(Resist),
+        critical => binary_to_integer(Critical),
+
+        outcome => null
+
+    },
+
+    #{
+        card_name => CardName,
+        class => Class,
+        range_type => binary_to_atom(RangeType, utf8),
+
+        state => #{
+            hp => binary_to_integer(HP),
+            diff => 0,
+            pos => 2,
+            pos_move => stand
+        },
+
+        orig_attr => Attr,
+        attr => Attr
+    }.
+
+get_profile_map(PlayerRes, CardRes) ->
     
     UpdatedPlayerRes = setelement(5, PlayerRes, reform_preset_skills(element(5, PlayerRes))),
 
-    {[{player_profile, get_player_ejson(UpdatedPlayerRes)}, {card_profiles, [get_card_ejson(Card) || Card <- CardRes]}]}.
+    #{player_profile => get_player_map(UpdatedPlayerRes), card_profiles => [get_card_map(Card) || Card <- CardRes]}.
 
 
 get_player(Conn, {PlayerUUID}) ->
@@ -226,11 +274,10 @@ get_player(Conn, {PlayerUUID}) ->
         {ok, _, [PlayerRes]} ->
 
             {ok, _, CardRes} = epgsql:squery(Conn,binary_to_list(QueryCard)),
-            {ok, get_profile_ejson(PlayerRes, CardRes)};
+            {ok, get_profile_map(PlayerRes, CardRes)};
         {ok, _, []} -> {error, player_not_found};
         _ -> {error, get_player_failed}
     end.
-
 
 %% ------------------------------------------------------------------------
 %% 得到玩家信息，包含玩家信息，和玩家所持的所有卡牌的具体信息
@@ -240,7 +287,15 @@ get_card(Conn, {CardUUID}) ->
     Query = list_to_binary(["select * from cards where id='",CardUUID , "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, _, [Res]} -> {ok, Res};
+        {ok, _, [Res]} -> {ok, get_card_map(Res)};
+        _ -> {error, get_card_failed}
+    end.
+
+get_card_battle(Conn, {CardUUID}) ->
+    Query = list_to_binary(["select * from cards where id='",CardUUID , "';"]),
+
+    case epgsql:squery(Conn, binary_to_list(Query)) of
+        {ok, _, [Res]} -> {ok, get_card_map_battle(Res)};
         _ -> {error, get_card_failed}
     end.
 
@@ -449,7 +504,7 @@ get_chest_items(Conn, ChestID) ->
     end.
 
 
-check_chest_to_ejson({ID, ChestID, NextChestName, NextOpenTime, IsSameDay}) ->
+check_chest_to_map({ID, ChestID, NextChestName, NextOpenTime, IsSameDay}) ->
     {[{id, ID}, {next_chest_id, ChestID}, {next_chest_name, NextChestName}, {next_open_time, NextOpenTime}, {is_same_day, IsSameDay}]}.
 
 
@@ -462,7 +517,7 @@ check_chest_update(Conn, {PlayerID}) ->
             {ok, NewCheckResult, _IsSameDay} = check_chest(Conn, PlayerID),
             {ok, NewCheckResult};
         _ ->
-            {ok, check_chest_to_ejson(CheckResult)}
+            {ok, check_chest_to_map(CheckResult)}
     end.
 
 open_chest_update(Conn, {PlayerID}) ->
