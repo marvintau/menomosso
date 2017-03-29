@@ -21,7 +21,7 @@
     get_card_battle/1,
 
     update_preset_card/2,
-    update_preset_skills/2,
+    update_selected_skills/2,
     update_player_ranking/2,
     update_player_level/2,
 
@@ -72,8 +72,8 @@ get_card_battle(CardID) ->
 update_preset_card(CardID, PlayerID) ->
     gen_server:call(?MODULE, {q, update_preset_card, {CardID, PlayerID}}).
 
-update_preset_skills(Skills, PlayerID) ->
-    gen_server:call(?MODULE, {q, update_preset_skills, {Skills, PlayerID}}).
+update_selected_skills(Skills, PlayerID) ->
+    gen_server:call(?MODULE, {q, update_selected_skills, {Skills, PlayerID}}).
 
 update_player_ranking(Ranking, PlayerID) ->
     gen_server:call(?MODULE, {q, update_player_ranking, {Ranking, PlayerID}}).

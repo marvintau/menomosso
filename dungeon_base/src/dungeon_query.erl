@@ -8,7 +8,7 @@
 
     add_new_player/2,
     add_new_card/2,
-    add_player_card/2, 
+    add_player_card/2,
 
     get_player/2,
     get_player_list/2,
@@ -18,7 +18,7 @@
     get_card_battle/2,
 
     update_preset_card/2,
-    update_preset_skills/2,
+    update_selected_skills/2,
     update_ranking/2,
     update_level/2,
     update_card/2,
@@ -190,49 +190,50 @@ get_player_list(Conn, _) ->
 %% 得到玩家信息，包含玩家信息，和玩家所持的所有卡牌的具体信息
 %% NOTE: 一般情况下主要用于自己
 
-reform_preset_skills(PresetSkillBinary) ->
-    
+reform_selected_skills(PresetSkillBinary) ->
+
     Trimmed = list_to_binary(tl(lists:droplast(binary_to_list(PresetSkillBinary)))),
-    binary:split(Trimmed, <<",">>, [global]).
+    [binary_to_atom(Skill, utf8) || Skill <- binary:split(Trimmed, <<",">>, [global])].
 
 get_player_map({ID, Name, Level, PresetCardID, PresetSkills, Rank, _, _}) ->
-    
-    #{id => ID, player_name => Name, level => Level, preset_card_id => PresetCardID, preset_skills => PresetSkills, rank => Rank}.
 
-get_card_map({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
-    
+    #{id => ID, player_name => Name, level => Level, preset_card_id => PresetCardID, selected_skills => reform_selected_skills(PresetSkills), rank => Rank}.
+
+get_card_map({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, _AtkType, _AtkMax, _AtkMin, _, _}) ->
+
     #{id => ID, card_name => CardName, image_name => ImageName, class => Class,
          range_type => RangeType, hp => HP, armor => Armor, agility => Agility,
+        %  atk_type => AtkType, atk_max => AtkMax, atk_min => AtkMin,
          hit => Hit, block => Block, dodge => Dodge, resist => Resist,
          critical => Critical}.
 
 
-get_card_map_battle({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
-    
+get_card_map_battle({_ID, CardName, _ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
+
     Attr = #{
 
-        diff => 0,
-        attack_disabled => 0,
-        cast_disabled => 0,
-        is_frozen => 0,
-        is_stunned => 0,
-        is_disarmed => 0,
-        damage_multiplier => 1,
-        critical_multiplier => 2,
-        damage_addon => 0,
-        damage_taken => 0,
+        diff => {single, 0},
+        attack_disabled => {single, 0},
+        cast_disabled => {single, 0},
+        is_frozen => {single, 0},
+        is_stunned => {single, 0},
+        is_disarmed => {single, 0},
+        damage_multiplier => {single, 1},
+        critical_multiplier => {single, 2},
+        damage_addon => {single, 0},
+        damage_taken => {single, 0},
 
-        atk_type => binary_to_atom(AtkType, utf8),
-        atk_range => {range, binary_to_integer(AtkMin), binary_to_integer(AtkMax)},
-        armor => binary_to_integer(Armor),
-        agility => binary_to_integer(Agility),
-        hit => binary_to_integer(Hit),
-        block => binary_to_integer(Block),
-        dodge => binary_to_integer(Dodge),
-        resist => binary_to_integer(Resist),
-        critical => binary_to_integer(Critical),
+        atk_type => {single, binary_to_atom(AtkType, utf8)},
+        atk_range => {range, -binary_to_integer(AtkMax), -binary_to_integer(AtkMin)},
+        armor => {single, binary_to_integer(Armor)},
+        agility => {single, binary_to_integer(Agility)},
+        hit => {single, binary_to_integer(Hit)},
+        block => {single, binary_to_integer(Block)},
+        dodge => {single, binary_to_integer(Dodge)},
+        resist => {single, binary_to_integer(Resist)},
+        critical => {single, binary_to_integer(Critical)},
 
-        outcome => null
+        outcome => {single, null}
 
     },
 
@@ -241,11 +242,13 @@ get_card_map_battle({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agili
         class => Class,
         range_type => binary_to_atom(RangeType, utf8),
 
+        effects => [],
+
         state => #{
-            hp => binary_to_integer(HP),
-            diff => 0,
-            pos => 2,
-            pos_move => stand
+            hp => {single, binary_to_integer(HP)},
+            diff => {single, 0},
+            pos => {single, 2},
+            pos_move => {single, stand}
         },
 
         orig_attr => Attr,
@@ -253,15 +256,15 @@ get_card_map_battle({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agili
     }.
 
 get_profile_map(PlayerRes, CardRes) ->
-    
-    UpdatedPlayerRes = setelement(5, PlayerRes, reform_preset_skills(element(5, PlayerRes))),
+
+    UpdatedPlayerRes = setelement(5, PlayerRes, reform_selected_skills(element(5, PlayerRes))),
 
     #{player_profile => get_player_map(UpdatedPlayerRes), card_profiles => [get_card_map(Card) || Card <- CardRes]}.
 
 
 get_player(Conn, {PlayerUUID}) ->
     QueryProfile = list_to_binary(["select * from players where id='", PlayerUUID,"';"]),
-    
+
     Profile = epgsql:squery(Conn,binary_to_list(QueryProfile)),
 
     QueryCard = list_to_binary(["select cards.* from (
@@ -326,14 +329,14 @@ update_preset_card(Conn, {CardUUID, PlayerUUID}) ->
 
 %% ------------------------------------------------------------------------
 %% 更新玩家的预设技能
-update_preset_skills(Conn, {SkillList, PlayerUUID}) ->
+update_selected_skills(Conn, {SkillList, PlayerUUID}) ->
     Query = list_to_binary(["update players set
-        preset_skills= '", SkillList, "', last_modified=now()
+        selected_skills= '", SkillList, "', last_modified=now()
         where id = '", PlayerUUID, "';"]),
 
     case epgsql:squery(Conn,binary_to_list(Query)) of
-        {ok, 1} -> {ok, preset_skills_updated};
-        _ -> {error, update_preset_skills_failed}
+        {ok, 1} -> {ok, selected_skills_updated};
+        _ -> {error, update_selected_skills_failed}
     end.
 
 %% ------------------------------------------------------------------------

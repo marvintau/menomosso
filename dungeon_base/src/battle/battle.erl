@@ -9,12 +9,12 @@ rand() ->
 
 % ------------- HELPER FUNCTION FOR CHOOSING NEW OFFENDER --------------
 
-toss(#{casts:=[rune_of_the_void|_], id:=A}, _) -> A;
-toss(_, #{casts:=[rune_of_the_void|_], id:=B}) -> B;
+toss(#{selected_skills:=[rune_of_the_void|_], id:=A}, _) -> A;
+toss(_, #{selected_skills:=[rune_of_the_void|_], id:=B}) -> B;
 
-toss(#{id:=A, attr:=#{agility:=AgiA}},
-     #{id:=B, attr:=#{agility:=AgiB}}) ->
-    case rand() * (AgiA + AgiB) > AgiA of
+toss(#{id:=A, attr:=#{agility:={single, AgiA}}},
+     #{id:=B, attr:=#{agility:={single, AgiB}}}) ->
+    case rand:uniform() * (AgiA + AgiB) > AgiA of
         true -> B;
         _    -> A
     end.
@@ -25,8 +25,9 @@ refresh_attributes(#{orig_attr := OrigA} = PlayerA, #{orig_attr := OrigB} = Play
 
 
 next_state(#{stage:=casting, seq:=Seq}=S, A, B) ->
-    erlang:display({"=============", new_round, Seq+1}),
-    S#{stage:=settling, seq:=Seq+1, offender:=toss(A, B)};
+    Offender = toss(A, B),
+    erlang:display({"=============", begin_settling, Seq+1, Offender, first}),
+    S#{stage:=settling, seq:=Seq+1, offender=>Offender};
 
 next_state(#{stage:=settling}=S, _, _) ->
     erlang:display({"=============", begin_casting}),
@@ -34,15 +35,21 @@ next_state(#{stage:=settling}=S, _, _) ->
 
 
 apply_move_both(#{stage:=settling}=S, A, B, L) ->
-    {OpA, OpB, OpLog} = effect:apply(S, A, B, L),
-    {Op2B, Op2A, Op2Log} = effect:apply(S, OpB, OpA, OpLog),
+    {OpA, OpB, OpLog} = cast:effect(S, A, B, L),                                % A上回合遗留下来的出招前的效果
+    {Op2B, Op2A, Op2Log} = cast:effect(S, OpB, OpA, OpLog),                     % B上回合遗留下来的出招前效果
     {Op2A, Op2B, Op2Log};
 
 apply_move_both(#{stage:=casting}=S, A, B, L) ->
-    {OpA, OpB, OpLog} = cast:apply(S, A, B, L),
-    {Op2B, Op2A, Op2Log} = cast:apply(S, OpB, OpA, OpLog),
-    {RefreshedA, RefreshedB} = refresh_attributes(Op2A, Op2B),
-    {RefreshedA, RefreshedB, Op2Log}.
+    {OpA, OpB, OpLog} = cast:cast(S, A, B, L),                                  % A出招
+    {OpEffA, OpEffB, OpEffLog} = cast:effect(S, OpA, OpB, OpLog),               % A的追加技能效果
+    {OpEff2B, OpEff2A, OpEff2Log} = cast:effect(S, OpEffB, OpEffA, OpEffLog),   % B的反应技能效果
+
+    {Op2B, Op2A, Op2Log} = cast:cast(S, OpEff2B, OpEff2A, OpEff2Log),               % B出招
+    {Op2EffA, Op2EffB, Op2EffLog} = cast:effect(S, Op2A, OpB, Op2Log),              % B的追加技能效果
+    {Op2Eff2B, Op2Eff2A, Op2Eff2Log} = cast:effect(S, Op2EffB, Op2EffA, Op2EffLog), % A的反应出招效果
+
+    {RefreshedA, RefreshedB} = refresh_attributes(Op2Eff2A, Op2Eff2B),
+    {RefreshedA, RefreshedB, Op2Eff2Log}.
 
 
 apply_move_ordered(#{offender:=Off}=S, #{id:=Off}=A, B, L) ->
@@ -61,29 +68,24 @@ apply_move_ordered(#{offender:=Off}=S, A, #{id:=Off}=B, L) ->
 % When exiting the main loop, the log will be reversed to it's natural
 % order.
 
-loop(_, #{state:=#{hp:=HP1}, id:=I1}, #{state:=#{hp:=HP2}, id:=I2}, Log) when HP1 < 0 orelse HP2 < 0 ->
-
-    Winner = if HP1 < 0 -> I2;
-                HP2 < 0 -> I1
-             end,
-
-    {done, 
-        {records, lists:reverse([L || L <- Log, L =/= {[]}])}, {winner,Winner}
-    };
+loop(_, #{state:=#{hp:={single, HA}}, id:=I1}, #{state:=#{hp:={single, HB}}, id:=I2}, Log) when HA < 0 orelse HB < 0 ->
+    erlang:display({ended, someone_died});
+loop(_, #{selected_skills:=[], id:=I1}, #{selected_skills:=[], id:=I2}, Log)->
+    erlang:display({ended, no_skills});
 
 
 % ------------------------- LOOP FOR CAST -----------------------------
 
 loop(State, A, B, L) ->
 
-    {AppliedA, AppliedB, AppliedLog} = apply_move_ordered(State, A, B, L),
+    {#{state:=#{hp:=HPA}}=AppliedA, #{state:=#{hp:=HPB}}=AppliedB, AppliedLog} = apply_move_ordered(State, A, B, L),
+    erlang:display({HPA, HPB}),
 
     loop(next_state(State, A, B), AppliedA, AppliedB, AppliedLog).
 
 
-start({P1, P2}) ->
+start({A, B}) ->
 
     erlang:display(battle_begins),
 
-    loop(#{seq=>0, stage=>casting}, P1, P2, []).
-
+    loop(next_state(#{seq=>0, stage=>casting}, A, B), A, B, []).

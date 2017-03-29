@@ -12,13 +12,15 @@ bin(GivenVal, Accum, _, Ith) when GivenVal < Accum -> Ith;
 bin(GivenVal, Accum, [Bin|Bins], Ith) -> bin(GivenVal, Accum+Bin, Bins, Ith+1).
 
 % 计算转盘
-roulette(AttackSpec, #{attr:=#{hit:=Hit, critical:=Crit}}, #{attr:=#{resist:=Res, block:=Blo, dodge:=Dod}} )->
+roulette(AttackSpec,
+        #{attr:=#{hit:={single, Hit}, critical:={single, Crit}}},
+        #{attr:=#{resist:={single, Res}, block:={single, Blo}, dodge:={single, Dod}}} )->
 
     % 获得攻击属性（魔法／物理），放招类型（普攻／技能），是否可以抵抗，是否护甲减免（不考虑），技能失败概率
     {AttrType, MoveType, Resistable, _Absorbable, FL}  = AttackSpec,
 
     % 实际的抗性：如果技能不可抵抗，那么实际的魔抗值为0
-    ActualRes = case Resistable of 
+    ActualRes = case Resistable of
         resistable -> Res;
         _ -> 0
     end,
@@ -42,7 +44,7 @@ roulette(AttackSpec, #{attr:=#{hit:=Hit, critical:=Crit}}, #{attr:=#{resist:=Res
         {magic, attack}    -> {0, ActualRes, 0, Crit, ActualFL};
 
         {physical, attack} -> {ActualDod, 0, Blo, Crit, ActualFL};
-    
+
         {magic, cast}      -> {0, ActualRes, 0, 0, ActualFL};
 
         {physical, cast}   -> {0, 0, 0, Crit, ActualFL};
@@ -68,9 +70,9 @@ roulette(AttackSpec, #{attr:=#{hit:=Hit, critical:=Crit}}, #{attr:=#{resist:=Res
     Result.
 
 
-repose(#{range_type:=RangeType, state:=#{pos:=PosO}, attr:=#{outcome:=Outcome}},
-       #{state:=#{pos:=PosD, hp:=HPD}, attr:=#{is_frozen:=IsFrozen, is_disarmed:=IsDisarmed, is_stunned:=IsStunned}}) ->
-    
+repose(#{range_type:=RangeType, state:=#{pos:={single, PosO}}, attr:=#{outcome:={single, Outcome}}},
+       #{state:=#{pos:={single, PosD}, hp:={single, HPD}}, attr:=#{is_frozen:={single, IsFrozen}, is_disarmed:={single, IsDisarmed}, is_stunned:={single, IsStunned}}}) ->
+
     % 根据近战远战类型决定追逃动作
     {NewPosO, NewPosD, NewPosMoveO, NewPosMoveD} = case RangeType of
 
@@ -95,7 +97,7 @@ repose(#{range_type:=RangeType, state:=#{pos:=PosO}, attr:=#{outcome:=Outcome}},
 
         far ->
             {PosO, PosD, stand, not_assigned_yet}
-    
+
     end,
 
     % 决定击飞动作
@@ -108,7 +110,7 @@ repose(#{range_type:=RangeType, state:=#{pos:=PosO}, attr:=#{outcome:=Outcome}},
             (BlownRand > 0.9) and (IsFrozen == 0) and (IsDisarmed == 0) and (IsStunned == 0)
             and (Outcome /= dodged) and (Outcome /=blocked) and (Outcome /= resisted) or (HPD =< 0) ->
             {NewPosD - 1, blown_out};
-        _ -> {NewPosD, NewPosMoveD}
+        _ -> {NewPosD, stand}
     end,
 
     {NewPosO, NewPosD2, NewPosMoveO, NewPosMoveD2}.
@@ -127,16 +129,15 @@ repose(#{range_type:=RangeType, state:=#{pos:=PosO}, attr:=#{outcome:=Outcome}},
 % and Value of number, interval or {type, attribute, off/def} triple.
 
 
-trans({set, Imm, _}, Ref) ->
-    erlang:display(Imm),
+trans({set, Imm, _, _}, Ref) ->
 	ref:set(Ref, Imm);
 
 %% 当Inc < 0，且作用的属性是HP时，即是造成伤害，进入伤害处理程序
 trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, state, hp, P}=ToWhom) when Damage < 0 ->
-    
+
     %% 处理护甲减免
     AbsorbedDamage = case Absorbable of
-        absorbable -> 
+        absorbable ->
             erlang:display(ref:val({attr, attr, armor, P})),
             ArmorRatio = 1 - ref:val({attr, attr, armor, P}) * 0.0001,
             Damage * ArmorRatio;
@@ -144,33 +145,33 @@ trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, state, hp, P}=ToW
             Damage
         end,
 
-    erlang:display({absorbed, Absorbable, AbsorbedDamage}),
+    % erlang:display({absorbed, Absorbable, AbsorbedDamage}),
     %% 处理转盘结果
 
-    CalculatedDamage = case ref:val({attr, attr, outcome, P}) of
+    CalculatedDamage = case Outcome of
         critical ->
             CritMult = ref:val({attr, attr, critical_multiplier, P}),
-            AbsorbedDamage * CritMult;            
+            AbsorbedDamage * CritMult;
         attack ->
+            AbsorbedDamage;
+        cast ->
             AbsorbedDamage;
         resisted ->
             AbsorbedDamage / 10 * rand:uniform();
-        _ -> 0    
+        _ -> 0
     end,
-    
-    FinalDamage = CalculatedDamage * ref:val({attr, attr, damage_multiplier, P}),
-    erlang:display({final, CalculatedDamage}),
 
-    trans({set, ref:val(ToWhom) + FinalDamage, none}, ToWhom);
+    FinalDamage = CalculatedDamage * ref:val({attr, attr, damage_multiplier, P}),
+    trans({set, ref:val(ToWhom) + FinalDamage, none, none}, ToWhom);
 
 trans({add, Inc, _, Outcome}, ToWhom) ->
-    trans({set, ref:val(ToWhom) + Inc, none}, ToWhom);
+    trans({set, ref:val(ToWhom) + Inc, none, none}, ToWhom);
 
 trans({add_mul, Mul, AttackSpec, Outcome}, ToWhom) ->
-    trans({add, ref:val(ToWhom) * Mul, AttackSpec}, ToWhom);
+    trans({add, ref:val(ToWhom) * Mul, AttackSpec, Outcome}, ToWhom);
 
 trans({add_inc_mul, {Inc, Mul}, AttackSpec, Outcome}, ToWhom) ->
-    trans({add, Inc * Mul, AttackSpec}, ToWhom).
+    trans({add, Inc * Mul, AttackSpec, Outcome}, ToWhom).
 
 
 trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
@@ -183,19 +184,21 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
 
     % 得到转盘结果
     Outcome = roulette(AttackSpec, O, D),
-    
+
     % 将转盘结果加入玩家context，并按结果计算伤害／技能效果，把结果保存在TransPsn里面
     #{attr:=PsnAttr} = Psn = ref:who(P, O, D),
-    TransPsn = trans:trans({Opcode, RefOperand, AttackSpec}, {attr, Type, Attr, Psn}),
+    TransPsn = trans:trans({Opcode, RefOperand, AttackSpec, Outcome}, {attr, Type, Attr, Psn}),
 
     {#{attr:=AttrO, state:=StateO}=TransO, #{state:=StateD}=TransD} = case P of
-        off ->  {Psn, D};
-        def ->  {O, Psn}
+        off ->  {TransPsn, D};
+        def ->  {O, TransPsn}
     end,
 
-    {PosO, PosD, PosMoveO, PosMoveD} = repose(TransO#{attr:=AttrO#{outcome:=Outcome}}, TransD),
-    {TransO#{attr:=AttrO#{outcome:=Outcome}, state:=StateO#{pos:=PosO, pos_move:=PosMoveO}},
-     TransD#{state:=StateD#{pos:=PosD, pos_move:=PosMoveD}}}.
+    % erlang:display(StateD),
+
+    {PosO, PosD, PosMoveO, PosMoveD} = repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD),
+    {TransO#{attr:=AttrO#{outcome:={single, Outcome}}, state:=StateO#{pos:={single, PosO}, pos_move:={single, PosMoveO}}},
+     TransD#{state:=StateD#{pos:={single, PosD}, pos_move:={single, PosMoveD}}}}.
 
 
 
@@ -206,21 +209,15 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
 
 % Accepts cond description
 
-apply({{_, Last, _}, _}, TransList, O, D) ->
-    apply(Last, TransList, O, D, []).
+apply(S, TransList, O, D) ->
+    apply(S, TransList, O, D, []).
 
-apply(Last, [Trans | RemTrans], #{id:=OID}=O, #{id:=DID}=D, Logs) ->
+apply(S, [Trans | RemTrans], #{id:=OID, player_name:=Name}=O, #{id:=DID}=D, Logs) ->
 
-    {{Status, {_, Attr, P}, Diff}, TransedO, TransedD} = trans(Trans, O, D),
+    erlang:display({Name, Trans}),
+    {TransedO, TransedD} = trans(Trans, O, D),
 
-    Log = {[
-        {status, Status},
-        {last_round, Last},
-            {dest, {[{attr, Attr}, {role, ref:who(P, OID, DID)}]}},
-        {diff, Diff}
-    ]},
+    apply(S, RemTrans, TransedO, TransedD, Logs);
 
-    apply(Last, RemTrans, TransedO, TransedD, [ Log | Logs]);
-
-apply(_Last, [], O, D, Logs) ->
+apply(_S, [], O, D, Logs) ->
     {O, D, Logs}.

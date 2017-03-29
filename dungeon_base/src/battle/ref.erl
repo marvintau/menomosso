@@ -13,20 +13,22 @@ get({attr, AttrType, Attr, Whose}) ->
 
 set({attr, AttrType, Attr, Whose}=Ref, Val) when is_number(Val) ->
 	#{AttrType:=AttrSet} = Whose,
-	Whose#{AttrType:=AttrSet#{ Attr:=round(Val), diff:=round(Val-get(Ref)) }};
+	Res = Whose#{AttrType:=AttrSet#{ Attr:={single, round(Val)}, diff:={single, round(Val-val(Ref))} }},
+	Res;
 
 set({attr, AttrType, Attr, Whose}, Val) ->
 	#{AttrType:=AttrSet} = Whose,
 	Whose#{AttrType:=AttrSet#{ Attr:=round(Val) }}.
 
 
-val({attr, _, _, _}=Ref) ->
-	get(Ref);
-
 val({range, Low, High}) ->
     round(Low + rand:uniform() * (High - Low));
 
-val({single, SingleValue}) -> SingleValue.
+val({single, SingleValue}) -> SingleValue;
+
+val({attr, AttrType, Attr, Whose} = Ref) ->
+	#{AttrType:=#{Attr:=Val}} = Whose,
+	val(Val).
 
 
 

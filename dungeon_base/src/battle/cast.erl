@@ -2,7 +2,7 @@
 
 -author('Yue Marvin Tao').
 
--export([apply/4]).
+-export([cast/4, effect/4]).
 
 
 rand() -> element(3, erlang:timestamp())/1000000.
@@ -12,67 +12,71 @@ rand() -> element(3, erlang:timestamp())/1000000.
 % latter function is the actual entrance that takes cast name as argument, and
 % find the specification in database, and re-interpret it with battle context.
 
-parse_single_effect(Name, {Cond, Trans}, #{seq:=CurrSeq, mover:=Mover}) ->
-    {Name, Mover, conds:seq(Cond, CurrSeq), Trans}.
+parse_single_effect(Name, {Cond, Trans} = EffectSpec, #{seq:=CurrSeq, offender:=Offender}, SelectedSkills) ->
+    {Name, Offender, conds:seq(Cond, CurrSeq, SelectedSkills), Trans}.
 
-parse_single_group(Name, {Prob, Effects}, S) ->
-    case rand() < Prob of
-        true -> lists:map(fun(Spec) -> parse_single_effect(Name, Spec, S) end, Effects);
+parse_single_group(Name, {Prob, EffectSpecs}, S, SelectedSkills) ->
+    case rand() > Prob of
+        true ->
+
+            [parse_single_effect(Name, EffectSpec, S, SelectedSkills) || EffectSpec <- EffectSpecs];
         _ ->    bad_luck
     end.
 
-parse_groups(Name, Groups, S) ->
-   [parse_single_group(Name, Group, S) || Group <- Groups]. 
-
-log(CastName, CurrEffect, #{seq:=Seq, stage:=Stage, mover:=Mover}, #{state:=#{position:=PosO}}=O, #{state:=#{position:=PosD}}=D) ->
-
-    {[
-        { seq, Seq }, {stage, Stage}, { offender, Mover },
-        { action, CastName},
-        { effects, [] }, 
-        { offenderHP, maps:get(hp, maps:get(state, O)) },
-        { defenderHP, maps:get(hp, maps:get(state, D)) },
-        { offenderPos, PosO}, {defenderPos, PosD},
-        { offenderPosAct, none}, {defenderPosAct, none}
-    ]}.
+parse_cast({Name, Class, Points, Groups}, S, SelectedSkills) ->
+   lists:concat([parse_single_group(Name, Group, S, SelectedSkills) || Group <- Groups]).
 
 
-parse_groups_logged({Name, _Type, Groups}, S, O, D) ->
-    Parsed = parse_groups(Name, Groups, S),
-    {Logs, Effects} = lists:unzip([{log(Name, CurrEffect, S, O, D), CurrEffect} || CurrEffect <- Parsed]),
-    {Logs, [Effect || Effect <- lists:flatten(Effects), Effect =/= bad_luck]}.
 
-parse_cast(Name, S, O, D) ->
-    parse_groups_logged(hd(ets:lookup(casts, Name)), S, O, D).
-
-cast(_S, #{casts:=[]}=O, D, L) ->
+cast(_S, #{attr:=#{cast_disabled:={single, cast_disabled}}}=O, D, L) ->
     {O, D, L};
 
-cast(_S, #{casts:=[none | RemainingCasts]}=O, D, L) ->
-    {O#{casts:=RemainingCasts}, D, L};
+cast(_S, #{selected_skills:=[]}=O, D, L) ->
+    {O, D, L};
 
-cast(S, #{casts:=[CastName | RemainingCasts], effects:=ExistingEffects}=O, D, L) ->
+cast(_S, #{selected_skills:=[none | RemainingSkills]}=O, D, L) ->
+    {O#{selected_skills:=RemainingSkills}, D, L};
 
-    {CurrLogs, CurrEffects} = parse_cast(CastName, S, O, D),
-    NewEffects = lists:append(CurrEffects, ExistingEffects),
-    NewLog = lists:append(CurrLogs, L),
+cast(S, #{id:=IDO, player_name:=PlayerNameO, selected_skills:=[SkillName | RemainingSkills]=SelectedSkills, effects:=ExistingEffects}=O, D, L) ->
 
-    {O#{casts:=RemainingCasts, effects:=NewEffects}, D, NewLog}.
+    CurrEffects = parse_cast(hd(ets:lookup(skills, SkillName)), S, SelectedSkills),
+    NewEffects = lists:append([ExistingEffects,CurrEffects]),
+    erlang:display({PlayerNameO, SkillName}),
+
+    {O#{selected_skills:=RemainingSkills, effects:=NewEffects}, D, L}.
 
 
 
-apply(State, #{attr:=#{cast_disabled:=CastDisabled}}=O, D, Log) ->
-    {MovedO, MovedD, MovedLog} = case CastDisabled of
-        0 -> {CastedO, CastedD, CastedLog} = cast(State, O, D, Log),
-             effect:apply(State, CastedO, CastedD, CastedLog);
-        _ -> {O, D, Log}
+
+
+
+
+effect(S, #{effects:=Effects}=O, D, Log) ->
+    effect(S, O, D, Log, Effects).
+
+effect(_S, #{state:=#{hp:={single, H1}}}=O, #{state:=#{hp:={single, H2}}}=D, Log, _) when (H1 =< 0) or (H2 =< 0) ->
+    {O, D, Log};
+
+effect(_S, O, D, Log, []) ->
+    {O, D, Log};
+
+effect(#{seq:=Seq}=S, O, D, Log, [ {Name, Mover, Conds, Transes} | Remaining]) ->
+
+
+    {NewO, NewD, NewLog} = case conds:check(Conds, S, O, D) of
+
+        true ->
+            {NextO, NextD, Logs} = trans:apply(Conds, Transes, O, D),
+            {NextO, NextD, []};
+
+        _    ->
+            {O, D, []}
     end,
-    {MovedO#{done:=already}, MovedD, MovedLog};
 
-apply(_State, #{casts:=Casts}=O, D, Log) ->
-    ConsumedCasts = case Casts of
-        [] -> [];
-        [_|RemCasts] -> RemCasts
+    case (Name == freeze) and (Seq == 1) of
+    true ->
+        error_logger:info_report(NewD);
+    _ -> ok
     end,
 
-    {O#{casts:=ConsumedCasts, done:=already}, D, Log}.
+    effect(S, NewO, NewD, lists:append(NewLog, Log), Remaining).

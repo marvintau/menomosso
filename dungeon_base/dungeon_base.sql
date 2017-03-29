@@ -1,3 +1,5 @@
+CREATE EXTENSION if not exists "uuid-ossp";
+
 -- 玩家ID和名称
 drop table if exists players CASCADE;
 create table players (
@@ -6,7 +8,7 @@ create table players (
     player_level int,
     
     preset_card uuid,
-    preset_skills text[10],
+    selected_skills text[10],
     
     player_ranking int,
     
@@ -14,7 +16,7 @@ create table players (
     last_modified TIMESTAMP
 );
 
-drop type Professions, RangeTypes, PrimTypes, SecdTypes cascade;
+drop type if exists Professions, RangeTypes, PrimTypes, SecdTypes cascade;
 create type Professions as enum('warrior', 'rogue', 'hunter', 'mage');
 create type RangeTypes as enum('near', 'far');
 create type PrimTypes as enum('physical', 'magic');
@@ -53,7 +55,7 @@ create table player_card_info (
     last_modified timestamp
 );
 
-insert into players(id, player_name, player_level, preset_card, preset_skills, player_ranking, last_login, last_modified) values
+insert into players(id, player_name, player_level, preset_card, selected_skills, player_ranking, last_login, last_modified) values
 ('8673cc53-e2a8-4375-b6a3-007e2ebe6d5f', 'Max Planc', 1, '946ae77c-183b-4538-b439-ac9036024676', 
 '{"talisman_of_death", "rune_of_the_void", "talisman_of_spellshrouding", "holy_hand_grenade", "poison_gas", "single_attack", "double_attack", "triple_attack", "charm_of_foresight", "fortify_armor"}',
 9999, now(), now()),

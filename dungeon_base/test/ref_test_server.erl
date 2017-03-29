@@ -10,7 +10,9 @@
     start/1,
     stop/0,
 
-    val/1, set/2, trans/2
+    val/1, set/2, trans/2,
+
+    get/0, battle/2
 ]).
 
 
@@ -31,8 +33,16 @@ set(Desc, Val) ->
 trans(Op ,Ref) ->
     gen_server:call(?MODULE, {trans, {Op, Ref}}).
 
+get() ->
+    gen_server:call(?MODULE, {get}).
+
+battle(Off, Def) ->
+    gen_server:call(?MODULE, {battle, {Off, Def}}).
+
 init(Args)->
     process_flag(trap_exit, true),
+
+    ok = skills:init_table(),
 
     {ok, List} = dungeon_base:get_player_list(),
 
@@ -44,6 +54,12 @@ init(Args)->
 
     {ok, #{off=>maps:merge(OffPlayer, OffCard), def=>maps:merge(DefPlayer, DefCard)}}.
 
+
+handle_call({get}, _From, #{off:=Off, def:=Def} = State) ->
+    {reply, {Off, Def}, State};
+
+handle_call({battle, {Off, Def}}, _From, State) ->
+    {reply, battle:start({Off, Def}), State};
 
 handle_call({trans, {Op, Ref}}, _From, #{off:=Off, def:=Def} = State) ->
     {reply, trans:trans({Op, Ref}, Off, Def), State};

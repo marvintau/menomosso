@@ -81,7 +81,7 @@ handle_post(Req, State) ->
 parse(SinglePlayerData) ->
 
     #{<<"agi">>:=Agi,  <<"armor">>:=Armor, <<"block">>:=Block, <<"card_name">>:=CardName,
-      <<"cast_list">>:=CastList,  <<"class">>:=Class, <<"range_type">>:=RangeType, <<"critical">>:=Critic, <<"dodge">>:=Dodge, <<"hit">>:=HitBonus,
+      <<"cast_list">>:=SkillList,  <<"class">>:=Class, <<"range_type">>:=RangeType, <<"critical">>:=Critic, <<"dodge">>:=Dodge, <<"hit">>:=HitBonus,
       <<"hp">>:=HP, <<"prim_max">>:=PrimMax, <<"prim_min">>:=PrimMin, <<"prim_type">>:=PrimType, <<"image_name">>:=_ImageName,
       <<"resist">>:=Resist, <<"secd_max">>:=SecdMax, <<"secd_min">>:=SecdMin, <<"secd_type">>:=SecdType,
       <<"talented_skill">>:=TalentedSkill} = SinglePlayerData,
@@ -106,7 +106,7 @@ parse(SinglePlayerData) ->
         prim_hand  => {prim, binary_to_atom(PrimType, utf8), {PrimMin, PrimMax}},
 
         talented => binary_to_atom(TalentedSkill, utf8),
-        casts => lists:map(fun(X) -> binary_to_atom(X, utf8) end, CastList),
+        casts => lists:map(fun(X) -> binary_to_atom(X, utf8) end, SkillList),
         effects => [],
 
         orig_attr => #{
