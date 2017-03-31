@@ -19,20 +19,23 @@ update_skills(Data) ->
 
 physical_attack_spec() ->
     {physical, attack, non_absorbable, non_resistable, 0}.
-dumb_attack_spec() ->
-    {na, really, that, important}.
+
+magic_cast(Resis) ->
+    {magic, cast, non_absorbable, Resis, 0}.
+magic_cast() ->
+    magic_cast(non_resistable).
 
 plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}}.
 
 counter_attack(Times) ->
-    {{add_inc_mul, {{attr, diff, state, off}, {single, Times}}, physical_attack_spec()}, {attr, state, hp, def}}.
+    {{add_inc_mul, {{attr, state, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, state, hp, def}}.
 
 buff(AttrType, Attr, Buff) ->
     {{add_mul, {{single, 1+Buff}}, none}, {attr, AttrType, Attr, off}}.
 
 seq() ->
-    seq(1).
+    seq(0).
 seq(LastFor) ->
     seq(LastFor, casting).
 seq(LastFor, Stage) ->
@@ -46,7 +49,7 @@ next_damage(LastFor) ->
     {{next_cast_norm, LastFor, {physical, attack, none, none}}, []}.
 
 opponent_critical() ->
-    {critical, '==', {attr, attr, outcome, def}}.
+    {attack, '==', {attr, attr, outcome, def}}.
 
 
 create_skills() ->
@@ -74,12 +77,34 @@ create_skills() ->
         ]}]},
 
         {counter_back, general, 5, [{0, [
-            {seq(2, casting, [opponent_critical()]), [counter_attack(3)]}
+            {seq(2, counter, [opponent_critical()]), [counter_attack(2)]}
         ]}]},
 
         {healing_potion, general, 3, [{0, [
-            {seq(), [{{add, {{range, 175, 255}}, dumb_attack_spec()}, {attr, state, hp, off}}]}
-        ]}]}
+            {seq(), [{{add, {{range, 175, 255}}, magic_cast()}, {attr, state, hp, off}}]}
+        ]}]},
+
+        {talisman_of_death, general, 7, [{0, [
+            {seq(), [{{add_mul, {{single, -0.15}}, plain_attack()}, {attr, state, hp, def}}]}
+        ]}]},
+
+        {ruin_of_the_void, general, 9, [{0, [
+            {seq(), [{{set, {{single, cast_disabled}}, magic_cast()}, {attr, attr, cast_disabled, def}}]}
+        ]}]},
+
+        {talisman_of_spellshrouding, general, 7, [{0, [
+            {seq(), [buff(attr, resist, 1)]}
+        ]}]},
+
+        {holy_hand_grenade, general, 2, [{0, [
+            {seq(), [{{add, {{range, -500, -1}}, magic_cast(resistable)}, {attr, state, hp, def}}]}
+        ]}]},
+
+        {poison_gas, general, 1, [{0.5, [
+            {seq(1), [{set, {{single, is_stunned}}, magic_cast(resistable), {attr, state, hp, def}}]}
+        ]},{0.5,
+            {seq(1), [{set, {{single, is_stunned}}, magic_cast(resistable), {attr, state, hp, off}}]}
+        }]}
     ],
 
     ets:insert(skills, Skills),

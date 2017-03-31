@@ -43,13 +43,11 @@ handle_post(Req, State) ->
         error:Error ->
             error_logger:error_report(Error),
             {<<"Nah">>, Req}
-    end,    
+    end,
 
-    Data = jiffy:decode(ReqBody),
+    _Data = jiffy:decode(ReqBody),
 
     {ok, List} = dungeon_base:get_player_list(),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(List), NextReq),
     {true, Res, State}.
-
-

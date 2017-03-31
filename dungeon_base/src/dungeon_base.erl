@@ -16,6 +16,7 @@
     add_player_card/2,
 
     get_player/1,
+    get_player_battle/1,
     get_player_list/0,
     get_card/1,
     get_card_battle/1,
@@ -59,6 +60,9 @@ add_player_card(CardID, PlayerID) ->
 
 get_player(PlayerID) ->
     gen_server:call(?MODULE, {q, get_player, {PlayerID}}).
+
+get_player_battle(PlayerID) ->
+    gen_server:call(?MODULE, {q, get_player_battle, {PlayerID}}).
 
 
 get_card(CardID) ->

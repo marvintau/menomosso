@@ -49,8 +49,11 @@ handle_post(Req, State) ->
 
     {[{_, ID}]} = jiffy:decode(ReqBody),
 
-    {ok, OpenChestRes} = dungeon_base:open_chest(ID),
-    erlang:display(OpenChestRes),
+    {ok, OpenChestResult} = dungeon_base:open_chest(ID),
+    Result = case is_list(OpenChestResult) of
+        true -> [#{id => ItemIndex, name=> ItemName, quantity => ItemQuantity} || {ItemIndex, ItemName, ItemQuantity} <- OpenChestResult];
+        _ -> atom_to_binary(OpenChestResult, utf8)
+    end,
 
-    Res = cowboy_req:set_resp_body(atom_to_binary(OpenChestRes, utf8), NextReq),
+    Res = cowboy_req:set_resp_body(jiffy:encode(Result), NextReq),
     {true, Res, State}.

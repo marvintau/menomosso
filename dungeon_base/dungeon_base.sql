@@ -57,10 +57,10 @@ create table player_card_info (
 
 insert into players(id, player_name, player_level, preset_card, selected_skills, player_ranking, last_login, last_modified) values
 ('8673cc53-e2a8-4375-b6a3-007e2ebe6d5f', 'Max Planc', 1, '946ae77c-183b-4538-b439-ac9036024676', 
-'{"talisman_of_death", "rune_of_the_void", "talisman_of_spellshrouding", "holy_hand_grenade", "poison_gas", "single_attack", "double_attack", "triple_attack", "charm_of_foresight", "fortify_armor"}',
+'{"single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "triple_attack", "single_attack"}',
 9999, now(), now()),
 ('68b19bbe-bc2a-400f-b4e7-6e632b3b908f', 'Erwin Schodinger', 1, '15d715a8-d585-48fc-a65a-286fc41c9a3f',
-'{"talisman_of_death", "rune_of_the_void", "talisman_of_spellshrouding", "holy_hand_grenade", "poison_gas", "single_attack", "double_attack", "triple_attack", "charm_of_foresight", "fortify_armor"}',
+'{"single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "triple_attack", "single_attack"}',
 9999, now(), now());
 
 -- ('db863aec-ee33-4161-884b-ef7109db4d25', 'Wolfgang Polly', 1, 'a0c1a883-2995-4526-856c-26870e5b3f74',

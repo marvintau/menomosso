@@ -11,6 +11,7 @@
     add_player_card/2,
 
     get_player/2,
+    get_player_battle/2,
     get_player_list/2,
     get_player_card/2,
 
@@ -191,7 +192,6 @@ get_player_list(Conn, _) ->
 %% NOTE: 一般情况下主要用于自己
 
 reform_selected_skills(PresetSkillBinary) ->
-
     Trimmed = list_to_binary(tl(lists:droplast(binary_to_list(PresetSkillBinary)))),
     [binary_to_atom(Skill, utf8) || Skill <- binary:split(Trimmed, <<",">>, [global])].
 
@@ -257,9 +257,9 @@ get_card_map_battle({_ID, CardName, _ImageName, Class, RangeType, HP, Armor, Agi
 
 get_profile_map(PlayerRes, CardRes) ->
 
-    UpdatedPlayerRes = setelement(5, PlayerRes, reform_selected_skills(element(5, PlayerRes))),
+    % UpdatedPlayerRes = setelement(5, PlayerRes, reform_selected_skills(element(5, PlayerRes))),
 
-    #{player_profile => get_player_map(UpdatedPlayerRes), card_profiles => [get_card_map(Card) || Card <- CardRes]}.
+    #{player_profile => get_player_map(PlayerRes), card_profiles => [get_card_map(Card) || Card <- CardRes]}.
 
 
 get_player(Conn, {PlayerUUID}) ->
@@ -275,12 +275,23 @@ get_player(Conn, {PlayerUUID}) ->
 
     case Profile of
         {ok, _, [PlayerRes]} ->
-
             {ok, _, CardRes} = epgsql:squery(Conn,binary_to_list(QueryCard)),
             {ok, get_profile_map(PlayerRes, CardRes)};
         {ok, _, []} -> {error, player_not_found};
         _ -> {error, get_player_failed}
     end.
+
+get_player_battle(Conn, {PlayerUUID}) ->
+
+    QueryProfile = list_to_binary(["select * from players where id='", PlayerUUID,"';"]),
+    {ok, _, [Player]} = epgsql:squery(Conn,binary_to_list(QueryProfile)),
+
+    #{preset_card_id:=OffCardID} = PlayerMap = get_player_map(Player),
+
+    {ok, Card} = get_card_battle(Conn, {OffCardID}),
+
+    {ok, maps:merge(PlayerMap, Card)}.
+
 
 %% ------------------------------------------------------------------------
 %% 得到玩家信息，包含玩家信息，和玩家所持的所有卡牌的具体信息

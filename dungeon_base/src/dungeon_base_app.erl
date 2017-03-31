@@ -22,9 +22,11 @@ start(_StartType, _StartArgs) ->
                    {"/api/add_new_player", add_new_player_handler, []},
                    {"/api/get_player", get_player_handler, []},
                    {"/api/get_player_list", get_player_list_handler, []},
+
                    {"/api/open_chest", open_chest_handler, []},
-                   {"/api/check_chest", check_chest_handler, []}
-                   % {"/api/add_new_card", add_new_card_handler, []}
+                   {"/api/check_chest", check_chest_handler, []},
+
+                   {"/api/battle_request", battle_request_handler, []}
                   ]}
         ]),
 
@@ -32,6 +34,8 @@ start(_StartType, _StartArgs) ->
         [{port, 1334}],
         #{env => #{dispatch => Dispatch}}
     ),
+
+	skills:init_table(),
 
     dungeon_base_sup:start_link().
 

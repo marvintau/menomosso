@@ -28,11 +28,11 @@ parse_cast({Name, Class, Points, Groups}, S, SelectedSkills) ->
 
 
 
-cast(_S, #{attr:=#{cast_disabled:={single, cast_disabled}}}=O, D, L) ->
-    {O, D, L};
+cast(_S, #{attr:=#{cast_disabled:={single, cast_disabled}}}=O, D, L) -> {O, D, L};
 
-cast(_S, #{selected_skills:=[]}=O, D, L) ->
-    {O, D, L};
+cast(_S, #{selected_skills:=[]}=O, D, L) -> {O, D, L};
+
+cast(_S, #{state:=#{hp:={single, HPO}}}=O, #{state:=#{hp:={single, HPD}}}=D, L) when (HPO < 0) or (HPD < 0) -> {O, D, L};
 
 cast(_S, #{selected_skills:=[none | RemainingSkills]}=O, D, L) ->
     {O#{selected_skills:=RemainingSkills}, D, L};
@@ -41,14 +41,8 @@ cast(S, #{id:=IDO, player_name:=PlayerNameO, selected_skills:=[SkillName | Remai
 
     CurrEffects = parse_cast(hd(ets:lookup(skills, SkillName)), S, SelectedSkills),
     NewEffects = lists:append([ExistingEffects,CurrEffects]),
-    erlang:display({PlayerNameO, SkillName}),
 
     {O#{selected_skills:=RemainingSkills, effects:=NewEffects}, D, L}.
-
-
-
-
-
 
 
 effect(S, #{effects:=Effects}=O, D, Log) ->
@@ -60,23 +54,14 @@ effect(_S, #{state:=#{hp:={single, H1}}}=O, #{state:=#{hp:={single, H2}}}=D, Log
 effect(_S, O, D, Log, []) ->
     {O, D, Log};
 
-effect(#{seq:=Seq}=S, O, D, Log, [ {Name, Mover, Conds, Transes} | Remaining]) ->
-
+effect(#{seq:=Seq}=S, #{player_name:=PlayerName} = O, D, Log, [ {Name, Mover, Conds, Transes} | Remaining]) ->
 
     {NewO, NewD, NewLog} = case conds:check(Conds, S, O, D) of
 
         true ->
-            {NextO, NextD, Logs} = trans:apply(Conds, Transes, O, D),
-            {NextO, NextD, []};
-
+            trans:apply(S, Name, Transes, O, D);
         _    ->
             {O, D, []}
-    end,
-
-    case (Name == freeze) and (Seq == 1) of
-    true ->
-        error_logger:info_report(NewD);
-    _ -> ok
     end,
 
     effect(S, NewO, NewD, lists:append(NewLog, Log), Remaining).

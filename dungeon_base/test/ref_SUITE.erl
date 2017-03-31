@@ -91,6 +91,8 @@ battle(_Config) ->
     PlainAttackOff = Off#{selected_skills:=random_seq([single_attack, double_attack, triple_attack])},
     PlainAttackDef = Def#{selected_skills:=random_seq([single_attack, double_attack, triple_attack])},
 
-    CounterAttackDef = Def#{selected_skills:= [counter_back| random_seq([single_attack, double_attack, triple_attack], 9)]},
+    CounterAttackDef = Def#{selected_skills:= [healing_potion| random_seq([single_attack, double_attack, triple_attack], 9)]},
 
-    erlang:display(ref_test_server:battle(PlainAttackOff, CounterAttackDef)).
+    Logs = ref_test_server:battle(PlainAttackOff, CounterAttackDef),
+
+    ct:print("~62p~n", [Logs]).

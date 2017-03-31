@@ -51,7 +51,6 @@ comps([], _, _, TrueValue) ->
 % ====================== SEQUENTIAL CONDITION CHECK =============================
 % checks whether the battle goes to specific round and stage.
 seq_check({SeqList, Stage}, #{seq:=CurrSeq, stage:=CurrStage}) ->
-    erlang:display(SeqList),
     lists:any(fun(Seq) -> CurrSeq == Seq end, SeqList) and (Stage == CurrStage).
 
 check({SeqCond, CondList}, S, O, D) ->

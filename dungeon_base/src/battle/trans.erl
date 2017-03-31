@@ -1,6 +1,6 @@
 -module(trans).
 
--export([trans/2, trans/3, apply/4]).
+-export([trans/2, trans/3, apply/5]).
 
 -define(MAX_LIMIT, 120).
 
@@ -70,8 +70,10 @@ roulette(AttackSpec,
     Result.
 
 
-repose(#{range_type:=RangeType, state:=#{pos:={single, PosO}}, attr:=#{outcome:={single, Outcome}}},
-       #{state:=#{pos:={single, PosD}, hp:={single, HPD}}, attr:=#{is_frozen:={single, IsFrozen}, is_disarmed:={single, IsDisarmed}, is_stunned:={single, IsStunned}}}) ->
+repose(#{state:=#{pos:={single, PosO}}=StateO,
+         attr:=#{outcome:={single, Outcome}}, range_type:=RangeType} = O,
+       #{state:=#{pos:={single, PosD}, hp:={single, HPD}}=StateD,
+         attr:=#{is_frozen:={single, IsFrozen}, is_disarmed:={single, IsDisarmed}, is_stunned:={single, IsStunned}}} = D) ->
 
     % 根据近战远战类型决定追逃动作
     {NewPosO, NewPosD, NewPosMoveO, NewPosMoveD} = case RangeType of
@@ -113,7 +115,9 @@ repose(#{range_type:=RangeType, state:=#{pos:={single, PosO}}, attr:=#{outcome:=
         _ -> {NewPosD, stand}
     end,
 
-    {NewPosO, NewPosD2, NewPosMoveO, NewPosMoveD2}.
+    % {NewPosO, NewPosD2, NewPosMoveO, NewPosMoveD2},
+    {O#{state:=StateO#{pos:={single, NewPosO}, pos_move:={single, NewPosMoveO}}},
+     D#{state:=StateD#{pos:={single, NewPosD2}, pos_move:={single, NewPosMoveD2}}}}.
 
 
 
@@ -164,7 +168,7 @@ trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, state, hp, P}=ToW
     FinalDamage = CalculatedDamage * ref:val({attr, attr, damage_multiplier, P}),
     trans({set, ref:val(ToWhom) + FinalDamage, none, none}, ToWhom);
 
-trans({add, Inc, _, Outcome}, ToWhom) ->
+trans({add, Inc, _, _Outcome}, ToWhom) ->
     trans({set, ref:val(ToWhom) + Inc, none, none}, ToWhom);
 
 trans({add_mul, Mul, AttackSpec, Outcome}, ToWhom) ->
@@ -186,19 +190,16 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
     Outcome = roulette(AttackSpec, O, D),
 
     % 将转盘结果加入玩家context，并按结果计算伤害／技能效果，把结果保存在TransPsn里面
-    #{attr:=PsnAttr} = Psn = ref:who(P, O, D),
+    Psn = ref:who(P, O, D),
     TransPsn = trans:trans({Opcode, RefOperand, AttackSpec, Outcome}, {attr, Type, Attr, Psn}),
 
-    {#{attr:=AttrO, state:=StateO}=TransO, #{state:=StateD}=TransD} = case P of
+    {#{attr:=AttrO}=TransO, TransD} = case P of
         off ->  {TransPsn, D};
         def ->  {O, TransPsn}
     end,
 
-    % erlang:display(StateD),
-
-    {PosO, PosD, PosMoveO, PosMoveD} = repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD),
-    {TransO#{attr:=AttrO#{outcome:={single, Outcome}}, state:=StateO#{pos:={single, PosO}, pos_move:={single, PosMoveO}}},
-     TransD#{state:=StateD#{pos:={single, PosD}, pos_move:={single, PosMoveD}}}}.
+    {PosedO, PosedD} = repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD),
+    {PosedO, PosedD}.
 
 
 
@@ -209,15 +210,37 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
 
 % Accepts cond description
 
-apply(S, TransList, O, D) ->
-    apply(S, TransList, O, D, []).
+log_trans(#{offender:=Off} = S, SkillName, {_, {_, Type, Attr, Who}},
+    #{id:=OID, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}=O},
+    #{id:=DID, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
+) ->
 
-apply(S, [Trans | RemTrans], #{id:=OID, player_name:=Name}=O, #{id:=DID}=D, Logs) ->
+    {OrderO, OrderD} = case Off == OID of
+        true -> {off, def};
+        _ -> {def, off}
+    end,
 
-    erlang:display({Name, Trans}),
-    {TransedO, TransedD} = trans(Trans, O, D),
+    #{
+        state => maps:remove(offender, S),
+        effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, over=>Who, diff => ref:val({attr, Type, diff, Who}, O, D)},
+        OID => #{player_name=>NameO, role=>OrderO, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
+        DID => #{player_name=>NameD, role=>OrderD, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
+    }.
 
-    apply(S, RemTrans, TransedO, TransedD, Logs);
+apply(S, SkillName, TransList, O, D) ->
+    apply(S, SkillName, TransList, O, D, []).
 
-apply(_S, [], O, D, Logs) ->
-    {O, D, Logs}.
+apply(_S, _SkillName, _, #{state:=#{hp:=HPO}}=O, #{state:=#{hp:=HPD}}=D, Logs) when (HPO =<0) or (HPD =< 0) ->
+    {O, D, Logs};
+
+apply(_S, _SkillName, [], O, D, Logs) ->
+    {O, D, Logs};
+
+apply(S, SkillName, [Trans | RemTrans], O, D, Logs) ->
+
+    % erlang:display({Name, Trans}),
+    { TransedO, TransedD} = trans(Trans, O, D),
+    Log = log_trans(S, SkillName, Trans, TransedO, TransedD),
+    erlang:display(Log),
+
+    apply(S, SkillName, RemTrans, TransedO, TransedD, [Log | Logs]).
