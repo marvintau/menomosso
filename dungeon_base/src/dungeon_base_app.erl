@@ -15,7 +15,7 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-	dungeon_base:start_link([{host, "localhost"}, {username, "yuetao"}, {password, "asdasdasd"}, {database, "dungeon"}, {timeout, 100}]),
+	dungeon_base:start_link([{host, "localhost"}, {username, "yuetao"}, {password, "asdasdasd"}, {database, "dungeon_base"}, {timeout, 100}]),
 
     Dispatch = cowboy_router:compile([
             {'_', [
@@ -31,7 +31,7 @@ start(_StartType, _StartArgs) ->
         ]),
 
     {ok, _} = cowboy:start_clear(my_http_listener, 100,
-        [{port, 1334}],
+        [{port, 1337}],
         #{env => #{dispatch => Dispatch}}
     ),
 
