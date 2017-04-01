@@ -216,7 +216,7 @@ get_player_map({ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, 
         rank => binary_to_integer(Rank)
     }.
 
-get_card_map({ID, CardName, Level, Expi, Stars, ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
+get_card_map({ID, CardName, ImageName, Level, Expi, Stars, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
 
     #{id => ID, card_name => CardName, image_name => ImageName, level=> binary_to_integer(Level), expi => binary_to_integer(Expi), stars => binary_to_integer(Stars), class => Class,
          range_type => RangeType, hp => binary_to_integer(HP), armor => binary_to_integer(Armor), agility => binary_to_integer(Agility),
