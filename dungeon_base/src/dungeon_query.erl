@@ -197,15 +197,15 @@ reform_selected_skills(PresetSkillBinary) ->
 
 get_player_map({ID, Name, Level, PresetCardID, PresetSkills, Rank, _, _}) ->
 
-    #{id => ID, player_name => Name, level => Level, preset_card_id => PresetCardID, selected_skills => reform_selected_skills(PresetSkills), rank => Rank}.
+    #{id => ID, player_name => Name, level => binary_to_integer(Level), preset_card_id => PresetCardID, selected_skills => reform_selected_skills(PresetSkills), rank => binary_to_integer(Rank)}.
 
-get_card_map({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, _AtkType, _AtkMax, _AtkMin, _, _}) ->
+get_card_map({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
 
     #{id => ID, card_name => CardName, image_name => ImageName, class => Class,
-         range_type => RangeType, hp => HP, armor => Armor, agility => Agility,
-        %  atk_type => AtkType, atk_max => AtkMax, atk_min => AtkMin,
-         hit => Hit, block => Block, dodge => Dodge, resist => Resist,
-         critical => Critical}.
+         range_type => RangeType, hp => binary_to_integer(HP), armor => binary_to_integer(Armor), agility => binary_to_integer(Agility),
+         atk_type => binary_to_integer(AtkType), atk_max => binary_to_integer(AtkMax), atk_min => binary_to_integer(AtkMin),
+         hit => binary_to_integer(Hit), block => binary_to_integer(Block), dodge => binary_to_integer(Dodge), resist => binary_to_integer(Resist),
+         critical => binary_to_integer(Critical)}.
 
 
 get_card_map_battle({_ID, CardName, _ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->

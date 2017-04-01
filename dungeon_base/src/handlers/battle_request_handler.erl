@@ -56,6 +56,6 @@ handle_post(Req, State) ->
     {ok, BattleContext2} = dungeon_base:get_player_battle(Id2),
 
     {log, Log} = battle:start({BattleContext1, BattleContext2}),
-    error_logger:info_report(Log),
+    error_logger:info_report(jiffy:encode(Log)),
     Res = cowboy_req:set_resp_body(jiffy:encode(Log), NextReq),
     {true, Res, State}.
