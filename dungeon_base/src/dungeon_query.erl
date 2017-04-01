@@ -149,6 +149,12 @@ add_new_player(Conn, _) ->
     erlang:display({new_id_tobe_inserted, NewID}),
 
     {ok, new_player_added} = add_player(Conn, NewID, CheckedName),
+
+    {ok, new_card_added} = add_player_card(Conn, {"946ae77c-183b-4538-b439-ac9036024676", NewID}),
+    {ok, new_card_added} = add_player_card(Conn, {"15d715a8-d585-48fc-a65a-286fc41c9a3f", NewID}),
+    {ok, new_card_added} = add_player_card(Conn, {"a0c1a883-2995-4526-856c-26870e5b3f74", NewID}),
+    {ok, new_card_added} = add_player_card(Conn, {"be2d65f0-3c93-457e-8180-de7c93a365a5", NewID}),
+
     {ok, new_chest_record_created} = add_chest_record(Conn, NewID),
 
     {ok, NewID}.
