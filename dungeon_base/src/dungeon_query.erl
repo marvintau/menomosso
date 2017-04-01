@@ -203,7 +203,7 @@ get_card_map({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agility, Hit
 
     #{id => ID, card_name => CardName, image_name => ImageName, class => Class,
          range_type => RangeType, hp => binary_to_integer(HP), armor => binary_to_integer(Armor), agility => binary_to_integer(Agility),
-         atk_type => binary_to_integer(AtkType), atk_max => binary_to_integer(AtkMax), atk_min => binary_to_integer(AtkMin),
+         atk_type => AtkType, atk_max => binary_to_integer(AtkMax), atk_min => binary_to_integer(AtkMin),
          hit => binary_to_integer(Hit), block => binary_to_integer(Block), dodge => binary_to_integer(Dodge), resist => binary_to_integer(Resist),
          critical => binary_to_integer(Critical)}.
 
