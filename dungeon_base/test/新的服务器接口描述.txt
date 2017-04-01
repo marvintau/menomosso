@@ -1,0 +1,559 @@
+请求
+http://everstream.cn:1337/api/add_new_player
+数据
+无
+返回
+{"id":"2946df85-f0fd-403e-bfce-0dc28b0d858c"}
+
+请求
+http://everstream.cn:1337/api/get_player
+数据
+{"id":"8673cc53-e2a8-4375-b6a3-007e2ebe6d5f"}
+返回
+{
+  "player_profile": {
+    "selected_skills": [
+      "single_attack",
+      "double_attack",
+      "triple_attack",
+      "single_attack",
+      "double_attack",
+      "triple_attack",
+      "single_attack",
+      "double_attack",
+      "triple_attack",
+      "single_attack"
+    ],
+    "rank": "9999",
+    "preset_card_id": "946ae77c-183b-4538-b439-ac9036024676",
+    "player_name": "Max Planc",
+    "level": "1",
+    "id": "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f"
+  },
+  "card_profiles": [
+    {
+      "resist": "35",
+      "range_type": "near",
+      "image_name": "normal_rogue",
+      "id": "946ae77c-183b-4538-b439-ac9036024676",
+      "hp": "2700",
+      "hit": "35",
+      "dodge": "30",
+      "critical": "30",
+      "class": "rogue",
+      "card_name": "普通刺客",
+      "block": "0",
+      "armor": "4500",
+      "agility": "75"
+    },
+    {
+      "resist": "35",
+      "range_type": "near",
+      "image_name": "awaken_rogue",
+      "id": "15d715a8-d585-48fc-a65a-286fc41c9a3f",
+      "hp": "2700",
+      "hit": "35",
+      "dodge": "30",
+      "critical": "30",
+      "class": "rogue",
+      "card_name": "霸道刺客",
+      "block": "0",
+      "armor": "4500",
+      "agility": "75"
+    }, …
+   ]
+}
+
+请求
+http://everstream.cn:1337/api/get_player_list
+数据
+无
+返回
+[
+  {
+    "selected_skills": [
+      "single_attack",
+      "double_attack",
+      "triple_attack",
+      "single_attack",
+      "double_attack",
+      "triple_attack",
+      "single_attack",
+      "double_attack",
+      "triple_attack",
+      "single_attack"
+    ],
+    "rank": "9999",
+    "preset_card_id": "946ae77c-183b-4538-b439-ac9036024676",
+    "player_name": "Max Planc",
+    "level": "1",
+    "id": "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f"
+  },
+  {
+    "selected_skills": [
+      "single_attack",
+      "double_attack",
+      "triple_attack",
+      "single_attack",
+      "double_attack",
+      "triple_attack",
+      "single_attack",
+      "double_attack",
+      "triple_attack",
+      "single_attack"
+    ],
+    "rank": "9999",
+    "preset_card_id": "15d715a8-d585-48fc-a65a-286fc41c9a3f",
+    "player_name": "Erwin Schodinger",
+    "level": "1",
+    "id": "68b19bbe-bc2a-400f-b4e7-6e632b3b908f"
+  },
+  {
+    "selected_skills": [
+      "single_attack",
+      "single_attack",
+      "single_attack",
+      "single_attack",
+      "single_attack",
+      "single_attack",
+      "single_attack",
+      "single_attack",
+      "single_attack",
+      "single_attack"
+    ],
+    "rank": "9999",
+    "preset_card_id": "946ae77c-183b-4538-b439-ac9036024676",
+    "player_name": "威猛的总裁",
+    "level": "1",
+    "id": "2946df85-f0fd-403e-bfce-0dc28b0d858c"
+  }
+]
+
+请求
+http://everstream.cn:1337/api/open_chest
+数据
+{"id":"8673cc53-e2a8-4375-b6a3-007e2ebe6d5f"}
+返回
+[
+  {
+    "quantity": "2",
+    "name": "刺客的微小精华",
+    "id": "2021"
+  },
+  {
+    "quantity": "1",
+    "name": "战士的微小精华",
+    "id": "2011"
+  },
+  {
+    "quantity": "1",
+    "name": "法师的微小精华",
+    "id": "2031"
+  },
+  {
+    "quantity": "2",
+    "name": "猎人的微小精华",
+    "id": "2041"
+  }
+]
+
+请求
+http://everstream.cn:1337/api/battle_request
+数据
+{
+  "id1": "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f",
+  "id2": "68b19bbe-bc2a-400f-b4e7-6e632b3b908f",
+  "skills": [
+    "single_attack",
+    "single_attack",
+    "single_attack",
+    "single_attack",
+    "single_attack",
+    "single_attack",
+    "single_attack",
+    "single_attack",
+    "single_attack",
+    "single_attack"
+  ]
+}
+返回
+[
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 2373
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "off",
+      "pos_move": "chase",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 2700
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 1
+    },
+    "effect": {
+      "skill_name": "single_attack",
+      "over": "def",
+      "outcome": "attack",
+      "diff": -327,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 2373
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "off",
+      "pos_move": "blown_out",
+      "pos": 2,
+      "player_name": "Erwin Schodinger",
+      "hp": 2022
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 1
+    },
+    "effect": {
+      "skill_name": "single_attack",
+      "over": "def",
+      "outcome": "critical",
+      "diff": -678,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 2052
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "off",
+      "pos_move": "chase",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 2022
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 2
+    },
+    "effect": {
+      "skill_name": "double_attack",
+      "over": "def",
+      "outcome": "attack",
+      "diff": -321,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 1703
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "off",
+      "pos_move": "stand",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 2022
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 2
+    },
+    "effect": {
+      "skill_name": "double_attack",
+      "over": "def",
+      "outcome": "attack",
+      "diff": -349,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 1703
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "off",
+      "pos_move": "stand",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 1694
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 2
+    },
+    "effect": {
+      "skill_name": "double_attack",
+      "over": "def",
+      "outcome": "attack",
+      "diff": -328,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 1703
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "off",
+      "pos_move": "stand",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 1363
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 2
+    },
+    "effect": {
+      "skill_name": "double_attack",
+      "over": "def",
+      "outcome": "attack",
+      "diff": -331,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "off",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 1703
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 1014
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 3
+    },
+    "effect": {
+      "skill_name": "triple_attack",
+      "over": "def",
+      "outcome": "attack",
+      "diff": -349,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "off",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 1703
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 677
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 3
+    },
+    "effect": {
+      "skill_name": "triple_attack",
+      "over": "def",
+      "outcome": "attack",
+      "diff": -337,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "off",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 1703
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 17
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 3
+    },
+    "effect": {
+      "skill_name": "triple_attack",
+      "over": "def",
+      "outcome": "critical",
+      "diff": -660,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "off",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 1375
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 17
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 3
+    },
+    "effect": {
+      "skill_name": "triple_attack",
+      "over": "def",
+      "outcome": "attack",
+      "diff": -328,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "off",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 1026
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 17
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 3
+    },
+    "effect": {
+      "skill_name": "triple_attack",
+      "over": "def",
+      "outcome": "attack",
+      "diff": -349,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "off",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 679
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 17
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 3
+    },
+    "effect": {
+      "skill_name": "triple_attack",
+      "over": "def",
+      "outcome": "attack",
+      "diff": -347,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 355
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "off",
+      "pos_move": "stand",
+      "pos": 3,
+      "player_name": "Erwin Schodinger",
+      "hp": 17
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 4
+    },
+    "effect": {
+      "skill_name": "single_attack",
+      "over": "def",
+      "outcome": "attack",
+      "diff": -324,
+      "attr": "hp"
+    }
+  },
+  {
+    "8673cc53-e2a8-4375-b6a3-007e2ebe6d5f": {
+      "role": "def",
+      "pos_move": "stand",
+      "pos": 2,
+      "player_name": "Max Planc",
+      "hp": 355
+    },
+    "68b19bbe-bc2a-400f-b4e7-6e632b3b908f": {
+      "role": "off",
+      "pos_move": "blown_out",
+      "pos": 2,
+      "player_name": "Erwin Schodinger",
+      "hp": -657
+    },
+    "state": {
+      "stage": "casting",
+      "seq": 4
+    },
+    "effect": {
+      "skill_name": "single_attack",
+      "over": "def",
+      "outcome": "critical",
+      "diff": -674,
+      "attr": "hp"
+    }
+  }
+]
