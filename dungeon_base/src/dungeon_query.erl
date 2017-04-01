@@ -81,8 +81,7 @@ random_name() ->
 
 add_player(Conn, PlayerUUID, PlayerName) ->
     Query = list_to_binary(["insert into players values(
-    '", PlayerUUID, "',
-    '", PlayerName,"', 1,
+    '", PlayerUUID, "', '", PlayerName,"', '", round(rand:uniform()) ,"', 'league', 500, 1, 100, 100,
     '946ae77c-183b-4538-b439-ac9036024676',
     '{\"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\",
       \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\"}',
@@ -167,10 +166,10 @@ add_new_card(Conn, _) ->
     CardID = uuid:uuid_to_string(uuid:get_v4_urandom()),
 
     Query = list_to_binary([
-        "insert into cards(id, card_name, image_name, profession,
+        "insert into cards(id, card_name, level, expi, image_name, profession,
          range_type, hp, armor, agi, hit, block, dodge, resist,
          critical, atk_type, atk_max, atk_min, last_added, last_modified) values
-        ('", CardID, "', 'NEWCARD', 'image_placehoder','rogue',
+        ('", CardID, "', 'NEWCARD', 1, 100, 'normal_rogue','rogue',
         'near', 2700, 4500, 75, 35, 0, 30, 35, 30, 'physical',
         350, 300, now(), now())"]),
 
@@ -201,9 +200,21 @@ reform_selected_skills(PresetSkillBinary) ->
     Trimmed = list_to_binary(tl(lists:droplast(binary_to_list(PresetSkillBinary)))),
     [binary_to_atom(Skill, utf8) || Skill <- binary:split(Trimmed, <<",">>, [global])].
 
-get_player_map({ID, Name, Level, PresetCardID, PresetSkills, Rank, _, _}) ->
+get_player_map({ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rank, _, _}) ->
 
-    #{id => ID, player_name => Name, level => binary_to_integer(Level), preset_card_id => PresetCardID, selected_skills => reform_selected_skills(PresetSkills), rank => binary_to_integer(Rank)}.
+    #{
+        id => ID, 
+        player_name => Name,
+        image_name =>ImageName,
+        association => Association,
+        expi => binary_to_integer(Expi),
+        level => binary_to_integer(Level),
+        coins => binary_to_integer(Coins),
+        diamonds => binary_to_integer(Diamonds),
+        preset_card_id => PresetCardID,
+        selected_skills => reform_selected_skills(PresetSkills),
+        rank => binary_to_integer(Rank)
+    }.
 
 get_card_map({ID, CardName, ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
 
