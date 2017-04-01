@@ -51,7 +51,7 @@ handle_post(Req, State) ->
 
     {ok, OpenChestResult} = dungeon_base:open_chest(ID),
     Result = case is_list(OpenChestResult) of
-        true -> [#{id => ItemIndex, name=> ItemName, quantity => ItemQuantity} || {ItemIndex, ItemName, ItemQuantity} <- OpenChestResult];
+        true -> [#{id => binary_to_integer(ItemIndex), name=> ItemName, quantity => binary_to_integer(ItemQuantity)} || {ItemIndex, ItemName, ItemQuantity} <- OpenChestResult];
         _ -> atom_to_binary(OpenChestResult, utf8)
     end,
 
