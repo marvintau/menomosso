@@ -36,6 +36,7 @@ create table cards (
     image_name text,
     level int,
     expi  int,
+    stars int,
 
     profession Professions,
     range_type RangeTypes,
@@ -68,15 +69,15 @@ insert into players(id,                  player_name,        image_name,  associ
 
 
 insert into cards
-(id,                                     card_name,  level,   expi,   image_name,        profession, range_type, hp,   armor, agi, hit, block, dodge, resist, critical, atk_type, atk_max, atk_min, last_added, last_modified) values
-('946ae77c-183b-4538-b439-ac9036024676', '普通刺客',     1,      1,   'normal_rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('15d715a8-d585-48fc-a65a-286fc41c9a3f', '霸道刺客',     1,      1,   'awaken_rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('a0c1a883-2995-4526-856c-26870e5b3f74', '普通猎人',     1,      1,   'normal_hunter',   'hunter',   'far',      3400, 4500,  40,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('be2d65f0-3c93-457e-8180-de7c93a365a5', '痴呆猎人',     1,      1,   'awaken_hunter',   'hunter',   'far',      3400, 4500,  40,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('a009e5e9-2057-4353-9871-309d68752c1b', '普通法师',     1,      1,   'normal_mage',     'mage',     'far',      2300, 2700,  35,  20,  0,     20,    15,     35,     'physical',     350,     320,      now(),      now()),
-('db1c75ca-aa32-4f2b-9bb1-355267d4a2ad', '暴躁法师',     1,      1,   'awaken_mage',     'mage',     'far',      2300, 2700,  35,  20,  0,     20,    15,     35,     'physical',     350,     320,      now(),      now()),
-('849d31be-b9cd-494c-9ccd-7cc656153b57', '普通战士',     1,      1,   'normal_warrior',  'warrior',  'near',     3400, 4500,  50,  35,  30,    30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('1b0cf5e0-2164-46fd-8424-2146fca99fb9', '癫狂战士',     1,      1,   'awaken_warrior',  'warrior',  'near',     3400, 4500,  50,  35,  30,    30,    35,     30,     'physical',     350,     320,      now(),      now());
+(id,                                     card_name,  level,   expi,   stars, image_name,        profession, range_type, hp,   armor, agi, hit, block, dodge, resist, critical, atk_type, atk_max, atk_min, last_added, last_modified) values
+('946ae77c-183b-4538-b439-ac9036024676', '普通刺客',     1,      1,       1, 'normal_rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('15d715a8-d585-48fc-a65a-286fc41c9a3f', '霸道刺客',     1,      1,       1, 'awaken_rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('a0c1a883-2995-4526-856c-26870e5b3f74', '普通猎人',     1,      1,       1, 'normal_hunter',   'hunter',   'far',      3400, 4500,  40,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('be2d65f0-3c93-457e-8180-de7c93a365a5', '痴呆猎人',     1,      1,       1, 'awaken_hunter',   'hunter',   'far',      3400, 4500,  40,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('a009e5e9-2057-4353-9871-309d68752c1b', '普通法师',     1,      1,       1, 'normal_mage',     'mage',     'far',      2300, 2700,  35,  20,  0,     20,    15,     35,     'physical',     350,     320,      now(),      now()),
+('db1c75ca-aa32-4f2b-9bb1-355267d4a2ad', '暴躁法师',     1,      1,       1, 'awaken_mage',     'mage',     'far',      2300, 2700,  35,  20,  0,     20,    15,     35,     'physical',     350,     320,      now(),      now()),
+('849d31be-b9cd-494c-9ccd-7cc656153b57', '普通战士',     1,      1,       1, 'normal_warrior',  'warrior',  'near',     3400, 4500,  50,  35,  30,    30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('1b0cf5e0-2164-46fd-8424-2146fca99fb9', '癫狂战士',     1,      1,       1, 'awaken_warrior',  'warrior',  'near',     3400, 4500,  50,  35,  30,    30,    35,     30,     'physical',     350,     320,      now(),      now());
 
 select * from cards;
 
