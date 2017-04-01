@@ -48,7 +48,10 @@ handle_post(Req, State) ->
 
     {[{_, ID}]} = jiffy:decode(ReqBody),
 
-    {ok, ResEJSON} = dungeon_base:get_player(ID),
+    ResEJSON = case dungeon_base:get_player(ID) of 
+        {ok, Reply} -> {ok, Reply};
+        {error, Reason} -> atom_to_binary(Reason, utf8)
+    end,
 
 
     Res = cowboy_req:set_resp_body(jiffy:encode(ResEJSON), NextReq),
