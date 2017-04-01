@@ -32,6 +32,7 @@
 
 
 start(Args) ->
+    dungeon_base_sup:start_link(),
     gen_server:start({local, ?MODULE}, ?MODULE, Args, []).
 
 start_link(Args) ->
