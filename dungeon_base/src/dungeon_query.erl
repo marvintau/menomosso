@@ -81,7 +81,7 @@ random_name() ->
 
 add_player(Conn, PlayerUUID, PlayerName) ->
     Query = list_to_binary(["insert into players values(
-    '", PlayerUUID, "', '", PlayerName,"', '", round(rand:uniform()) ,"', 'league', 500, 1, 100, 100,
+    '", PlayerUUID, "', '", PlayerName,"', '", integer_to_binary(round(rand:uniform())) ,"', 'league', 500, 1, 100, 100,
     '946ae77c-183b-4538-b439-ac9036024676',
     '{\"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\",
       \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\"}',
