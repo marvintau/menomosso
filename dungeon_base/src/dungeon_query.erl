@@ -451,7 +451,7 @@ is_same_day(<<Mega:4/binary, Sec:6/binary, MilliSec/binary>>) ->
 check_chest(Conn, PlayerUUID) ->
     Query = list_to_binary(["select
         char_id, last_opened_chest % 5 + 1, chest_name,
-        interval '1s' * open_interval - (now() - last_opened_time) as remaining,
+        (interval '1s' * open_interval - (now() - last_opened_time)) * interval '1s' as remaining,
         extract(epoch from last_opened_time) * 100000 as last_opened_time, is_today_done
     from
         char_chest
@@ -547,7 +547,7 @@ get_chest_items(Conn, ChestID) ->
 
 
 check_chest_to_map({ID, ChestID, NextChestName, NextOpenTime, IsSameDay}) ->
-    {[{id, ID}, {next_chest, ChestID}, {next_name, NextChestName}, {remaining, NextOpenTime}, {is_today_done, IsSameDay}]}.
+    {[{id, ID}, {next_chest_id, ChestID}, {next_chest_name, NextChestName}, {next_open_time, NextOpenTime}, {is_same_day, IsSameDay}]}.
 
 
 check_chest_update(Conn, {PlayerID}) ->
