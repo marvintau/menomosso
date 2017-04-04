@@ -47,7 +47,7 @@ handle_post(Req, State) ->
 
     {ok, Conn} = dungeon_query:connect(),
 
-    {ok, IDString} = dungeon_base:add_new_player(Conn),
+    {ok, IDString} = dungeon_query:add_new_player(Conn, {}),
 
     dungeon_query:close(Conn),
 

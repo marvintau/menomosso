@@ -15,7 +15,6 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-	dungeon_base:start_link([{host, "localhost"}, {username, "yuetao"}, {password, "asdasdasd"}, {database, "dungeon_base"}, {timeout, 100}]),
 
     Dispatch = cowboy_router:compile([
             {'_', [
