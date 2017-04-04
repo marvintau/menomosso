@@ -63,12 +63,24 @@ apply_move_ordered(#{offender:=Off}=S, A, #{id:=Off}=B, L) ->
 % When exiting the main loop, the log will be reversed to it's natural
 % order.
 
-loop(_, #{state:=#{hp:={single, HA}}, id:=_I1}, #{state:=#{hp:={single, HB}}, id:=_I2}, Log) when HA < 0 orelse HB < 0 ->
+loop(_, #{state:=#{hp:={single, HA}}, id:=I1}, #{state:=#{hp:={single, HB}}, id:=I2}, Log) when HA < 0 orelse HB < 0 ->
+
+    Winner = if
+        HA > HB -> I1;
+        true -> I2
+    end,
+
     erlang:display({ended, someone_died}),
-    {log, lists:reverse(Log)};
-loop(_, #{selected_skills:=[], id:=_I1}, #{selected_skills:=[], id:=_I2}, Log)->
+    {log, #{records=>lists:reverse(Log), winner=>Winner}};
+loop(_, #{state:=#{hp={single, HA}}, selected_skills:=[], id:=I1}, #{state:=#{hp:=#{single, HB}}, selected_skills:=[], id:=I2}, Log)->
+    
+    Winner = if
+        HA > HB -> I1;
+        true -> I2
+    end,
+
     erlang:display({ended, no_skills}),
-    {log, lists:reverse(Log)};
+    {log, #{records=>lists:reverse(Log), winner=>Winner}};
 
 
 % ------------------------- LOOP FOR CAST -----------------------------
