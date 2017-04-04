@@ -4,8 +4,6 @@
 
 -export([start/1]).
 
-rand() ->
-    element(3, erlang:timestamp())/1000000.
 
 % ------------- HELPER FUNCTION FOR CHOOSING NEW OFFENDER --------------
 
@@ -60,18 +58,15 @@ apply_move_ordered(#{offender:=Off}=S, A, #{id:=Off}=B, L) ->
     {NewA, NewB, NewL}.
 
 
-% ======================= MAIN BATTLE LOOP ============================
-
-
 % ------------------------- TERMINATION ------------------------------
 % The condition of terminating is one competitor's HP falls below zero.
 % When exiting the main loop, the log will be reversed to it's natural
 % order.
 
-loop(_, #{state:=#{hp:={single, HA}}, id:=I1}, #{state:=#{hp:={single, HB}}, id:=I2}, Log) when HA < 0 orelse HB < 0 ->
+loop(_, #{state:=#{hp:={single, HA}}, id:=_I1}, #{state:=#{hp:={single, HB}}, id:=_I2}, Log) when HA < 0 orelse HB < 0 ->
     erlang:display({ended, someone_died}),
     {log, lists:reverse(Log)};
-loop(_, #{selected_skills:=[], id:=I1}, #{selected_skills:=[], id:=I2}, Log)->
+loop(_, #{selected_skills:=[], id:=_I1}, #{selected_skills:=[], id:=_I2}, Log)->
     erlang:display({ended, no_skills}),
     {log, lists:reverse(Log)};
 

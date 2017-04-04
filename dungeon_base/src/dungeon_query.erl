@@ -195,10 +195,10 @@ add_new_card(Conn, _) ->
 %% TODO: 未来将会加上更多限定条件，譬如排名等，来限制获取的玩家数目
 
 get_player_list(Conn, _) ->
-    Query = list_to_binary(["select * from players ;"]),
+    Query = list_to_binary(["select * from players, cards where players.preset_card_id=cards.id;"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, _, Players} -> {ok, [get_player_map(Player) || Player <- Players]};
+        {ok, _, Players} -> {ok, [get_listed_player_map(Player) || Player <- Players]};
         _ -> {error, get_player_list_failed}
     end.
 
@@ -210,6 +210,46 @@ get_player_list(Conn, _) ->
 reform_selected_skills(PresetSkillBinary) ->
     Trimmed = list_to_binary(tl(lists:droplast(binary_to_list(PresetSkillBinary)))),
     [binary_to_atom(Skill, utf8) || Skill <- binary:split(Trimmed, <<",">>, [global])].
+
+get_listed_player_map(
+    {ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rank, _, _,
+     CardID, CardName, CardImageName, CardLevel, CardExpi, _Stars, Class, RangeType, HP, _Armor, _Agility, _Hit, _Block, _Dodge, _Resist, _Critical, _AtkType, _AtkMax, _AtkMin, _, _}) ->
+
+    #{
+        id => ID, 
+        player_name => Name,
+        image_name =>ImageName,
+        association => Association,
+        expi => binary_to_integer(Expi),
+        level => binary_to_integer(Level),
+        coins => binary_to_integer(Coins),
+        diamonds => binary_to_integer(Diamonds),
+        preset_card_id => PresetCardID,
+        selected_skills => reform_selected_skills(PresetSkills),
+        rank => binary_to_integer(Rank),
+
+        card_id => CardID,
+        card_name => CardName,
+        card_image_name => CardImageName,
+        card_level=> binary_to_integer(CardLevel),
+        card_expi => binary_to_integer(CardExpi),
+        hp => binary_to_integer(HP),
+        range_type => RangeType,
+        class => Class
+
+        % stars => binary_to_integer(Stars),
+        % armor => binary_to_integer(Armor),
+        % agility => binary_to_integer(Agility),
+        % atk_type => AtkType,
+        % atk_max => binary_to_integer(AtkMax),
+        % atk_min => binary_to_integer(AtkMin),
+        % hit => binary_to_integer(Hit),
+        % block => binary_to_integer(Block),
+        % dodge => binary_to_integer(Dodge),
+        % resist => binary_to_integer(Resist),
+        % critical => binary_to_integer(Critical)
+    }.
+
 
 get_player_map({ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rank, _, _}) ->
 
