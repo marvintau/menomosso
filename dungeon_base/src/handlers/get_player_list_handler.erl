@@ -48,7 +48,7 @@ handle_post(Req, State) ->
     _Data = jiffy:decode(ReqBody),
 
     {ok, Conn} = dungeon_query:connect(),
-    {ok, List} = dungeon_query:get_player_list(Conn),
+    {ok, List} = dungeon_query:get_player_list(Conn, {}),
     dungeon_query:close(Conn),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(List), NextReq),
