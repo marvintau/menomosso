@@ -462,7 +462,9 @@ check_chest(Conn, PlayerUUID) ->
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, _, [{ID, NextChestID, NextName, Remaining, LastOpen, IsTodayDone}]} ->
             {ok, {ID, NextChestID, NextName, Remaining, IsTodayDone}, is_same_day(LastOpen)};
-        _ -> {error, check_chest_failed}
+        Error ->
+        error_logger:info_report(Error),
+        {error, check_chest_failed}
     end.
 
 next_day_reset(Conn, PlayerUUID) ->
