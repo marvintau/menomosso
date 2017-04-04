@@ -41,7 +41,7 @@ connect(Host, User, Password, Database, Timeout) ->
     case epgsql:connect(Host, User, Password, [{database, Database}, {timeout, Timeout}]) of
         {ok, Conn} ->
             erlang:display({'DungenBase', connected}),
-            {ok, #{conn=>Conn}};
+            {ok, Conn};
         {error, Error} ->
             erlang:display({'DungenBase', connection, failed}),
             {error, Error}
