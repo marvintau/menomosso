@@ -547,7 +547,7 @@ get_chest_items(Conn, ChestID) ->
 
 
 check_chest_to_map({ID, ChestID, NextChestName, NextOpenTime, IsSameDay}) ->
-    {[{id, ID}, {next_chest_id, ChestID}, {next_chest_name, NextChestName}, {next_open_time, NextOpenTime}, {is_same_day, IsSameDay}]}.
+    {[{id, ID}, {next_chest, ChestID}, {next_name, NextChestName}, {remaining, NextOpenTime}, {is_today_done, IsSameDay}]}.
 
 
 check_chest_update(Conn, {PlayerID}) ->
