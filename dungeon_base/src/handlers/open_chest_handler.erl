@@ -49,11 +49,15 @@ handle_post(Req, State) ->
 
     {[{_, ID}]} = jiffy:decode(ReqBody),
 
-    {ok, OpenChestResult} = dungeon_base:open_chest(ID),
+    {ok, Conn} = dungeon_query:connect(),
+
+    {ok, OpenChestResult} = dungeon_query:open_chest_update(Conn, {ID}),
     Result = case is_list(OpenChestResult) of
         true -> [#{id => binary_to_integer(ItemIndex), name=> ItemName, quantity => binary_to_integer(ItemQuantity)} || {ItemIndex, ItemName, ItemQuantity} <- OpenChestResult];
         _ -> atom_to_binary(OpenChestResult, utf8)
     end,
+
+    dungeon_query:close(Conn),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(Result), NextReq),
     {true, Res, State}.

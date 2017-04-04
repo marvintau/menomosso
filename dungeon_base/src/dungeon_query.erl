@@ -3,6 +3,7 @@
 -author('Yue Marvin Tao').
 
 -export([
+    connect/0,
     connect/5,
     close/1,
 
@@ -31,10 +32,20 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 开始和结束数据库会话
+connect() ->
+    connect("localhost", "yuetao", "asdasdasd", "dungeon_base", 100).
 
 connect(Host, User, Password, Database, Timeout) ->
     erlang:display(connecting),
-    epgsql:connect(Host, User, Password, [{database, Database}, {timeout, Timeout}]).
+
+    case epgsql:connect(Host, User, Password, [{database, Database}, {timeout, Timeout}]) of
+        {ok, Conn} ->
+            erlang:display({'DungenBase', connected}),
+            {ok, #{conn=>Conn}};
+        {error, Error} ->
+            erlang:display({'DungenBase', connection, failed}),
+            {error, Error}
+    end.
 
 close(Conn) ->
     epgsql:close(Conn).
