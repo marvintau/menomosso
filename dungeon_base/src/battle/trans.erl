@@ -211,8 +211,8 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
 % Accepts cond description
 
 log_trans(#{offender:=Off} = S, SkillName, {_, {_, Type, Attr, Who}},
-    #{id:=OID, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}=O},
-    #{id:=DID, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
+    #{id:=OID, class:=ClassO, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}} = O,
+    #{id:=DID, class:=ClassD, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
 ) ->
 
     {OrderO, OrderD} = case Off == OID of
@@ -223,8 +223,8 @@ log_trans(#{offender:=Off} = S, SkillName, {_, {_, Type, Attr, Who}},
     #{
         state => maps:remove(offender, S),
         effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, over=>Who, diff => ref:val({attr, Type, diff, Who}, O, D)},
-        OID => #{player_name=>NameO, role=>OrderO, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
-        DID => #{player_name=>NameD, role=>OrderD, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
+        OID => #{player_name=>NameO, class=>ClassO, role=>OrderO, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
+        DID => #{player_name=>NameD, class=>ClassD, role=>OrderD, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
     }.
 
 apply(S, SkillName, TransList, O, D) ->
