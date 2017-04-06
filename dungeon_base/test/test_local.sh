@@ -3,7 +3,7 @@ do
     printf "adding new player\n"
     curl -H "Content-Type: application/json" -X POST -d '' http://localhost:1337/api/add_new_player
     printf "\ngetting player\n"
-    curl -H "Content-Type: application/json" -X POST -d '{"id":"8673cc53-e2a8-4375-b6a3-007e2ebe6d5f"}' http://localhost:1337/api/get_player
+    curl -H "Content-Type: application/json" -X POST -d '{"id":"8673cc53-e2a8-4375-b6a3-007e"}' http://localhost:1337/api/get_player
     printf "\ngetting player list \n"
     curl -H "Content-Type: application/json" -X POST -d '{}' http://localhost:1337/api/get_player_list
     printf "\ncheck chest \n"

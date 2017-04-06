@@ -45,11 +45,7 @@ handle_post(Req, State) ->
             {<<"Nah">>, Req}
     end,
 
-    {ok, Conn} = dungeon_query:connect(),
-
-    {ok, IDString} = dungeon_query:add_new_player(Conn, {}),
-
-    dungeon_query:close(Conn),
+    {ok, IDString} = dungeon_base:add_new_player(),
 
     Res = cowboy_req:set_resp_body(list_to_binary(["{\"id\":\"",IDString, "\"}"]), NextReq),
     {true, Res, State}.

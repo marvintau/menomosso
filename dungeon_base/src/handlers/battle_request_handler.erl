@@ -50,14 +50,10 @@ handle_post(Req, State) ->
 
     error_logger:info_report(battle_begins),
 
-    {ok, Conn} = dungeon_query:connect(),
+    dungeon_base:update_selected_skills(Skills, Id1),
 
-    dungeon_query:update_selected_skills(Conn, {Skills, Id1}),
-
-    {ok, BattleContext1} = dungeon_query:get_player_battle(Conn, {Id1}),
-    {ok, BattleContext2} = dungeon_query:get_player_battle(Conn, {Id2}),
-
-    dungeon_query:close(Conn),
+    {ok, BattleContext1} = dungeon_base:get_player_battle(Id1),
+    {ok, BattleContext2} = dungeon_base:get_player_battle(Id2),
 
     {log, Log} = battle:start({BattleContext1, BattleContext2}),
     error_logger:info_report(jiffy:encode(Log)),

@@ -48,9 +48,7 @@ handle_post(Req, State) ->
 
     {[{_, ID}]} = jiffy:decode(ReqBody),
 
-    {ok, Conn} = dungeon_query:connect(),
-    {ok, CheckRes} = dungeon_query:check_chest_update(Conn, {ID}),
-    dungeon_query:close(Conn),
+    {ok, CheckRes} = dungeon_base:check_chest_update(ID),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(CheckRes), NextReq),
     {true, Res, State}.

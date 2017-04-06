@@ -32,10 +32,10 @@
 
 
 start(Args) ->
-    dungeon_base_sup:start_link(),
     gen_server:start({local, ?MODULE}, ?MODULE, Args, []).
 
 start_link(Args) ->
+    dungeon_sup:start_link(),
     gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
 
 stop() ->
@@ -98,35 +98,22 @@ open_chest(PlayerID) ->
 
 init(Args)->
     process_flag(trap_exit, true),
-
-    Host = proplists:get_value(host, Args),
-    User = proplists:get_value(username, Args),
-    Password = proplists:get_value(password, Args),
-    Database = proplists:get_value(database, Args),
-    Timeout = proplists:get_value(timeout, Args),
-
-
-    Res = case dungeon_query:connect(Host, User, Password, Database, Timeout) of
-        {ok, Conn} ->
-            erlang:display({'DungenBase', connected}),
-            {ok, #{conn=>Conn}};
-        {error, Error} ->
-            erlang:display({'DungenBase', connection, failed}),
-            {error, Error}
-    end,
-
-    Res.
+    {ok, Conn} = dungeon_query:connect(),
+    {ok, #{conn => Conn}}.
 
 handle_call({q, Operation, Args}, _From, #{conn:=Conn}=State) ->
     {reply, dungeon_query:Operation(Conn, Args), State};
 
-handle_call(stop, _From, State) ->
+handle_call(stop, _From, #{conn:=Conn} = State) ->
+    dungeon_query:close(Conn),
     {stop, normal, user_terminates, State}.
 
 handle_cast(_, _) -> ok.
 
 handle_info(_, _) -> ok.
 
-terminate(_, _) -> ok.
+terminate(_, _) ->
+    % dungeon_query:close(Conn),
+    ok.
 
 code_change(_, _, _) -> ok.

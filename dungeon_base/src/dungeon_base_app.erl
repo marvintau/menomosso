@@ -36,6 +36,8 @@ start(_StartType, _StartArgs) ->
 
 	skills:init_table(),
 
+  dungeon_base:start_link([]),
+
   dungeon_base_sup:start_link().
 
 %%--------------------------------------------------------------------

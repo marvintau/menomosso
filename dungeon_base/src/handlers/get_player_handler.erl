@@ -48,14 +48,10 @@ handle_post(Req, State) ->
 
     {[{_, ID}]} = jiffy:decode(ReqBody),
 
-    {ok, Conn} = dungeon_query:connect(),
-
-    ResEJSON = case dungeon_query:get_player(Conn, {ID}) of 
+    ResEJSON = case dungeon_base:get_player(ID) of 
         {ok, Reply} -> Reply;
         {error, Reason} -> atom_to_binary(Reason, utf8)
     end,
-
-    dungeon_query:close(Conn),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(ResEJSON), NextReq),
     {true, Res, State}.

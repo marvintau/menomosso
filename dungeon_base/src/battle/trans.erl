@@ -220,6 +220,9 @@ log_trans(#{offender:=Off} = S, SkillName, {_, {_, Type, Attr, Who}},
         _ -> {def, off}
     end,
 
+    erlang:display({player, NameO, order, OrderO, skill, SkillName, outcome, Outcome}),
+    erlang:display({player, NameD, order, OrderD}),
+
     #{
         state => maps:remove(offender, S),
         effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, over=>Who, diff => ref:val({attr, Type, diff, Who}, O, D)},
@@ -241,6 +244,5 @@ apply(S, SkillName, [Trans | RemTrans], O, D, Logs) ->
     % erlang:display({Name, Trans}),
     { TransedO, TransedD} = trans(Trans, O, D),
     Log = log_trans(S, SkillName, Trans, TransedO, TransedD),
-    erlang:display(Log),
 
     apply(S, SkillName, RemTrans, TransedO, TransedD, [Log | Logs]).
