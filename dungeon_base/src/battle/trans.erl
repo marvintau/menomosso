@@ -210,24 +210,21 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
 
 % Accepts cond description
 
-log_trans(#{offender:=Off} = S, SkillName, {_, {_, Type, Attr, Who}},
+log_trans(#{stage:=Stage} = S, SkillName, {_, {_, Type, Attr, Who}},
     #{id:=OID, class:=ClassO, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}} = O,
     #{id:=DID, class:=ClassD, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
 ) ->
 
-    {OrderO, OrderD} = case Off == OID of
-        true -> {off, def};
-        _ -> {def, off}
+    InitOrFollow = case Stage of
+        casting -> init;
+        _ -> follow
     end,
-
-    erlang:display({player, NameO, order, OrderO, skill, SkillName, outcome, Outcome}),
-    erlang:display({player, NameD, order, OrderD}),
 
     #{
         state => maps:remove(offender, S),
         effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, over=>Who, diff => ref:val({attr, Type, diff, Who}, O, D)},
-        OID => #{player_name=>NameO, class=>ClassO, role=>off, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
-        DID => #{player_name=>NameD, class=>ClassD, role=>def, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
+        OID => #{player_name=>NameO, class=>ClassO, role=>offender, order=>InitOrFollow, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
+        DID => #{player_name=>NameD, class=>ClassD, role=>defender, order=>InitOrFollow, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
     }.
 
 apply(S, SkillName, TransList, O, D) ->
