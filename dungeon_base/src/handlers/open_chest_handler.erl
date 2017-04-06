@@ -49,7 +49,7 @@ handle_post(Req, State) ->
 
     {[{_, ID}]} = jiffy:decode(ReqBody),
 
-    {ok, OpenChestResult} = dungeon_base:open_chest_update(ID),
+    {ok, OpenChestResult} = dungeon_base:open_chest(ID),
     Result = case is_list(OpenChestResult) of
         true -> [#{id => binary_to_integer(ItemIndex), name=> ItemName, quantity => binary_to_integer(ItemQuantity)} || {ItemIndex, ItemName, ItemQuantity} <- OpenChestResult];
         _ -> atom_to_binary(OpenChestResult, utf8)
