@@ -226,8 +226,8 @@ log_trans(#{offender:=Off} = S, SkillName, {_, {_, Type, Attr, Who}},
     #{
         state => maps:remove(offender, S),
         effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, over=>Who, diff => ref:val({attr, Type, diff, Who}, O, D)},
-        OID => #{player_name=>NameO, class=>ClassO, role=>OrderO, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
-        DID => #{player_name=>NameD, class=>ClassD, role=>OrderD, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
+        OID => #{player_name=>NameO, class=>ClassO, role=>off, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
+        DID => #{player_name=>NameD, class=>ClassD, role=>def, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
     }.
 
 apply(S, SkillName, TransList, O, D) ->
