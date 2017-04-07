@@ -50,12 +50,13 @@ handle_post(Req, State) ->
 
     error_logger:info_report(battle_begins),
 
-    dungeon_base:update_selected_skills(Skills, Id1),
+    {ok, _} = dungeon_base:update_selected_skills(Skills, Id1),
 
     {ok, BattleContext1} = dungeon_base:get_player_battle(Id1),
     {ok, BattleContext2} = dungeon_base:get_player_battle(Id2),
+    
+    erlang:display(BattleContext1),
 
     {log, Log} = battle:start({BattleContext1, BattleContext2}),
-    error_logger:info_report(jiffy:encode(Log)),
     Res = cowboy_req:set_resp_body(jiffy:encode(Log), NextReq),
     {true, Res, State}.

@@ -288,11 +288,16 @@ update_preset_card(Conn, {CardUUID, PlayerUUID}) ->
 %% ------------------------------------------------------------------------
 %% 更新玩家的预设技能
 update_selected_skills(Conn, {SkillList, PlayerUUID}) ->
-    Query = list_to_binary(["update players set selected_skills= '", SkillList, "', last_modified=now() where id = '", PlayerUUID, "';"]),
+
+    ReformedSkillString = string:join(["\""++binary_to_list(SkillName)++"\"" || SkillName <- SkillList],","),
+
+    Query = list_to_binary(["update players set selected_skills= '{", ReformedSkillString, "}', last_modified=now() where id = '", PlayerUUID, "';"]),
 
     case epgsql:squery(Conn,binary_to_list(Query)) of
         {ok, 1} -> {ok, selected_skills_updated};
-        _       -> {error, update_selected_skills_failed}
+        Error       ->
+            erlang:display(Error),
+            {error, update_selected_skills_failed}
     end.
 
 %% ------------------------------------------------------------------------

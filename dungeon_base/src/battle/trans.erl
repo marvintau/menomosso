@@ -220,9 +220,16 @@ log_trans(#{stage:=Stage} = S, SkillName, {_, {_, Type, Attr, Who}},
         _ -> follow
     end,
 
+    Dest = case Who of
+        off -> offender;
+        _ -> defender
+    end,
+    
+    erlang:display({NameO, SkillName, Outcome, Attr, Dest, NameD}),
+
     #{
         state => maps:remove(offender, S),
-        effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, over=>Who, diff => ref:val({attr, Type, diff, Who}, O, D)},
+        effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, over=>Dest, diff => ref:val({attr, Type, diff, Who}, O, D)},
         OID => #{player_name=>NameO, class=>ClassO, role=>offender, order=>InitOrFollow, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
         DID => #{player_name=>NameD, class=>ClassD, role=>defender, order=>InitOrFollow, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
     }.
