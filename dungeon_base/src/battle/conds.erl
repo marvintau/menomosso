@@ -16,14 +16,16 @@ seq({{seq_ever, Start, null, Phase}, Others}, CurrSeq, _Skills) ->
 seq({{seq_norm, Start, Last, Phase}, Others}, CurrSeq, _Skills) ->
     {{lists:seq(CurrSeq + Start, CurrSeq + Start + Last), Phase}, Others};
 
-seq({{next_cast_norm, Last, GivenAttackSpec, Phase}, Others}, CurrSeq, Skills) ->
+seq({{next_cast_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, Skills) ->
 
-    IsPatternMatches = fun({AttrG, MoveG, AbsG, ResG}, {Attr, Move, Abs, Res}) ->
+    IsPatternMatches = fun({{AttrG, MoveG, AbsG, ResG, _}, _}) ->
         ((AttrG == Attr) or (AttrG == none)) and ((MoveG == Move) or (MoveG == none)) and
         ((AbsG == Abs) or (AbsG == none)) and ((ResG == Res) or (ResG == none)) end,
 
-    ActualSeqs = [ Index || {SkillName, Index} <- lists:zip(Skills, lists:seq(1, length(Skills))), Index > CurrSeq],
-    {{lists:sublist(lists:filter(IsPatternMatches, ActualSeqs), Last), Phase}, Others}.
+    ActualSeqs = [ {hd(ets:lookup(skills, SkillName)), Index} || {SkillName, Index} <- lists:zip(Skills, lists:seq(1, length(Skills))), Index > CurrSeq],
+    ResList =lists:filter(IsPatternMatches, ActualSeqs),
+    erlang:display(ResList), 
+    {{lists:sublist(ResList, Last), Phase}, Others}.
 
 
 % 用于比较的算符

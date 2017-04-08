@@ -17,6 +17,7 @@ roulette(AttackSpec,
         #{attr:=#{resist:={single, Res}, block:={single, Blo}, dodge:={single, Dod}}} )->
 
     % 获得攻击属性（魔法／物理），放招类型（普攻／技能），是否可以抵抗，是否护甲减免（不考虑），技能失败概率
+    erlang:display(AttackSpec),
     {AttrType, MoveType, Resistable, _Absorbable, FL}  = AttackSpec,
 
     % 实际的抗性：如果技能不可抵抗，那么实际的魔抗值为0
@@ -187,6 +188,7 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
     end,
 
     % 得到转盘结果
+    erlang:display({Opcode, Oper, AttackSpec}),
     Outcome = roulette(AttackSpec, O, D),
 
     % 将转盘结果加入玩家context，并按结果计算伤害／技能效果，把结果保存在TransPsn里面

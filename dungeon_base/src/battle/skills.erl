@@ -32,7 +32,7 @@ counter_attack(Times) ->
     {{add_inc_mul, {{attr, state, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, state, hp, def}}.
 
 buff(AttrType, Attr, Buff) ->
-    {{add_mul, {{single, 1+Buff}}, none}, {attr, AttrType, Attr, off}}.
+    {{add_mul, {{single, 1+Buff}}, magic_cast()}, {attr, AttrType, Attr, off}}.
 
 seq() ->
     seq(0).
@@ -46,7 +46,7 @@ seq(LastFor, Stage, Conds) ->
 next_damage() ->
     next_damage(1).
 next_damage(LastFor) ->
-    {{next_cast_norm, LastFor, {physical, attack, none, none}}, []}.
+    {{next_cast_norm, LastFor, {physical, attack, none, none}, casting}, []}.
 
 opponent_critical() ->
     {attack, '==', {attr, attr, outcome, def}}.
@@ -67,13 +67,13 @@ create_skills() ->
         ]}]},
 
         {charm_of_foresight, general, 7, [{0, [
-            {next_damage(), [buff(attr, dodge, 0.25), buff(attr, block, 0.25)]}
+            {seq(), [buff(attr, dodge, 0.25), buff(attr, block, 0.25)]}
         ]}]},
         {fortify_armor, general, 3, [{0, [
-            {next_damage(), [buff(attr, armor, 0.3)]}
+            {seq(), [buff(attr, armor, 0.3)]}
         ]}]},
         {increase_crit, general, 3, [{0, [
-            {next_damage(), [buff(attr, critical, 0.25)]}
+            {seq(), [buff(attr, critical, 0.25)]}
         ]}]},
 
         {counter_back, general, 5, [{0, [
