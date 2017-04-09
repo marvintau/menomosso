@@ -11,23 +11,6 @@
     start_link/1,
     stop/0,
 
-    add_new_player/0,
-    add_new_card/0,
-    add_player_card/2,
-
-    get_player/1,
-    get_player_battle/1,
-    get_player_list/0,
-    get_card/1,
-    get_card_battle/1,
-
-    update_preset_card/2,
-    update_selected_skills/2,
-    update_player_ranking/2,
-    update_player_level/2,
-
-    check_chest/1,
-    open_chest/1,
     query/1
 ]).
 
@@ -44,59 +27,11 @@ stop() ->
 
 
 
-add_new_player() ->
-    gen_server:call(?MODULE, {q, add_new_player, {}}).
-
-add_new_card() ->
-    gen_server:call(?MODULE, {q, add_new_card, {}}).
-
-get_player_list() ->
-    gen_server:call(?MODULE, {q, get_player_list, {}}).
-
-
-
-
-add_player_card(CardID, PlayerID) ->
-    gen_server:call(?MODULE, {q, add_player_card, {CardID, PlayerID}}).
-
-
-get_player(PlayerID) ->
-    gen_server:call(?MODULE, {q, get_player, {PlayerID}}).
-
-get_player_battle(PlayerID) ->
-    gen_server:call(?MODULE, {q, get_player_battle, {PlayerID}}).
-
-
-get_card(CardID) ->
-    gen_server:call(?MODULE, {q, get_card, {CardID}}).
-
-
-get_card_battle(CardID) ->
-    gen_server:call(?MODULE, {q, get_card_battle, {CardID}}).
-
-
-update_preset_card(CardID, PlayerID) ->
-    gen_server:call(?MODULE, {q, update_preset_card, {CardID, PlayerID}}).
-
-update_selected_skills(Skills, PlayerID) ->
-    gen_server:call(?MODULE, {q, update_selected_skills, {Skills, PlayerID}}).
-
-update_player_ranking(Ranking, PlayerID) ->
-    gen_server:call(?MODULE, {q, update_player_ranking, {Ranking, PlayerID}}).
-
-update_player_level(Level, PlayerID) ->
-    gen_server:call(?MODULE, {q, update_player_level, {Level, PlayerID}}).
-
-
-
-check_chest(PlayerID) ->
-    gen_server:call(?MODULE, {q, check_chest_update, {PlayerID}}).
-
-open_chest(PlayerID) ->
-    gen_server:call(?MODULE, {q, open_chest_update, {PlayerID}}).
 
 query({QueryOp, Args}) ->
     gen_server:call(?MODULE, {q, QueryOp, Args}).
+
+
 
 init(Args)->
     process_flag(trap_exit, true),
