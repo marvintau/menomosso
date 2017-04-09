@@ -43,7 +43,7 @@ connect(Host, User, Password, Database, Timeout) ->
             erlang:display({'DungenBase', connected}),
             {ok, Conn};
         {error, Error} ->
-            erlang:display({'DungenBase', connection, failed}),
+            erlang:display({'DungenBase', connection, failed, Error}),
             {error, Error}
     end.
 

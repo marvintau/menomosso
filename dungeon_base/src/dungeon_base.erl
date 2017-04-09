@@ -27,7 +27,8 @@
     update_player_level/2,
 
     check_chest/1,
-    open_chest/1
+    open_chest/1,
+    query/1
 ]).
 
 
@@ -94,7 +95,8 @@ check_chest(PlayerID) ->
 open_chest(PlayerID) ->
     gen_server:call(?MODULE, {q, open_chest_update, {PlayerID}}).
 
-
+query({QueryOp, Args}) ->
+    gen_server:call(?MODULE, {q, QueryOp, Args}).
 
 init(Args)->
     process_flag(trap_exit, true),
