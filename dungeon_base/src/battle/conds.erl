@@ -27,8 +27,6 @@ seq({{next_cast_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, Sk
     CondPerCond = lists:flatten([ [{Seq, Eff} || {_EffSeqCond, Eff} <- EffectGroup] || {Seq, EffectGroup} <- CondPerEffectGroup]),
     CondPerEff = [ Seq || {Seq, X} <- [ {Seq, lists:any(IsPatternMatches, TransList)} || {Seq, TransList} <- CondPerCond], X == true, CurrSeq < Seq],
 
-    error_logger:info_report(hahaha),
-    error_logger:info_report(CondPerEff),
     {{lists:sublist(CondPerEff, Last), Phase}, Others}.
 
 

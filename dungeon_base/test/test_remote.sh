@@ -12,5 +12,5 @@ do
     curl -H "Content-Type: application/json" -X POST -d '{"id":"8673cc53-e2a8-4375-b6a3-007e2ebe6d5f"}' http://everstream.cn:1337/api/open_chest
      printf "\nopen chest \n"
     curl -H "Content-Type: application/json" -X POST\
-        -d '{"id1":"8673cc53-e2a8-4375-b6a3-007e2ebe6d5f", "id2":"68b19bbe-bc2a-400f-b4e7-6e632b3b908f", "skills":["single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack"]}' http://everstream.cn:1337/api/battle_request
+        -d '{"id1":"8673cc53-e2a8-4375-b6a3-007e2ebe6d5f", "id2":"68b19bbe-bc2a-400f-b4e7-6e632b3b908f", "skills":["fortify_armor", "double_attack", "triple_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack"]}' http://everstream.cn:1337/api/battle_request
 done
