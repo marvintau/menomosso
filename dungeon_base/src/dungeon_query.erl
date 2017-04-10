@@ -230,10 +230,9 @@ get_player(Conn, {PlayerUUID}) ->
             {ok, _, CardRes} = epgsql:squery(Conn,binary_to_list(QueryCard)),
             
             CardMapList = [dungeon_query_to_map:get_card_map(Card) || Card <- CardRes],
-            CardMapWithSkills = [get_card_skills(Conn, {maps:get(id, CardMap)}) || CardMap <- CardMapWithSkills],
-            erlang:display(CardMapWithSkills),
+            CardMapWithSkills = [maps:put(skills, get_card_skills(Conn, {maps:get(id, CardMap)}), CardMap) || CardMap <- CardMapList],
 
-            {ok, dungeon_query_to_map:get_profile_map(PlayerRes, CardRes)};
+            {ok, #{player_profile => dungeon_query_to_map:get_player_map(PlayerRes), card_profiles => CardMapWithSkills}};
         {ok, _, []} -> {error, player_not_found};
         _ -> {error, get_player_failed}
     end.
