@@ -17,13 +17,15 @@ update_skills(Data) ->
     ets:insert(skills, Res),
     ok.
 
+physical_attack_spec(Absorbable) ->
+    {physical, attack, Absorbable, non_resistable, 0}.
 physical_attack_spec() ->
     {physical, attack, non_absorbable, non_resistable, 0}.
 
-magic_cast(Resis) ->
+magic_cast_spec(Resis) ->
     {magic, cast, non_absorbable, Resis, 0}.
-magic_cast() ->
-    magic_cast(non_resistable).
+magic_cast_spec() ->
+    magic_cast_spec(non_resistable).
 
 plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}}.
@@ -32,7 +34,7 @@ counter_attack(Times) ->
     {{add_inc_mul, {{attr, state, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, state, hp, def}}.
 
 buff(AttrType, Attr, Buff) ->
-    {{add_mul, {{single, 1+Buff}}, magic_cast()}, {attr, AttrType, Attr, off}}.
+    {{add_mul, {{single, 1+Buff}}, magic_cast_spec()}, {attr, AttrType, Attr, off}}.
 
 seq() ->
     seq(0).
@@ -56,55 +58,92 @@ create_skills() ->
     true = ets:delete_all_objects(skills),
 
     Skills = [
-        {single_attack, general, 2, [{0, [
+        {single_attack, [{0, [
             {seq(), [plain_attack()]}
         ]}]},
-        {double_attack, general, 5, [{0, [
+
+        {double_attack, [{0, [
             {seq(), [plain_attack(), plain_attack()]}
         ]}]},
-        {triple_attack, general, 9, [{0, [
+        
+        {triple_attack, [{0, [
             {seq(), [plain_attack(), plain_attack(), plain_attack()]}
         ]}]},
 
-        {charm_of_foresight, general, 7, [{0, [
+        {charm_of_foresight, [{0, [
             {seq(), [buff(attr, dodge, 0.25), buff(attr, block, 0.25)]}
         ]}]},
-        {fortify_armor, general, 3, [{0, [
+        {fortify_armor, [{0, [
             {seq(), [buff(attr, armor, 0.3)]}
         ]}]},
-        {increase_crit, general, 3, [{0, [
+        {increase_crit, [{0, [
             {seq(), [buff(attr, critical, 0.25)]}
         ]}]},
 
-        {counter_back, general, 5, [{0, [
+        {counter_back, [{0, [
             {seq(2, counter, [opponent_critical()]), [counter_attack(2)]}
         ]}]},
 
-        {healing_potion, general, 3, [{0, [
-            {seq(), [{{add, {{range, 175, 255}}, magic_cast()}, {attr, state, hp, off}}]}
+        {healing_potion, [{0, [
+            {seq(), [{{add, {{range, 175, 255}}, magic_cast_spec()}, {attr, state, hp, off}}]}
         ]}]},
 
-        {talisman_of_death, general, 7, [{0, [
+        {poison_gas, [{0.5, [
+            {seq(1), [{{set, {{single, is_stunned}}, magic_cast_spec(resistable)}, {attr, state, hp, def}}]}
+        ]},{0.5,
+            {seq(1), [{{set, {{single, is_stunned}}, magic_cast_spec(resistable)}, {attr, state, hp, off}}]}
+        }]},
+
+        {ruin_of_the_void, [{0, [
+            {seq(), [{{set, {{single, cast_disabled}}, magic_cast_spec()}, {attr, attr, cast_disabled, def}}]}
+        ]}]},
+
+        {holy_hand_grenade, [{0, [
+            {seq(), [{{add, {{range, -500, -1}}, magic_cast_spec(resistable)}, {attr, state, hp, def}}]}
+        ]}]},
+
+        {talisman_of_death, [{0, [
             {seq(), [{{add_mul, {{single, -0.15}}, plain_attack()}, {attr, state, hp, def}}]}
         ]}]},
 
-        {ruin_of_the_void, general, 9, [{0, [
-            {seq(), [{{set, {{single, cast_disabled}}, magic_cast()}, {attr, attr, cast_disabled, def}}]}
-        ]}]},
-
-        {talisman_of_spellshrouding, general, 7, [{0, [
+        {talisman_of_spellshrouding, [{0, [
             {seq(), [buff(attr, resist, 1)]}
         ]}]},
 
-        {holy_hand_grenade, general, 2, [{0, [
-            {seq(), [{{add, {{range, -500, -1}}, magic_cast(resistable)}, {attr, state, hp, def}}]}
+        {sure_hit, [{0, [
+            {seq(1), [
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, resist, def}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, block, def}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, def}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, critical, off}}
+            ]}
         ]}]},
 
-        {poison_gas, general, 1, [{0.5, [
-            {seq(1), [{set, {{single, is_stunned}}, magic_cast(resistable), {attr, state, hp, def}}]}
-        ]},{0.5,
-            {seq(1), [{set, {{single, is_stunned}}, magic_cast(resistable), {attr, state, hp, off}}]}
-        }]}
+        {concussion, [{0, [
+            {seq(0), [
+                {{add_inc_mul, {{attr, attr, agility, def}, {single, -1}}, physical_attack_spec(absorbable)}, {attr, state, hp, def}},
+                {{add_inc_mul, {{attr, attr, critical, def}, {single, -0.5}}, physical_attack_spec()}, {attr, state, hp, def}}
+            ]}
+        ]}]},
+
+        {double_swing, [{0, [
+            {seq(2, counter, []), [plain_attack(), plain_attack()]}
+        ]}]},
+
+        {first_aid, [{0, [
+            {seq(), [
+                {{add_inc_mul, {{attr, state, hp, off}, {single, 0.08}}, magic_cast_spec()}, {attr, state, hp, off}}
+            ]}
+        ]}]},
+
+        {shield_wall, [{0, [
+            {seq(1), [
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, off}},
+                {{set, {{single, 120}}, magic_cast_spec()}, {attr, attr, block, off}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, hit_bonus, def}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, critical, def}}
+            ]}
+        ]}]}
     ],
 
     ets:insert(skills, Skills),

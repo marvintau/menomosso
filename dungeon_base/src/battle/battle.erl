@@ -41,13 +41,15 @@ apply_move_both(#{stage:=casting}=S, A, B, L) ->
     {OpA, OpB, OpLog} = cast:cast(S, A, B, L),                                  % A出招
     {OpEffA, OpEffB, OpEffLog} = cast:effect(S, OpA, OpB, OpLog),               % A技能效果
     {OpEff2B, OpEff2A, OpEff2Log} = cast:effect(S#{stage:=counter}, OpEffB, OpEffA, OpEffLog),   % B的反应技能效果
+    {OpEff3A, OpEff3B, OpEff3Log} = cast:effect(S#{stage:=append}, OpEff2B, OpEff2A, OpEff2Log),   % A的追加技能效果
 
-    {Op2B, Op2A, Op2Log} = cast:cast(S, OpEff2B, OpEff2A, OpEff2Log),           % B出招
+    {Op2B, Op2A, Op2Log} = cast:cast(S, OpEff3B, OpEff3A, OpEff3Log),           % B出招
     {Op2EffB, Op2EffA, Op2EffLog} = cast:effect(S, Op2B, Op2A, Op2Log),         % B的追加技能效果
     {Op2Eff2A, Op2Eff2B, Op2Eff2Log} = cast:effect(S#{stage:=counter}, Op2EffA, Op2EffB, Op2EffLog), % A的反应出招效果
+    {Op2Eff3B, Op2Eff3A, Op2Eff3Log} = cast:effect(S#{stage:=append}, Op2Eff2B, Op2Eff2A, Op2Eff2Log),
 
-    {RefreshedA, RefreshedB} = refresh_attributes(Op2Eff2A, Op2Eff2B),
-    {RefreshedA, RefreshedB, Op2Eff2Log}.
+    {RefreshedA, RefreshedB} = refresh_attributes(Op2Eff3A, Op2Eff3B),
+    {RefreshedA, RefreshedB, Op2Eff3Log}.
 
 
 apply_move_ordered(#{offender:=Off}=S, #{id:=Off}=A, B, L) ->
