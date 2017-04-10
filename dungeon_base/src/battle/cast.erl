@@ -23,7 +23,7 @@ parse_single_group(Name, {Prob, EffectSpecs}, S, SelectedSkills) ->
         _ ->    bad_luck
     end.
 
-parse_cast({Name, Class, Points, Groups}, S, SelectedSkills) ->
+parse_cast({Name, Groups}, S, SelectedSkills) ->
    lists:concat([parse_single_group(Name, Group, S, SelectedSkills) || Group <- Groups]).
 
 
