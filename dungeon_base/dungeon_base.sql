@@ -81,6 +81,54 @@ insert into cards
 
 select * from cards;
 
+drop table if exists card_skills cascade;
+create table card_skills (
+    skill_name text,
+    skill_multiple_time boolean,
+    skill_cost int,
+    card_id uuid
+);
+
+insert into card_skills(skill_name, skill_multiple_time, skill_cost, card_id) values
+('single_attack',                  true,         2,      '00000000-0000-0000-0000-000000000000'),
+('double_attack',                  true,         5,      '00000000-0000-0000-0000-000000000000'),
+('triple_attack',                  true,         9,      '00000000-0000-0000-0000-000000000000'),
+('charm_of_foresight',             false,        7,      '00000000-0000-0000-0000-000000000000'),
+('fortify_armor',                  false,        3,      '00000000-0000-0000-0000-000000000000'),
+('increase_crit',                  false,        3,      '00000000-0000-0000-0000-000000000000'),
+('counter_back',                   false,        5,      '00000000-0000-0000-0000-000000000000'),
+('healing_potion',                 false,        3,      '00000000-0000-0000-0000-000000000000'),
+('holy_hand_grenade',              false,        2,      '00000000-0000-0000-0000-000000000000'),
+('pierce_armor',                   false,        2,      '00000000-0000-0000-0000-000000000000'),
+('poison_gas',                     false,        1,      '00000000-0000-0000-0000-000000000000'),
+('ruin_of_the_void',               false,        9,      '00000000-0000-0000-0000-000000000000'),
+('talisman_of_death',              false,        7,      '00000000-0000-0000-0000-000000000000'),
+('talisman_of_shielding',          false,        3,      '00000000-0000-0000-0000-000000000000'),
+('talisman_of_spellshrouding',     false,        7,      '00000000-0000-0000-0000-000000000000'),
+('sure_hit',                       false,        4,      '946ae77c-183b-4538-b439-ac9036024676'),
+('concussion',                     false,        3,      '946ae77c-183b-4538-b439-ac9036024676'),
+('double_swing',                   false,        3,      '946ae77c-183b-4538-b439-ac9036024676'),
+('first_aid',                      false,        1,      '946ae77c-183b-4538-b439-ac9036024676'),
+('shield_wall',                    false,        4,      '946ae77c-183b-4538-b439-ac9036024676'),
+('sure_hit',                       false,        4,      '15d715a8-d585-48fc-a65a-286fc41c9a3f'),
+('concussion',                     false,        3,      '15d715a8-d585-48fc-a65a-286fc41c9a3f'),
+('double_swing',                   false,        3,      '15d715a8-d585-48fc-a65a-286fc41c9a3f'),
+('first_aid',                      false,        1,      '15d715a8-d585-48fc-a65a-286fc41c9a3f'),
+('shield_wall',                    false,        4,      '15d715a8-d585-48fc-a65a-286fc41c9a3f'),
+('chain_lock',                     false,        6,      'a0c1a883-2995-4526-856c-26870e5b3f74'),
+('critical_strike',                false,        2,      'a0c1a883-2995-4526-856c-26870e5b3f74'),
+('deadly_strike',                  false,        7,      'a0c1a883-2995-4526-856c-26870e5b3f74'),
+('shield_breaker',                 false,        5,      'a0c1a883-2995-4526-856c-26870e5b3f74'),
+('unbalancing_strike',             false,        2,      'a0c1a883-2995-4526-856c-26870e5b3f74'),
+('chain_lock',                     false,        6,      'be2d65f0-3c93-457e-8180-de7c93a365a5'),
+('critical_strike',                false,        2,      'be2d65f0-3c93-457e-8180-de7c93a365a5'),
+('deadly_strike',                  false,        7,      'be2d65f0-3c93-457e-8180-de7c93a365a5'),
+('shield_breaker',                 false,        5,      'be2d65f0-3c93-457e-8180-de7c93a365a5'),
+('unbalancing_strike',             false,        2,      'be2d65f0-3c93-457e-8180-de7c93a365a5');
+
+select * from card_skills;
+
+
 insert into player_card_info
 select uuid_generate_v4(), cards.id cards_id, players.id players_id, now(), now() from cards cross join players;
 

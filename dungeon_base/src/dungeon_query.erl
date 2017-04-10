@@ -223,6 +223,7 @@ get_player(Conn, {PlayerUUID}) ->
     case Profile of
         {ok, _, [PlayerRes]} ->
             {ok, _, CardRes} = epgsql:squery(Conn,binary_to_list(QueryCard)),
+            erlang:display(CardRes),
             {ok, dungeon_query_to_map:get_profile_map(PlayerRes, CardRes)};
         {ok, _, []} -> {error, player_not_found};
         _ -> {error, get_player_failed}
