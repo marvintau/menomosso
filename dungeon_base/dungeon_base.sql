@@ -101,7 +101,7 @@ insert into card_skills(skill_name, skill_multiple_time, skill_cost, card_id) va
 ('holy_hand_grenade',              false,        2,      '00000000-0000-0000-0000-000000000000'),
 ('pierce_armor',                   false,        2,      '00000000-0000-0000-0000-000000000000'),
 ('poison_gas',                     false,        1,      '00000000-0000-0000-0000-000000000000'),
-('ruin_of_the_void',               false,        9,      '00000000-0000-0000-0000-000000000000'),
+('rune_of_the_void',               false,        9,      '00000000-0000-0000-0000-000000000000'),
 ('talisman_of_death',              false,        7,      '00000000-0000-0000-0000-000000000000'),
 ('talisman_of_shielding',          false,        3,      '00000000-0000-0000-0000-000000000000'),
 ('talisman_of_spellshrouding',     false,        7,      '00000000-0000-0000-0000-000000000000'),

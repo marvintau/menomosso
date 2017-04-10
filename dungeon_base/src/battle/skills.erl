@@ -80,7 +80,7 @@ create_skills() ->
             {seq(), [buff(attr, critical, 0.25)]}
         ]}]},
 
-        {counter_back, [{0, [
+        {counterattack, [{0, [
             {seq(2, counter, [opponent_critical()]), [counter_attack(2)]}
         ]}]},
 
@@ -94,7 +94,7 @@ create_skills() ->
             {seq(1), [{{set, {{single, is_stunned}}, magic_cast_spec(resistable)}, {attr, state, hp, off}}]}
         }]},
 
-        {ruin_of_the_void, [{0, [
+        {rune_of_the_void, [{0, [
             {seq(), [{{set, {{single, cast_disabled}}, magic_cast_spec()}, {attr, attr, cast_disabled, def}}]}
         ]}]},
 
