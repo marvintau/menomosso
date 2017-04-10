@@ -209,6 +209,11 @@ get_player_list(Conn, _) ->
 %% 得到玩家信息，包含玩家信息，和玩家所持的所有卡牌的具体信息
 %% NOTE: 一般情况下主要用于自己
 
+get_card_skills(Conn, {CardID}) ->
+    Query = list_to_binary(["select skill_name, skill_multiple_time, skill_cost from card_skills where card_id in('", CardID,"', '00000000-0000-0000-0000-000000000000');"]),
+    {ok, _, CardInfoRes} = epgsql:squery(Conn, binary_to_list(Query)),
+    [#{skill_name=>SkillName, skill_multiple_time=>SKillMultipleTime, skill_cost=>binary_to_integer(SkillCost)} || {SkillName, SKillMultipleTime, SkillCost} <- CardInfoRes].
+
 get_player(Conn, {PlayerUUID}) ->
     QueryProfile = list_to_binary(["select * from players where id='", PlayerUUID,"';"]),
 
@@ -223,7 +228,11 @@ get_player(Conn, {PlayerUUID}) ->
     case Profile of
         {ok, _, [PlayerRes]} ->
             {ok, _, CardRes} = epgsql:squery(Conn,binary_to_list(QueryCard)),
-            erlang:display(CardRes),
+            
+            CardMapList = [dungeon_query_to_map:get_card_map(Card) || Card <- CardRes],
+            CardMapWithSkills = [get_card_skills(Conn, {maps:get(id, CardMap)}) || CardMap <- CardMapWithSkills],
+            erlang:display(CardMapWithSkills),
+
             {ok, dungeon_query_to_map:get_profile_map(PlayerRes, CardRes)};
         {ok, _, []} -> {error, player_not_found};
         _ -> {error, get_player_failed}
