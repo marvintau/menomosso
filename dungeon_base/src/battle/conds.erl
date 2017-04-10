@@ -18,14 +18,18 @@ seq({{seq_norm, Start, Last, Phase}, Others}, CurrSeq, _Skills) ->
 
 seq({{next_cast_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, Skills) ->
 
-    IsPatternMatches = fun({{AttrG, MoveG, AbsG, ResG, _}, _}) ->
-        ((AttrG == Attr) or (AttrG == none)) and ((MoveG == Move) or (MoveG == none)) and
-        ((AbsG == Abs) or (AbsG == none)) and ((ResG == Res) or (ResG == none)) end,
+    IsPatternMatches = fun({{_Op, _Operand, {AttrG, MoveG, AbsG, ResG, _}}, _}) ->
+        ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
+        ((AbsG == Abs) or (Abs == none)) and ((ResG == Res) or (Res == none)) end,
 
-    ActualSeqs = [ {hd(ets:lookup(skills, SkillName)), Index} || {SkillName, Index} <- lists:zip(Skills, lists:seq(1, length(Skills))), Index > CurrSeq],
-    ResList =lists:filter(IsPatternMatches, ActualSeqs),
-    erlang:display(ResList), 
-    {{lists:sublist(ResList, Last), Phase}, Others}.
+    CondPerSkill = [ {Index, element(2, hd(ets:lookup(skills, SkillName)))} || {SkillName, Index} <- lists:zip(Skills, lists:seq(1, length(Skills)))],
+    CondPerEffectGroup = lists:flatten([ [ {Seq, EffGroup} || {_Prob, EffGroup} <- EffectGroups ] || {Seq, EffectGroups} <- CondPerSkill]),
+    CondPerCond = lists:flatten([ [{Seq, Eff} || {_EffSeqCond, Eff} <- EffectGroup] || {Seq, EffectGroup} <- CondPerEffectGroup]),
+    CondPerEff = [ Seq || {Seq, X} <- [ {Seq, lists:any(IsPatternMatches, TransList)} || {Seq, TransList} <- CondPerCond], X == true, CurrSeq < Seq],
+
+    error_logger:info_report(hahaha),
+    error_logger:info_report(CondPerEff),
+    {{lists:sublist(CondPerEff, Last), Phase}, Others}.
 
 
 % 用于比较的算符

@@ -65,7 +65,7 @@ create_skills() ->
         {double_attack, [{0, [
             {seq(), [plain_attack(), plain_attack()]}
         ]}]},
-        
+
         {triple_attack, [{0, [
             {seq(), [plain_attack(), plain_attack(), plain_attack()]}
         ]}]},
@@ -74,7 +74,7 @@ create_skills() ->
             {seq(), [buff(attr, dodge, 0.25), buff(attr, block, 0.25)]}
         ]}]},
         {fortify_armor, [{0, [
-            {seq(), [buff(attr, armor, 0.3)]}
+            {next_damage(), [buff(attr, armor, 0.3)]}
         ]}]},
         {increase_crit, [{0, [
             {seq(), [buff(attr, critical, 0.25)]}

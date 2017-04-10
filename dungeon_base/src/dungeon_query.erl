@@ -228,7 +228,7 @@ get_player(Conn, {PlayerUUID}) ->
     case Profile of
         {ok, _, [PlayerRes]} ->
             {ok, _, CardRes} = epgsql:squery(Conn,binary_to_list(QueryCard)),
-            
+
             CardMapList = [dungeon_query_to_map:get_card_map(Card) || Card <- CardRes],
             CardMapWithSkills = [maps:put(skills, get_card_skills(Conn, {maps:get(id, CardMap)}), CardMap) || CardMap <- CardMapList],
 
