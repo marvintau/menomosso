@@ -8,14 +8,20 @@
 -behaviour(application).
 
 %% Application callbacks
--export([start/2, stop/1]).
+-export([start/2, stop/1, start/0, stop/0]).
+% -export([init/1, query/1]).
 
 %%====================================================================
 %% API
 %%====================================================================
 
-start(_StartType, _StartArgs) ->
+start() ->
+    application:start(?MODULE).
 
+stop() ->
+    application:stop(?MODULE).
+
+start(_StartType, _StartArgs) ->
     Dispatch = cowboy_router:compile([
             {'_', [
                    {"/api/add_new_player", add_new_player_handler, []},
@@ -34,15 +40,14 @@ start(_StartType, _StartArgs) ->
         #{env => #{dispatch => Dispatch}}
     ),
 
-	skills:init_table(),
+    ok = skills:init_table(),
 
-  dungeon_base:start_link([]),
+    dungeon_base_sup:start_link().
 
-  dungeon_base_sup:start_link().
-
-%%--------------------------------------------------------------------
 stop(_State) ->
     ok.
+
+%%--------------------------------------------------------------------
 
 %%====================================================================
 %% Internal functions

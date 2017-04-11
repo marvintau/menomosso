@@ -1,4 +1,4 @@
--module(dungeon_base).
+-module(dungeon_worker).
 
 -author('Yue Marvin Tao').
 
@@ -16,21 +16,18 @@
 
 
 start(Args) ->
-    gen_server:start({local, ?MODULE}, ?MODULE, Args, []).
+    gen_server:start(?MODULE, Args, []).
 
 start_link(Args) ->
     dungeon_sup:start_link(),
-    gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
+    gen_server:start_link(?MODULE, Args, []).
 
 stop() ->
     gen_server:call(?MODULE, stop).
 
 
-
-
 query({QueryOp, Args}) ->
     gen_server:call(?MODULE, {q, QueryOp, Args}).
-
 
 
 init(Args)->

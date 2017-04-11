@@ -48,7 +48,7 @@ handle_post(Req, State) ->
 
     {[{_, ID}]} = jiffy:decode(ReqBody),
 
-    ResEJSON = case dungeon_base:query({get_player, {ID}}) of 
+    ResEJSON = case dungeon_base_sup:query({get_player, {ID}}) of 
         {ok, Reply} -> Reply;
         {error, Reason} -> atom_to_binary(Reason, utf8)
     end,

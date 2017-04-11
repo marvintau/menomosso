@@ -74,8 +74,9 @@ loop(_, #{state:=#{hp:={single, HA}}, id:=I1}, #{state:=#{hp:={single, HB}}, id:
 
     erlang:display({ended, someone_died}),
     {log, #{records=>lists:reverse(Log), winner=>Winner}};
-loop(_, #{state:=#{hp:={single, HA}}, selected_skills:=[], id:=I1}, #{state:=#{hp:={single, HB}}, selected_skills:=[], id:=I2}, Log)->
     
+loop(_, #{state:=#{hp:={single, HA}}, selected_skills:=[], id:=I1}, #{state:=#{hp:={single, HB}}, selected_skills:=[], id:=I2}, Log)->
+
     Winner = if
         HA > HB -> I1;
         true -> I2

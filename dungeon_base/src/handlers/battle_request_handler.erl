@@ -50,11 +50,11 @@ handle_post(Req, State) ->
 
     error_logger:info_report(battle_begins),
 
-    {ok, _} = dungeon_base:query({update_selected_skills, {Skills, Id1}}),
+    {ok, _} = dungeon_base_sup:query({update_selected_skills, {Skills, Id1}}),
 
-    {ok, BattleContext1} = dungeon_base:query({get_player_battle, {Id1}}),
-    {ok, BattleContext2} = dungeon_base:query({get_player_battle, {Id2}}),
-    
+    {ok, BattleContext1} = dungeon_base_sup:query({get_player_battle, {Id1}}),
+    {ok, BattleContext2} = dungeon_base_sup:query({get_player_battle, {Id2}}),
+
     erlang:display(BattleContext1),
 
     {log, Log} = battle:start({BattleContext1, BattleContext2}),
