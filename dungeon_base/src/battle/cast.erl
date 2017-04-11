@@ -18,9 +18,9 @@ parse_single_effect(Name, {Cond, Trans} = EffectSpec, #{seq:=CurrSeq, offender:=
 parse_single_group(Name, {Prob, EffectSpecs}, S, SelectedSkills) ->
     case rand() > Prob of
         true ->
-
             [parse_single_effect(Name, EffectSpec, S, SelectedSkills) || EffectSpec <- EffectSpecs];
-        _ ->    bad_luck
+        _ ->
+            []
     end.
 
 parse_cast({Name, Groups}, S, SelectedSkills) ->

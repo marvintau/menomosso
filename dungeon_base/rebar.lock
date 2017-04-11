@@ -11,6 +11,7 @@
   {git,"git://github.com/epgsql/epgsql.git",
        {ref,"238a974bd2c6e308a1afbe90842cd78234122777"}},
   0},
+ {<<"erlando">>,{pkg,<<"erlando">>,<<"3.1.1">>},0},
  {<<"gun">>,{pkg,<<"gun">>,<<"1.0.0-pre.2">>},0},
  {<<"jiffy">>,
   {git,"https://github.com/davisp/jiffy.git",
@@ -28,6 +29,7 @@
  {<<"uuid">>,{pkg,<<"uuid_erl">>,<<"1.5.4">>},0}]}.
 [
 {pkg_hash,[
+ {<<"erlando">>, <<"50E54F9A9DFEC564DDFEB7FC7129F80F491856F5E07686F405CEF4E970BDFE46">>},
  {<<"gun">>, <<"9C7261A32AED26D6EEC69EF7DA15ED2F929C10460D5DEDE805BC5C2436A69CE0">>},
  {<<"quickrand">>, <<"47ADD4755CC5F209CBEFFD6F47C84061196CD7FAD99FD8FD12418EB0D06B939D">>},
  {<<"uuid">>, <<"06240EFF3EAF013CC22274689B0C1FF6345645EE5D47A9E4ED7545EEB7698B23">>}]}
