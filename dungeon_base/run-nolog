@@ -1,2 +1,2 @@
 #bin/sh
-erl -env ERL_LIBS _build/default/lib -eval 'application:ensure_all_started(dungeon_base).' -noshell -detached
+erl -env ERL_LIBS _build/default/lib -config dungeon_base.config -eval 'application:ensure_all_started(dungeon_base).' -noshell -detached
