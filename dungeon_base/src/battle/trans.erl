@@ -203,7 +203,7 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
     end,
 
     {PosedO, PosedD} = case AttackSpec of
-        {_, attack, _, _} ->
+        {_, attack, _, _, _} ->
             repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD);
         _ ->
             {TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD}
