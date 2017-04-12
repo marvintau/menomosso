@@ -30,6 +30,9 @@ magic_cast_spec() ->
 test_attr(Attr, Dest) ->
     {{add, {{single, 1}}, physical_attack_spec()}, {attr, attr, Attr, Dest}}.
 
+die() ->
+    {{set, {{single, 0}}, physical_attack_spec()}, {attr, state, hp, def}}.
+
 plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}}.
 
@@ -69,7 +72,7 @@ create_skills() ->
 
     Skills = [
         {single_attack, [{0, [
-            {seq(), [plain_attack(), test_attr(armor, def), test_attr(agility, def), test_attr(hit, def), test_attr(block, def), test_attr(dodge, def), test_attr(resist, def), test_attr(critical, def)]}
+            {seq(), [test_attr(armor, def), test_attr(agility, def), test_attr(hit, def), test_attr(block, def), test_attr(dodge, def), test_attr(resist, def), test_attr(critical, def), die()]}
         ]}]},
 
         {double_attack, [{0, [
