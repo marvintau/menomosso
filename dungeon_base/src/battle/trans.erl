@@ -263,7 +263,7 @@ log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Type, Attr, Who}}},
         _ -> defender
     end,
 
-    erlang:display({NameO, SkillName, Outcome, Attr, Dest, ref:val({attr, Type, diff, Who}, O, D), NameD}),
+    erlang:display({NameO, {PosO, PosMoveO}, SkillName, Outcome, Attr, Dest, ref:val({attr, Type, diff, Who}, O, D), NameD, {PosD, PosMoveD}}),
 
     #{
         state => maps:remove(offender, S),
