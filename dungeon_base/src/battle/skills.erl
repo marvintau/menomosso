@@ -69,7 +69,7 @@ create_skills() ->
 
     Skills = [
         {single_attack, [{0, [
-            {seq(), [test_attr(armor, def), test_attr(agility, def), test_attr(hit, def), test_attr(block, def), test_attr(dodge, def), test_attr(resist, def), test_attr(critical, def)]}
+            {seq(), [plain_attack(), test_attr(armor, def), test_attr(agility, def), test_attr(hit, def), test_attr(block, def), test_attr(dodge, def), test_attr(resist, def), test_attr(critical, def)]}
         ]}]},
 
         {double_attack, [{0, [
