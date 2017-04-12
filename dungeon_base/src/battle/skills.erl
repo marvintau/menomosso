@@ -31,7 +31,7 @@ test_attr(Attr, Dest) ->
     {{add, {{single, 1}}, physical_attack_spec()}, {attr, attr, Attr, Dest}}.
 
 die() ->
-    {{set, {{single, -1}}, physical_attack_spec()}, {attr, state, hp, def}}.
+    {{add, {{single, -1300}}, physical_attack_spec()}, {attr, state, hp, def}}.
 
 plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}}.
@@ -62,18 +62,15 @@ opponent_critical() ->
 
 create_skills() ->
     true = ets:delete_all_objects(skills),
-    % armor => {single, binary_to_integer(Armor)},
-    % agility => {single, binary_to_integer(Agility)},
-    % hit => {single, binary_to_integer(Hit)},
-    % block => {single, binary_to_integer(Block)},
-    % dodge => {single, binary_to_integer(Dodge)},
-    % resist => {single, binary_to_integer(Resist)},
-    % critical => {single, binary_to_integer(Critical)},
 
     Skills = [
         {single_attack, [{0, [
             {seq(), [test_attr(armor, def), test_attr(agility, def), test_attr(hit, def), test_attr(block, def), test_attr(dodge, def), test_attr(resist, def), test_attr(critical, def), die()]}
         ]}]},
+
+        {single_attack_normal,[{0, [
+            {seq(), [plain_attack()]}
+        ]}]}
 
         {double_attack, [{0, [
             {seq(), [plain_attack(), plain_attack()]}
