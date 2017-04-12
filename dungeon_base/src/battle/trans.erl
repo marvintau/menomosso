@@ -228,7 +228,7 @@ log_cast(S, SkillName, IsSuccessful,
 
     #{
         state => maps:remove(offender, S),
-        effect => #{skill_name=>SkillName, outcome => CastOutcome, attr=> null, over=>null, diff => 0},
+        effect => #{skill_name=>SkillName, outcome => CastOutcome, attr=> none, over=>none, diff => 0},
         OID => #{player_name=>NameO, class=>ClassO, role=>offender, order=>init, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
         DID => #{player_name=>NameD, class=>ClassD, role=>defender, order=>init, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
     }.
