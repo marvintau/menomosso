@@ -220,8 +220,8 @@ log_cast(S, SkillName, IsSuccessful,
 ) ->
 
     CastOutcome = case IsSuccessful of
-        true -> casted;
-        _ -> cast_failed
+        true -> successful;
+        _ -> failed
     end,
 
     erlang:display({NameO, SkillName, CastOutcome, NameD}),
