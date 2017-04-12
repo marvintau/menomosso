@@ -1,6 +1,8 @@
 -module(trans).
 
--export([trans/2, trans/3, apply/5]).
+% -export([trans/2, trans/3]).
+-export([effect/4]).
+-export([cast/4]).
 
 -define(MAX_LIMIT, 120).
 
@@ -17,7 +19,7 @@ roulette(AttackSpec,
         #{attr:=#{resist:={single, Res}, block:={single, Blo}, dodge:={single, Dod}}} )->
 
     % 获得攻击属性（魔法／物理），放招类型（普攻／技能），是否可以抵抗，是否护甲减免（不考虑），技能失败概率
-    erlang:display(AttackSpec),
+    % erlang:display(AttackSpec),
     {AttrType, MoveType, Resistable, _Absorbable, FL}  = AttackSpec,
 
     % 实际的抗性：如果技能不可抵抗，那么实际的魔抗值为0
@@ -188,12 +190,12 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
     end,
 
     % 得到转盘结果
-    erlang:display({Opcode, Oper, AttackSpec}),
+    % erlang:display({Opcode, Oper, AttackSpec}),
     Outcome = roulette(AttackSpec, O, D),
 
     % 将转盘结果加入玩家context，并按结果计算伤害／技能效果，把结果保存在TransPsn里面
     Psn = ref:who(P, O, D),
-    TransPsn = trans:trans({Opcode, RefOperand, AttackSpec, Outcome}, {attr, Type, Attr, Psn}),
+    TransPsn = trans({Opcode, RefOperand, AttackSpec, Outcome}, {attr, Type, Attr, Psn}),
 
     {#{attr:=AttrO}=TransO, TransD} = case P of
         off ->  {TransPsn, D};
@@ -212,7 +214,41 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
 
 % Accepts cond description
 
-log_trans(#{stage:=Stage} = S, SkillName, {_, {_, Type, Attr, Who}},
+log_cast(S, SkillName, IsSuccessful,
+    #{id:=OID, class:=ClassO, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}} = O,
+    #{id:=DID, class:=ClassD, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
+) ->
+
+    CastOutcome = case IsSuccessful of
+        true -> casted;
+        _ -> cast_failed
+    end,
+
+    erlang:display({NameO, SkillName, CastOutcome, NameD}),
+
+    #{
+        state => maps:remove(offender, S),
+        effect => #{skill_name=>SkillName, outcome => CastOutcome, attr=> null, over=>null, diff => 0},
+        OID => #{player_name=>NameO, class=>ClassO, role=>offender, order=>init, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
+        DID => #{player_name=>NameD, class=>ClassD, role=>defender, order=>init, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
+    }.
+
+cast(S, #{casts:=Casts}=O, D, Log) ->
+    cast(S, O, D, Log, Casts).
+
+cast(_S, O, D, Log, []) ->
+    {O, D, Log};
+cast(#{seq:=Seq}=S, O, D, Log, [{SeqIndex, SkillName, IsSuccessful} | Remaining]) ->
+    NewLog = case Seq == SeqIndex of
+        true ->
+            erlang:display({SkillName, IsSuccessful}),
+            [log_cast(S, SkillName, IsSuccessful, O, D) | Log];
+        _ -> Log
+    end,
+    cast(S, O, D, NewLog, Remaining).
+
+
+log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Type, Attr, Who}}},
     #{id:=OID, class:=ClassO, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}} = O,
     #{id:=DID, class:=ClassD, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
 ) ->
@@ -226,8 +262,8 @@ log_trans(#{stage:=Stage} = S, SkillName, {_, {_, Type, Attr, Who}},
         off -> offender;
         _ -> defender
     end,
-    
-    erlang:display({NameO, SkillName, Outcome, Attr, Dest, NameD}),
+
+    erlang:display({NameO, SkillName, Outcome, Attr, Dest, ref:val({attr, Type, diff, Who}, O, D), NameD}),
 
     #{
         state => maps:remove(offender, S),
@@ -236,19 +272,25 @@ log_trans(#{stage:=Stage} = S, SkillName, {_, {_, Type, Attr, Who}},
         DID => #{player_name=>NameD, class=>ClassD, role=>defender, order=>InitOrFollow, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
     }.
 
-apply(S, SkillName, TransList, O, D) ->
-    apply(S, SkillName, TransList, O, D, []).
 
-apply(_S, _SkillName, _, #{state:=#{hp:=HPO}}=O, #{state:=#{hp:=HPD}}=D, Logs) when (HPO =<0) or (HPD =< 0) ->
-    {O, D, Logs};
+effect(S, #{effects:=Effects}=O, D, Log) ->
+    effect(S, O, D, Log, Effects).
 
-apply(_S, _SkillName, [], O, D, Logs) ->
-    {O, D, Logs};
+effect(_S, #{state:=#{hp:={single, H1}}}=O, #{state:=#{hp:={single, H2}}}=D, Log, _) when (H1 =< 0) or (H2 =< 0) ->
+    {O, D, Log};
 
-apply(S, SkillName, [Trans | RemTrans], O, D, Logs) ->
+effect(_S, O, D, Log, []) ->
+    {O, D, Log};
 
-    % erlang:display({Name, Trans}),
-    { TransedO, TransedD} = trans(Trans, O, D),
-    Log = log_trans(S, SkillName, Trans, TransedO, TransedD),
+effect(#{seq:=Seq}=S, #{player_name:=PlayerName} = O, D, Log, [ {_Index, Name, Conds, Trans, _Success} | Remaining]) ->
 
-    apply(S, SkillName, RemTrans, TransedO, TransedD, [Log | Logs]).
+    {NewO, NewD, NewLog} = case conds:check(Conds, S, O, D) of
+        true ->
+            { TransedO, TransedD} = trans(Trans, O, D),
+            TransLog = log_trans(S, {Name, Trans}, TransedO, TransedD),
+            {TransedO, TransedD, [TransLog | Log]};
+        _    ->
+            {O, D, Log}
+    end,
+
+    effect(S, NewO, NewD, NewLog, Remaining).

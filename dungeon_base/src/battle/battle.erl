@@ -27,26 +27,26 @@ next_state(#{stage:=casting, seq:=Seq}=S, A, B) ->
     erlang:display({"=============", begin_settling, Seq+1, Offender, first}),
     S#{stage:=settling, seq:=Seq+1, offender=>Offender};
 
-next_state(#{stage:=settling}=S, _, _) ->
-    erlang:display({"=============", begin_casting}),
+next_state(#{stage:=settling, seq:=Seq}=S, _, _) ->
+    erlang:display({"=============", begin_casting, Seq}),
     S#{stage:=casting}.
 
 
 apply_move_both(#{stage:=settling}=S, A, B, L) ->
-    {OpA, OpB, OpLog}    = cast:effect(S, A, B, L),                             % A上回合遗留下来的出招前的效果
-    {Op2B, Op2A, Op2Log} = cast:effect(S, OpB, OpA, OpLog),                     % B上回合遗留下来的出招前效果
+    {OpA, OpB, OpLog}    = trans:effect(S, A, B, L),                             % A上回合遗留下来的出招前的效果
+    {Op2B, Op2A, Op2Log} = trans:effect(S, OpB, OpA, OpLog),                     % B上回合遗留下来的出招前效果
     {Op2A, Op2B, Op2Log};
 
 apply_move_both(#{stage:=casting}=S, A, B, L) ->
-    {OpA, OpB, OpLog} = cast:cast(S, A, B, L),                                  % A出招
-    {OpEffA, OpEffB, OpEffLog} = cast:effect(S, OpA, OpB, OpLog),               % A技能效果
-    {OpEff2B, OpEff2A, OpEff2Log} = cast:effect(S#{stage:=counter}, OpEffB, OpEffA, OpEffLog),   % B的反应技能效果
-    {OpEff3A, OpEff3B, OpEff3Log} = cast:effect(S#{stage:=append}, OpEff2B, OpEff2A, OpEff2Log),   % A的追加技能效果
+    {OpA, OpB, OpLog} = trans:cast(S, A, B, L),                                  % A出招
+    {OpEffA, OpEffB, OpEffLog} = trans:effect(S, OpA, OpB, OpLog),               % A技能效果
+    {OpEff2B, OpEff2A, OpEff2Log} = trans:effect(S#{stage:=counter}, OpEffB, OpEffA, OpEffLog),         % B的反应技能效果
+    {OpEff3A, OpEff3B, OpEff3Log} = trans:effect(S#{stage:=append}, OpEff2A, OpEff2B, OpEff2Log),       % A的追加技能效果
 
-    {Op2B, Op2A, Op2Log} = cast:cast(S, OpEff3B, OpEff3A, OpEff3Log),           % B出招
-    {Op2EffB, Op2EffA, Op2EffLog} = cast:effect(S, Op2B, Op2A, Op2Log),         % B的追加技能效果
-    {Op2Eff2A, Op2Eff2B, Op2Eff2Log} = cast:effect(S#{stage:=counter}, Op2EffA, Op2EffB, Op2EffLog), % A的反应出招效果
-    {Op2Eff3B, Op2Eff3A, Op2Eff3Log} = cast:effect(S#{stage:=append}, Op2Eff2B, Op2Eff2A, Op2Eff2Log),
+    {Op2B, Op2A, Op2Log} = trans:cast(S, OpEff3B, OpEff3A, OpEff3Log),           % B出招
+    {Op2EffB, Op2EffA, Op2EffLog} = trans:effect(S, Op2B, Op2A, Op2Log),         % B出招效果
+    {Op2Eff2A, Op2Eff2B, Op2Eff2Log} = trans:effect(S#{stage:=counter}, Op2EffA, Op2EffB, Op2EffLog),   % A的反应出招效果
+    {Op2Eff3B, Op2Eff3A, Op2Eff3Log} = trans:effect(S#{stage:=append}, Op2Eff2B, Op2Eff2A, Op2Eff2Log), % B的追加技能效果
 
     {RefreshedA, RefreshedB} = refresh_attributes(Op2Eff3A, Op2Eff3B),
     {RefreshedA, RefreshedB, Op2Eff3Log}.
@@ -82,11 +82,8 @@ loop(_, #{state:=#{hp:={single, HA}}, selected_skills:=[], id:=I1}, #{state:=#{h
         true -> I2
     end,
 
-    erlang:display({ended, no_skills}),
+    erlang:display({ended, no_more_skills}),
     {log, #{records=>lists:reverse(Log), winner=>Winner}};
-
-
-% ------------------------- LOOP FOR CAST -----------------------------
 
 loop(State, A, B, L) ->
 
@@ -99,6 +96,12 @@ start({#{selected_skills:=SelectedSkillsA} = A, #{selected_skills:=SelectedSkill
 
     erlang:display(battle_begins),
 
-    ParsedSkillsA = [cast:parseSelectedSkillsA]
+    S = next_state(#{seq=>0, stage=>casting}, A, B),
 
-    loop(next_state(#{seq=>0, stage=>casting}, A, B), A, B, []).
+    EffectsA = cast:get_effects(SelectedSkillsA),
+    CastsA = cast:get_casts(EffectsA),
+
+    EffectsB = cast:get_effects(SelectedSkillsB),
+    CastsB = cast:get_casts(EffectsB),
+
+    loop(S, A#{effects=>EffectsA, casts=>CastsA}, B#{effects=>EffectsB, casts=>CastsB}, []).

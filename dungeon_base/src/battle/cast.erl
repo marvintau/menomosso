@@ -2,66 +2,73 @@
 
 -author('Yue Marvin Tao').
 
--export([cast/4, effect/4]).
+-export([parse/2, seq/3, get_effects/1, get_casts/1]).
 
-
-rand() -> element(3, erlang:timestamp())/1000000.
 
 % wrap all the operations. A mapping from original description of an effect
 % along with the current state, to a final form of effect description. The
 % latter function is the actual entrance that takes cast name as argument, and
 % find the specification in database, and re-interpret it with battle context.
 
-parse_single_effect(Name, {Cond, Trans} = EffectSpec, #{seq:=CurrSeq, offender:=Offender}, SelectedSkills) ->
-    {Name, Offender, conds:seq(Cond, CurrSeq, SelectedSkills), Trans}.
+parse(single_trans, {Index, Name, {Cond, TransList} = EffectSpec, IsSuccessful}) ->
+    [{Index, Name, Cond, Trans, IsSuccessful} || Trans <- TransList];
 
-parse_single_group(Name, {Prob, EffectSpecs}, S, SelectedSkills) ->
-    case rand() > Prob of
-        true ->
-            [parse_single_effect(Name, EffectSpec, S, SelectedSkills) || EffectSpec <- EffectSpecs];
-        _ ->
-            []
-    end.
+parse(trans_list, {Index, Name, {Prob, EffectSpecs}}) ->
+    IsSuccessful = rand:uniform() > Prob,
+    lists:concat([parse(single_trans, {Index, Name, EffectSpec, IsSuccessful}) || EffectSpec <- EffectSpecs]);
 
-parse_cast({Name, Groups}, S, SelectedSkills) ->
-   lists:concat([parse_single_group(Name, Group, S, SelectedSkills) || Group <- Groups]).
+parse(cast, {Index, SkillName}) ->
+    {Name, Groups} = hd(ets:lookup(skills, SkillName)),
+    lists:concat([parse(trans_list, {Index, Name, Group}) || Group <- Groups]);
 
-
-
-cast(_S, #{attr:=#{cast_disabled:={single, cast_disabled}}}=O, D, L) -> {O, D, L};
-
-cast(_S, #{selected_skills:=[]}=O, D, L) -> {O, D, L};
-
-cast(_S, #{state:=#{hp:={single, HPO}}}=O, #{state:=#{hp:={single, HPD}}}=D, L) when (HPO < 0) or (HPD < 0) -> {O, D, L};
-
-cast(_S, #{selected_skills:=[none | RemainingSkills]}=O, D, L) ->
-    {O#{selected_skills:=RemainingSkills}, D, L};
-
-cast(S, #{id:=IDO, player_name:=PlayerNameO, selected_skills:=[SkillName | RemainingSkills]=SelectedSkills, effects:=ExistingEffects}=O, D, L) ->
-
-    CurrEffects = parse_cast(hd(ets:lookup(skills, SkillName)), S, SelectedSkills),
-    NewEffects = lists:append([ExistingEffects,CurrEffects]),
-
-    {O#{selected_skills:=RemainingSkills, effects:=NewEffects}, D, L}.
+parse(list, {SkillList}) ->
+    lists:concat([parse(cast, {Index, Skill}) || {Skill, Index} <- lists:zip(SkillList, lists:seq(1, length(SkillList))), Skill /= none]).
 
 
-effect(S, #{effects:=Effects}=O, D, Log) ->
-    effect(S, O, D, Log, Effects).
+% seq把在技能描述里关于“从放技能后的第几回合开始”和“持续几回合”，翻译成一场战斗中
+% 实际的回合序号列表。在检查的时候只看当前回合序号是否存在于回合序号列表内
 
-effect(_S, #{state:=#{hp:={single, H1}}}=O, #{state:=#{hp:={single, H2}}}=D, Log, _) when (H1 =< 0) or (H2 =< 0) ->
-    {O, D, Log};
+seq({{seq_rand, Start, {Last1, Last2}, Phase}, Others}, CurrSeq, _Effects) ->
+    {{lists:seq(CurrSeq + Start, rand:uniform() * (Last2 - Last1) + Last1), Phase}, Others};
 
-effect(_S, O, D, Log, []) ->
-    {O, D, Log};
+seq({{seq_ever, Start, null, Phase}, Others}, CurrSeq, _Effects) ->
+    {{lists:seq(CurrSeq + Start, 20), Phase}, Others};
 
-effect(#{seq:=Seq}=S, #{player_name:=PlayerName} = O, D, Log, [ {Name, Mover, Conds, Transes} | Remaining]) ->
+seq({{seq_norm, Start, Last, Phase}, Others}, CurrSeq, _Effects) ->
+    {{lists:seq(CurrSeq + Start, CurrSeq + Start + Last), Phase}, Others};
 
-    {NewO, NewD, NewLog} = case conds:check(Conds, S, O, D) of
+seq({{next_cast_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, Effects) ->
 
-        true ->
-            trans:apply(S, Name, Transes, O, D);
-        _    ->
-            {O, D, []}
-    end,
+    CheckPatternMatch = fun({{_Op, _Operand, {AttrG, MoveG, AbsG, ResG, _}}, _}) ->
+        ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
+        ((AbsG == Abs) or (Abs == none)) and ((ResG == Res) or (Res == none)) end,
 
-    effect(S, NewO, NewD, lists:append(NewLog, Log), Remaining).
+    CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff} <-Effects],
+    FilteredIndex = [ I || {I, T} <- CheckedIndex, T == true, CurrSeq < I, CurrSeq + Last + 1 >= I],
+
+    {{FilteredIndex, Phase}, Others}.
+
+get_effects(Skills) ->
+    Effects = parse(list, {Skills}),
+    CondCheckedEffects = [{Index, Name, seq(Cond, Index, Effects), Trans, IsSuccessful} || {Index, Name, Cond, Trans, IsSuccessful} <- Effects],
+    CondCheckedEffects.
+
+compress([])->
+    [];
+compress(L)->
+    compress(L,[]).
+
+compress([H|[]],[H1|T1]) when H == H1 ->
+    lists:reverse([H1|T1]);
+
+compress([H|[]],Acc) ->
+    lists:reverse([H|Acc]);
+
+compress([H|T],[H1|T1]) when H == H1 ->
+    compress(T,[H1|T1]);
+compress([H|T],Acc) ->
+    compress(T,[H|Acc]).
+
+get_casts(Effects) ->
+    List = [{Index, SkillName, IsSuccessful} || {Index, SkillName, _, _, IsSuccessful} <- Effects],
+    compress(List).

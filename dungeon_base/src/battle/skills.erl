@@ -71,17 +71,17 @@ create_skills() ->
         ]}]},
 
         {charm_of_foresight, [{0, [
-            {seq(), [buff(attr, dodge, 0.25), buff(attr, block, 0.25)]}
+            {next_damage(), [buff(attr, dodge, 0.25), buff(attr, block, 0.25)]}
         ]}]},
         {fortify_armor, [{0, [
             {next_damage(), [buff(attr, armor, 0.3)]}
         ]}]},
         {increase_crit, [{0, [
-            {seq(), [buff(attr, critical, 0.25)]}
+            {next_damage(), [buff(attr, critical, 0.25)]}
         ]}]},
 
         {counterattack, [{0, [
-            {seq(2, counter, [opponent_critical()]), [counter_attack(2)]}
+            {seq(2, counter, [opponent_critical()]), [counter_attack(3)]}
         ]}]},
 
         {healing_potion, [{0, [
