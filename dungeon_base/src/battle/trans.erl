@@ -233,7 +233,7 @@ log_cast(S, SkillName, IsSuccessful,
 
     #{
         state => maps:remove(offender, S),
-        effect => #{skill_name=>SkillName, outcome => CastOutcome, attr=> none, over=>none, diff => 0},
+        effect => #{skill_name=>SkillName, outcome => CastOutcome, attr=> none, dest=>none, diff => 0},
         OID => #{player_name=>NameO, class=>ClassO, role=>offender, order=>init, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
         DID => #{player_name=>NameD, class=>ClassD, role=>defender, order=>init, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
     }.
@@ -272,7 +272,7 @@ log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Type, Attr, Who}}},
 
     #{
         state => maps:remove(offender, S),
-        effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, over=>Dest, diff => ref:val({attr, Type, diff, Who}, O, D)},
+        effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, dest=>Dest, diff => ref:val({attr, Type, diff, Who}, O, D)},
         OID => #{player_name=>NameO, class=>ClassO, role=>offender, order=>InitOrFollow, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
         DID => #{player_name=>NameD, class=>ClassD, role=>defender, order=>InitOrFollow, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
     }.
