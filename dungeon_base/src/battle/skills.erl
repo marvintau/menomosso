@@ -31,7 +31,7 @@ test_attr(Attr, Dest) ->
     {{add, {{single, 1}}, physical_attack_spec()}, {attr, attr, Attr, Dest}}.
 
 die() ->
-    {{set, {{single, 0}}, physical_attack_spec()}, {attr, state, hp, def}}.
+    {{set, {{single, -1}}, physical_attack_spec()}, {attr, state, hp, def}}.
 
 plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}}.
