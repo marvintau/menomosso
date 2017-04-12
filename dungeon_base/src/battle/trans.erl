@@ -202,7 +202,12 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
         def ->  {O, TransPsn}
     end,
 
-    {PosedO, PosedD} = repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD),
+    {PosedO, PosedD} = case AttackSpec of
+        {_, attack, _, _} ->
+            repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD);
+        _ ->
+            {TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD}
+        end,
     {PosedO, PosedD}.
 
 
@@ -224,7 +229,7 @@ log_cast(S, SkillName, IsSuccessful,
         _ -> failed
     end,
 
-    erlang:display({NameO, SkillName, CastOutcome, NameD}),
+    erlang:display({NameO, {PosO, PosMoveO}, SkillName, CastOutcome, NameD, {PosD, PosMoveD}}),
 
     #{
         state => maps:remove(offender, S),

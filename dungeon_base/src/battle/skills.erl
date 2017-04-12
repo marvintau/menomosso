@@ -28,7 +28,7 @@ magic_cast_spec() ->
     magic_cast_spec(non_resistable).
 
 test_attr(Attr, Dest) ->
-    {{add, {{single, 1}}, physical_attack_spec()}, {attr, attr, Attr, Dest}}.
+    {{add, {{single, 1}}, magic_cast_spec()}, {attr, attr, Attr, Dest}}.
 
 die() ->
     {{add, {{single, -1300}}, physical_attack_spec()}, {attr, state, hp, def}}.
