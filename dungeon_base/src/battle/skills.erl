@@ -54,7 +54,7 @@ seq(LastFor, Stage, Conds) ->
 next_damage() ->
     next_damage(1).
 next_damage(LastFor) ->
-    {{next_cast_norm, LastFor, {physical, attack, none, none}, casting}, []}.
+    {{next_cast_norm, LastFor, {physical, attack, none, none}, settling}, []}.
 
 opponent_critical() ->
     {attack, '==', {attr, attr, outcome, def}}.
@@ -94,6 +94,10 @@ create_skills() ->
             {seq(), [{{add, {{range, 175, 255}}, magic_cast_spec()}, {attr, state, hp, off}}]}
         ]}]},
 
+        {pierce_armor, [{0, [
+            {seq(3),[{{add_mul, {{single, -0.5}}, magic_cast_spec()}, {attr, attr, armor, def}}]}
+        ]}]},
+
         {poison_gas, [{0.5, [
             {seq(1), [{{set, {{single, is_stunned}}, magic_cast_spec(resistable)}, {attr, state, hp, def}}]}
         ]},{0.5,
@@ -101,11 +105,15 @@ create_skills() ->
         }]},
 
         {rune_of_the_void, [{0, [
-            {seq(), [{{set, {{single, cast_disabled}}, magic_cast_spec()}, {attr, attr, cast_disabled, def}}]}
+            {seq(), [{{set, {{single, 1}}, magic_cast_spec()}, {attr, attr, cast_disabled, def}}]}
         ]}]},
 
         {holy_hand_grenade, [{0, [
             {seq(), [{{add, {{range, -500, -1}}, magic_cast_spec(resistable)}, {attr, state, hp, def}}]}
+        ]}]},
+
+        {talisman_of_shielding, [{0, [
+            {next_damage(), [buff(attr, armor, 0.5)]}
         ]}]},
 
         {talisman_of_death, [{0, [
@@ -127,8 +135,8 @@ create_skills() ->
 
         {concussion, [{0, [
             {seq(0), [
-                {{add_inc_mul, {{attr, attr, agility, def}, {single, -1}}, physical_attack_spec(absorbable)}, {attr, state, hp, def}},
-                {{add_inc_mul, {{attr, attr, critical, def}, {single, -0.5}}, physical_attack_spec()}, {attr, state, hp, def}}
+                {{add_inc_mul, {{attr, attr, critical, def}, {single, -0.5}}, magic_cast_spec()}, {attr, state, hp, def}},
+                {{add_inc_mul, {{attr, attr, agility, def}, {single, -1}}, physical_attack_spec(absorbable)}, {attr, state, hp, def}}
             ]}
         ]}]},
 
@@ -143,11 +151,54 @@ create_skills() ->
         ]}]},
 
         {shield_wall, [{0, [
-            {seq(1), [
+            {next_damage(), [
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, off}},
                 {{set, {{single, 120}}, magic_cast_spec()}, {attr, attr, block, off}},
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, hit_bonus, def}},
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, critical, def}}
+            ]}
+        ]}]},
+
+        {chain_lock, [{0, [
+            {seq(), [
+                {{set, {{single, 1}}, magic_cast_spec(resistable), {attr, attr, cast_disabled, def}}}
+            ]}
+        ]}]},
+
+        {crtical_strike, [{0, [
+            {seq(1), [
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, def}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, block, def}},
+                {{set, {{single, 120}}, magic_cast_spec()}, {attr, attr, critical, off}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, hit_bonus, off}}
+            ]}
+        ]}]},
+
+        {deadly_strike, [{0, [
+            {seq(1), [
+                {{set, {{single, 2.5}}, magic_cast_spec()}, {attr, attr, damage_multiplier, off}}
+            ]}
+        ]}]},
+
+        {shield_breaker, [{0, [
+            {seq(4), [
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, block, def}}
+            ]},
+            {seq(1), [
+                {{set, {{single, 1}}, magic_cast_spec()}, {attr, attr, is_stunned, off}},
+                {{set, {{single, 1}}, magic_cast_spec()}, {attr, attr, cast_disabled, off}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, off}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, block, off}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, critical, off}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, hit_bonus, off}}
+            ]}
+        ]}]},
+
+        {unbalancing_strike, [{0, [
+            {seq(4), [
+                {{add_mul, {{single, -0.07}}, magic_cast_spec()}, {attr, attr, dodge, def}},
+                {{add_mul, {{single, -0.07}}, magic_cast_spec()}, {attr, attr, block, def}},
+                {{add_mul, {{single, -0.07}}, magic_cast_spec()}, {attr, attr, hit_bonus, def}}
             ]}
         ]}]}
     ],

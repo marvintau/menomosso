@@ -54,7 +54,7 @@ comps([], _, _, TrueValue) ->
 % ====================== SEQUENTIAL CONDITION CHECK =============================
 % checks whether the battle goes to specific round and stage.
 seq_check({SeqList, Stage}, #{seq:=CurrSeq, stage:=CurrStage}, #{attr:=#{cast_disabled:={single, CastDisabled}}}) ->
-    lists:any(fun(Seq) -> CurrSeq == Seq end, SeqList) and (Stage == CurrStage) and not ((Stage == casting) and (CastDisabled == cast_disabled)).
+    lists:any(fun(Seq) -> CurrSeq == Seq end, SeqList) and (Stage == CurrStage) and not ((Stage == casting) and (CastDisabled /= 0)).
 
 check({SeqCond, CondList}, S, O, D) ->
     seq_check(SeqCond, S, O) and comps(CondList, O, D).

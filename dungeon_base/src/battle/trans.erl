@@ -243,6 +243,10 @@ cast(S, #{casts:=Casts}=O, D, Log) ->
 
 cast(_S, O, D, Log, []) ->
     {O, D, Log};
+
+cast(_S, #{attr:=#{cast_disabled:=CastDisabled}}=O, D, Log, _) when CastDisabled /= 0 ->
+    {O, D, Log};
+
 cast(#{seq:=Seq}=S, O, D, Log, [{SeqIndex, SkillName, IsSuccessful} | Remaining]) ->
     NewLog = case Seq == SeqIndex of
         true ->
