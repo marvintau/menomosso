@@ -22,6 +22,9 @@ physical_attack_spec(Absorbable) ->
 physical_attack_spec() ->
     {physical, attack, non_absorbable, non_resistable, 0}.
 
+physical_cast_spec() ->
+    {physical, cast, non_absorbable, non_resistable, 0}.
+
 magic_cast_spec(Resis) ->
     {magic, cast, non_absorbable, Resis, 0}.
 magic_cast_spec() ->
@@ -35,6 +38,8 @@ die() ->
 
 plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}}.
+stand_plain_attack() ->
+    {{add, {{attr, attr, atk_range, off}}, physical_cast_spec()}, {attr, state, hp, def}}.
 
 counter_attack(Times) ->
     {{add_inc_mul, {{attr, state, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, state, hp, def}}.
@@ -69,11 +74,11 @@ create_skills() ->
         ]}]},
 
         {double_attack, [{0, [
-            {seq(), [plain_attack(), plain_attack()]}
+            {seq(), [stand_plain_attack(), plain_attack()]}
         ]}]},
 
         {triple_attack, [{0, [
-            {seq(), [plain_attack(), plain_attack(), plain_attack()]}
+            {seq(), [stand_plain_attack(), stand_plain_attack(), plain_attack()]}
         ]}]},
 
         {charm_of_foresight, [{0, [
@@ -141,7 +146,7 @@ create_skills() ->
         ]}]},
 
         {double_swing, [{0, [
-            {seq(2, counter, []), [plain_attack(), plain_attack()]}
+            {seq(2, counter, []), [stand_plain_attack(), plain_attack()]}
         ]}]},
 
         {first_aid, [{0, [
