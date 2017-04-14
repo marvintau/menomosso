@@ -244,17 +244,16 @@ cast(S, #{casts:=Casts}=O, D, Log) ->
 cast(_S, O, D, Log, []) ->
     {O, D, Log};
 
-cast(_S, #{attr:=#{cast_disabled:=CastDisabled}}=O, D, Log, _) when CastDisabled /= 0 ->
+cast(#{stage:=casting}, #{attr:=#{cast_disabled:={single, CastDisabled}}}=O, D, Log, _) when CastDisabled /= 0 ->
     {O, D, Log};
 
 cast(#{seq:=Seq}=S, #{state:=StateO}=O, #{state:=StateD}=D, Log, [{SeqIndex, SkillName, IsSuccessful} | Remaining]) ->
 
-    StandO = O#{state:=StateO#{pos_move:=stand}},
-    StandD = D#{state:=StateD#{pos_move:=stand}},
+    StandO = O#{state:=StateO#{pos_move:={single, stand}}},
+    StandD = D#{state:=StateD#{pos_move:={single, stand}}},
 
     NewLog = case Seq == SeqIndex of
         true ->
-            erlang:display({SkillName, IsSuccessful}),
             [log_cast(S, SkillName, IsSuccessful, O, D) | Log];
         _ -> Log
     end,

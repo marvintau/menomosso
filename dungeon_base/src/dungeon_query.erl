@@ -33,7 +33,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 开始和结束数据库会话
 connect() ->
-    connect("localhost", "yuetao", "asdasdasd", "dungeon", 100).
+    connect("localhost", "yuetao", "asdasdasd", "dungeon_base", 100).
 
 connect(Host, User, Password, Database, Timeout) ->
     erlang:display(connecting),
