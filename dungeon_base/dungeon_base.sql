@@ -11,12 +11,12 @@ create table players (
     player_level int,
     coins int,
     diamonds int,
-    
+
     preset_card uuid,
     selected_skills text[10],
-    
+
     player_ranking int,
-    
+
     last_login TIMESTAMP,
     last_modified TIMESTAMP
 );
@@ -40,13 +40,13 @@ create table cards (
 
     profession Professions,
     range_type RangeTypes,
-    
+
     hp int, armor int, agi int, hit int, block int, dodge int, resist int, critical int,
-    
+
     atk_type PrimTypes, atk_max int, atk_min int,
-    
-    -- secd_type SecdTypes, secd_max int, secd_min int, 
-    
+
+    -- secd_type SecdTypes, secd_max int, secd_min int,
+
     last_added TIMESTAMP,
     last_modified timestamp
 );
@@ -58,7 +58,7 @@ create table player_card_info (
     id uuid, unique(id),
     card_id uuid,
     player_id uuid,
-    
+
     last_added TIMESTAMP,
     last_modified timestamp
 );
@@ -115,16 +115,16 @@ insert into card_skills(skill_name, skill_multiple_time, skill_cost, card_id) va
 ('double_swing',                   false,        3,      '15d715a8-d585-48fc-a65a-286fc41c9a3f'),
 ('first_aid',                      false,        1,      '15d715a8-d585-48fc-a65a-286fc41c9a3f'),
 ('shield_wall',                    false,        4,      '15d715a8-d585-48fc-a65a-286fc41c9a3f'),
-('chain_lock',                     false,        6,      'a0c1a883-2995-4526-856c-26870e5b3f74'),
-('critical_strike',                false,        2,      'a0c1a883-2995-4526-856c-26870e5b3f74'),
-('deadly_strike',                  false,        7,      'a0c1a883-2995-4526-856c-26870e5b3f74'),
-('shield_breaker',                 false,        5,      'a0c1a883-2995-4526-856c-26870e5b3f74'),
-('unbalancing_strike',             false,        2,      'a0c1a883-2995-4526-856c-26870e5b3f74'),
-('chain_lock',                     false,        6,      'be2d65f0-3c93-457e-8180-de7c93a365a5'),
-('critical_strike',                false,        2,      'be2d65f0-3c93-457e-8180-de7c93a365a5'),
-('deadly_strike',                  false,        7,      'be2d65f0-3c93-457e-8180-de7c93a365a5'),
-('shield_breaker',                 false,        5,      'be2d65f0-3c93-457e-8180-de7c93a365a5'),
-('unbalancing_strike',             false,        2,      'be2d65f0-3c93-457e-8180-de7c93a365a5');
+('chain_lock',                     false,        6,      '849d31be-b9cd-494c-9ccd-7cc656153b57'),
+('critical_strike',                false,        2,      '849d31be-b9cd-494c-9ccd-7cc656153b57'),
+('deadly_strike',                  false,        7,      '849d31be-b9cd-494c-9ccd-7cc656153b57'),
+('shield_breaker',                 false,        5,      '849d31be-b9cd-494c-9ccd-7cc656153b57'),
+('unbalancing_strike',             false,        2,      '849d31be-b9cd-494c-9ccd-7cc656153b57'),
+('chain_lock',                     false,        6,      '1b0cf5e0-2164-46fd-8424-2146fca99fb9'),
+('critical_strike',                false,        2,      '1b0cf5e0-2164-46fd-8424-2146fca99fb9'),
+('deadly_strike',                  false,        7,      '1b0cf5e0-2164-46fd-8424-2146fca99fb9'),
+('shield_breaker',                 false,        5,      '1b0cf5e0-2164-46fd-8424-2146fca99fb9'),
+('unbalancing_strike',             false,        2,      '1b0cf5e0-2164-46fd-8424-2146fca99fb9');
 
 select * from card_skills;
 
@@ -155,7 +155,7 @@ create table item_from_chest (
     min_items int,
     max_items int,
     drop_rate int,
-    
+
     foreign key(chest_id) references chest_spec(chest_id)
 );
 
