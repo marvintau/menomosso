@@ -2,7 +2,7 @@
 
 -author('Yue Marvin Tao').
 
--export([parse/2, seq/3, get_effects/1, get_casts/1]).
+-export([parse/2, seq/4, get_effects/2, get_casts/2]).
 
 
 % wrap all the operations. A mapping from original description of an effect
@@ -28,16 +28,27 @@ parse(list, {SkillList}) ->
 % seq把在技能描述里关于“从放技能后的第几回合开始”和“持续几回合”，翻译成一场战斗中
 % 实际的回合序号列表。在检查的时候只看当前回合序号是否存在于回合序号列表内
 
-seq({{seq_rand, Start, {Last1, Last2}, Phase}, Others}, CurrSeq, _Effects) ->
+seq({{seq_rand, Start, {Last1, Last2}, Phase}, Others}, CurrSeq, _Effects, _EffectsOther) ->
     {{lists:seq(CurrSeq + Start, rand:uniform() * (Last2 - Last1) + Last1), Phase}, Others};
 
-seq({{seq_ever, Start, null, Phase}, Others}, CurrSeq, _Effects) ->
+seq({{seq_ever, Start, null, Phase}, Others}, CurrSeq, _Effects, _EffectsOther) ->
     {{lists:seq(CurrSeq + Start, 20), Phase}, Others};
 
-seq({{seq_norm, Start, Last, Phase}, Others}, CurrSeq, _Effects) ->
+seq({{seq_norm, Start, Last, Phase}, Others}, CurrSeq, _Effects, _EffectsOther) ->
     {{lists:seq(CurrSeq + Start, CurrSeq + Start + Last), Phase}, Others};
 
-seq({{next_cast_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, Effects) ->
+seq({{next_offense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, Effects, _EffectsOther) ->
+
+    CheckPatternMatch = fun({{_Op, _Operand, {AttrG, MoveG, AbsG, ResG, _}}, _}) ->
+        ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
+        ((AbsG == Abs) or (Abs == none)) and ((ResG == Res) or (Res == none)) end,
+
+    CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff} <-Effects],
+    FilteredIndex = [ I || {I, T} <- CheckedIndex, T == true, CurrSeq < I, CurrSeq + Last + 1 >= I],
+
+    {{FilteredIndex, Phase}, Others};
+
+seq({{next_defense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, _EffectsSelf, Effects) ->
 
     CheckPatternMatch = fun({{_Op, _Operand, {AttrG, MoveG, AbsG, ResG, _}}, _}) ->
         ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
@@ -48,10 +59,15 @@ seq({{next_cast_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, Ef
 
     {{FilteredIndex, Phase}, Others}.
 
-get_effects(Skills) ->
-    Effects = parse(list, {Skills}),
-    CondCheckedEffects = [{Index, Name, seq(Cond, Index, Effects), Trans, IsSuccessful} || {Index, Name, Cond, Trans, IsSuccessful} <- Effects],
-    CondCheckedEffects.
+
+get_effects(SkillsA, SkillsB) ->
+    EffectsA = parse(list, {SkillsA}),
+    EffectsB = parse(list, {SkillsB}),
+
+    CondCheckedEffectsA = [{Index, Name, seq(Cond, Index, EffectsA, EffectsB), Trans, IsSuccessful} || {Index, Name, Cond, Trans, IsSuccessful} <- EffectsA],
+    CondCheckedEffectsB = [{Index, Name, seq(Cond, Index, EffectsB, EffectsA), Trans, IsSuccessful} || {Index, Name, Cond, Trans, IsSuccessful} <- EffectsB],
+
+    {CondCheckedEffectsA, CondCheckedEffectsB}.
 
 compress([])->
     [];
@@ -69,6 +85,7 @@ compress([H|T],[H1|T1]) when H == H1 ->
 compress([H|T],Acc) ->
     compress(T,[H|Acc]).
 
-get_casts(Effects) ->
-    List = [{Index, SkillName, IsSuccessful} || {Index, SkillName, _, _, IsSuccessful} <- Effects],
-    compress(List).
+get_casts(EffectsA, EffectsB) ->
+    CastListA = [{Index, SkillName, IsSuccessful} || {Index, SkillName, _, _, IsSuccessful} <- EffectsA],
+    CastListB = [{Index, SkillName, IsSuccessful} || {Index, SkillName, _, _, IsSuccessful} <- EffectsB],
+    {compress(CastListA), compress(CastListB)}.

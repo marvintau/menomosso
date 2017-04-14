@@ -59,7 +59,13 @@ seq(LastFor, Stage, Conds) ->
 next_damage() ->
     next_damage(1).
 next_damage(LastFor) ->
-    {{next_cast_norm, LastFor, {physical, attack, none, none}, settling}, []}.
+    {{next_defense_norm, LastFor, {physical, attack, none, none}, settling}, []}.
+
+next_attack() ->
+    next_attack(1).
+next_attack(LastFor) ->
+    {{next_offense_norm, LastFor, {physical, attack, none, none}, settling}, []}.
+
 
 opponent_critical() ->
     {attack, '==', {attr, attr, outcome, def}}.
@@ -96,7 +102,7 @@ create_skills() ->
         ]}]},
 
         {healing_potion, [{0, [
-            {seq(), [{{add, {{range, 175, 255}}, magic_cast_spec()}, {attr, state, hp, off}}]}
+            {seq(), [{{add, {{range, 175, 225}}, magic_cast_spec()}, {attr, state, hp, off}}]}
         ]}]},
 
         {pierce_armor, [{0, [
@@ -122,19 +128,20 @@ create_skills() ->
         ]}]},
 
         {talisman_of_death, [{0, [
-            {seq(), [{{add_mul, {{single, -0.15}}, plain_attack()}, {attr, state, hp, def}}]}
+            {seq(), [{{add_mul, {{single, -0.15}}, physical_attack_spec()}, {attr, state, hp, def}}]}
         ]}]},
 
         {talisman_of_spellshrouding, [{0, [
-            {seq(), [buff(attr, resist, 1)]}
+            {next_damage(), [buff(attr, resist, 1)]}
         ]}]},
 
         {sure_hit, [{0, [
-            {seq(1), [
+            {next_attack(2), [
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, resist, def}},
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, block, def}},
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, def}},
-                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, critical, off}}
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, critical, off}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, hit, off}}
             ]}
         ]}]},
 
@@ -159,7 +166,7 @@ create_skills() ->
             {next_damage(), [
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, off}},
                 {{set, {{single, 120}}, magic_cast_spec()}, {attr, attr, block, off}},
-                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, hit_bonus, def}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, hit, def}},
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, critical, def}}
             ]}
         ]}]},
@@ -171,11 +178,11 @@ create_skills() ->
         ]}]},
 
         {crtical_strike, [{0, [
-            {seq(1), [
+            {next_attack(1), [
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, def}},
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, block, def}},
                 {{set, {{single, 120}}, magic_cast_spec()}, {attr, attr, critical, off}},
-                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, hit_bonus, off}}
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, hit, off}}
             ]}
         ]}]},
 
@@ -189,13 +196,13 @@ create_skills() ->
             {seq(4), [
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, block, def}}
             ]},
-            {seq(1), [
+            {next_damage(), [
                 {{set, {{single, 1}}, magic_cast_spec()}, {attr, attr, is_stunned, off}},
                 {{set, {{single, 1}}, magic_cast_spec()}, {attr, attr, cast_disabled, off}},
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, off}},
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, block, off}},
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, critical, off}},
-                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, hit_bonus, off}}
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, hit, off}}
             ]}
         ]}]},
 
@@ -203,7 +210,7 @@ create_skills() ->
             {seq(4), [
                 {{add_mul, {{single, -0.07}}, magic_cast_spec()}, {attr, attr, dodge, def}},
                 {{add_mul, {{single, -0.07}}, magic_cast_spec()}, {attr, attr, block, def}},
-                {{add_mul, {{single, -0.07}}, magic_cast_spec()}, {attr, attr, hit_bonus, def}}
+                {{add_mul, {{single, -0.07}}, magic_cast_spec()}, {attr, attr, hit, def}}
             ]}
         ]}]}
     ],

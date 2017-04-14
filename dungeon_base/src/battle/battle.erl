@@ -98,10 +98,8 @@ start({#{selected_skills:=SelectedSkillsA} = A, #{selected_skills:=SelectedSkill
 
     S = next_state(#{seq=>0, stage=>casting}, A, B),
 
-    EffectsA = cast:get_effects(SelectedSkillsA),
-    CastsA = cast:get_casts(EffectsA),
+    {EffectsA, EffectsB} = cast:get_effects(SelectedSkillsA, SelectedSkillsB),
 
-    EffectsB = cast:get_effects(SelectedSkillsB),
-    CastsB = cast:get_casts(EffectsB),
+    {CastsA, CastsB} = cast:get_casts(EffectsA, EffectsB),
 
     loop(S, A#{effects=>EffectsA, casts=>CastsA}, B#{effects=>EffectsB, casts=>CastsB}, []).
