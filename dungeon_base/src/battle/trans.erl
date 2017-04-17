@@ -241,6 +241,9 @@ log_cast(S, SkillName, IsSuccessful,
 cast(S, #{casts:=Casts}=O, D, Log) ->
     cast(S, O, D, Log, Casts).
 
+cast(_S, #{state:=#{hp:={single, H1}}}=O, #{state:=#{hp:={single, H2}}}=D, Log, _) when (H1 =< 0) or (H2 =< 0) ->
+    {O, D, Log};
+
 cast(_S, O, D, Log, []) ->
     {O, D, Log};
 
@@ -275,7 +278,7 @@ log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Type, Attr, Who}}},
         _ -> defender
     end,
 
-    erlang:display({NameO, {PosO, PosMoveO}, SkillName, Outcome, Attr, Dest, ref:val({attr, Type, diff, Who}, O, D), NameD, {PosD, PosMoveD}}),
+    erlang:display({{NameO, HPO}, {PosO, PosMoveO}, SkillName, Outcome, Attr, Dest, ref:val({attr, Type, diff, Who}, O, D), {NameD, HPD}, {PosD, PosMoveD}}),
 
     #{
         state => maps:remove(offender, S),
