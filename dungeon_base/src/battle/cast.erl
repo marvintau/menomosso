@@ -15,6 +15,7 @@ parse(single_trans, {Index, Name, {Cond, TransList} = EffectSpec, IsSuccessful})
 
 parse(trans_list, {Index, Name, {Prob, EffectSpecs}}) ->
     IsSuccessful = rand:uniform() > Prob,
+    erlang:display(EffectSpecs),
     lists:concat([parse(single_trans, {Index, Name, EffectSpec, IsSuccessful}) || EffectSpec <- EffectSpecs]);
 
 parse(cast, {Index, SkillName}) ->

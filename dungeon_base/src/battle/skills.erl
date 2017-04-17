@@ -109,11 +109,23 @@ create_skills() ->
             {seq(3),[{{add_mul, {{single, -0.5}}, magic_cast_spec()}, {attr, attr, armor, def}}]}
         ]}]},
 
-        {poison_gas, [{0.5, [
-            {seq(1), [{{set, {{single, is_stunned}}, magic_cast_spec(resistable)}, {attr, state, hp, def}}]}
-        ]},{0.5,
-            {seq(1), [{{set, {{single, is_stunned}}, magic_cast_spec(resistable)}, {attr, state, hp, off}}]}
-        }]},
+        {poison_gas, [{0, [
+            {seq(1), [
+                {{set, {{single, 1}}, magic_cast_spec(resistable)}, {attr, attr, is_stunned, def}},
+                {{set, {{single, 1}}, magic_cast_spec(resistable)}, {attr, attr, cast_disabled, def}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, block, def}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, def}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, resist, def}}
+            ]}
+        ]},{0,[
+            {seq(1), [
+                {{set, {{single, 1}}, magic_cast_spec(resistable)}, {attr, attr, is_stunned, off}},
+                {{set, {{single, 1}}, magic_cast_spec(resistable)}, {attr, attr, cast_disabled, off}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, block, off}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, off}},
+                {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, resist, off}}
+            ]}
+        ]}]},
 
         {rune_of_the_void, [{0, [
             {seq(), [{{set, {{single, 1}}, magic_cast_spec()}, {attr, attr, cast_disabled, def}}]}
