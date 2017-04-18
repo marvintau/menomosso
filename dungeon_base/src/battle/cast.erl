@@ -46,7 +46,7 @@ seq({{next_offense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq,
     CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff} <-Effects],
     FilteredIndex = [ I || {I, T} <- CheckedIndex, T == true, CurrSeq < I, CurrSeq + Last + 1 >= I],
 
-    erlang:display(FilteredIndex),
+    erlang:display(CheckedIndex),
 
     {{FilteredIndex, Phase}, Others};
 
