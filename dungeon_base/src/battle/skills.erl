@@ -63,12 +63,12 @@ seq(LastFor, Stage, Conds) ->
 next_damage() ->
     next_damage(1).
 next_damage(LastFor) ->
-    {{next_defense_norm, LastFor, {physical, {attack, none}, none, none}, settling}, []}.
+    {{next_defense_norm, LastFor, {physical, attack, none, none}, settling}, []}.
 
 next_attack() ->
     next_attack(1).
 next_attack(LastFor) ->
-    {{next_offense_norm, LastFor, {physical, {attack, none}, none, none}, settling}, []}.
+    {{next_offense_norm, LastFor, {physical, attack, none, none}, settling}, []}.
 
 
 opponent_critical() ->
