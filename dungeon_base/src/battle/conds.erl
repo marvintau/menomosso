@@ -17,6 +17,8 @@ seq({{seq_norm, Start, Last, Phase}, Others}, CurrSeq, _Skills) ->
 
 seq({{next_cast_norm, Last, {Attr, {Move, _}, Abs, Res}, Phase}, Others}, CurrSeq, Skills) ->
 
+    erlang:display(here),
+
     IsPatternMatches = fun({{_Op, _Operand, {AttrG, MoveG, AbsG, ResG, _}}, _}) ->
         ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
         ((AbsG == Abs) or (Abs == none)) and ((ResG == Res) or (Res == none)) end,
