@@ -15,7 +15,7 @@ seq({{seq_ever, Start, null, Phase}, Others}, CurrSeq, _Skills) ->
 seq({{seq_norm, Start, Last, Phase}, Others}, CurrSeq, _Skills) ->
     {{lists:seq(CurrSeq + Start, CurrSeq + Start + Last), Phase}, Others};
 
-seq({{next_cast_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, Skills) ->
+seq({{next_cast_norm, Last, {Attr, {Move, _}, Abs, Res}, Phase}, Others}, CurrSeq, Skills) ->
 
     IsPatternMatches = fun({{_Op, _Operand, {AttrG, MoveG, AbsG, ResG, _}}, _}) ->
         ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
