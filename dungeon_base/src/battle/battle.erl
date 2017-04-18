@@ -102,4 +102,7 @@ start({#{selected_skills:=SelectedSkillsA} = A, #{selected_skills:=SelectedSkill
 
     {CastsA, CastsB} = cast:get_casts(EffectsA, EffectsB),
 
+    error_logger:info_report(EffectsA),
+    error_logger:info_report(EffectsB),
+
     loop(S, A#{effects=>EffectsA, casts=>CastsA}, B#{effects=>EffectsB, casts=>CastsB}, []).
