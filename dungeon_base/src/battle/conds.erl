@@ -15,7 +15,7 @@ seq({{seq_ever, Start, null, Phase}, Others}, CurrSeq, _Skills) ->
 seq({{seq_norm, Start, Last, Phase}, Others}, CurrSeq, _Skills) ->
     {{lists:seq(CurrSeq + Start, CurrSeq + Start + Last), Phase}, Others};
 
-seq({{next_cast_norm, Last, {Attr, {Move, _}, Abs, Res}, Phase}, Others}, CurrSeq, Skills) ->
+seq({{Next, Last, {Attr, {Move, _}, Abs, Res}, Phase}, Others}, CurrSeq, Skills) when (Next == next_cast_norm) or (Next == next_defense_norm) ->
 
     erlang:display(here),
 
