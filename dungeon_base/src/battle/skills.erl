@@ -18,15 +18,17 @@ update_skills(Data) ->
     ok.
 
 physical_attack_spec(Absorbable) ->
-    {physical, attack, Absorbable, non_resistable, 0}.
+    {physical, {attack, normal}, Absorbable, non_resistable, 0}.
+physical_attack_spec_no_blow() ->
+    {physical, {attack, repose_no_blow}, non_absorbable, non_resistable, 0}.
 physical_attack_spec() ->
-    {physical, attack, non_absorbable, non_resistable, 0}.
+    {physical, {attack, normal}, absorbable, non_resistable, 0}.
 
 physical_cast_spec() ->
-    {physical, cast, non_absorbable, non_resistable, 0}.
+    {physical, {cast, normal}, non_absorbable, non_resistable, 0}.
 
 magic_cast_spec(Resis) ->
-    {magic, cast, non_absorbable, Resis, 0}.
+    {magic, {cast, normal}, non_absorbable, Resis, 0}.
 magic_cast_spec() ->
     magic_cast_spec(non_resistable).
 
@@ -38,6 +40,8 @@ die() ->
 
 plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}}.
+plain_attack_no_blow() ->
+    {{add, {{attr, attr, atk_range, off}}, physical_attack_spec_no_blow()}, {attr, state, hp, def}}.
 stand_plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_cast_spec()}, {attr, state, hp, def}}.
 
@@ -80,11 +84,11 @@ create_skills() ->
         ]}]},
 
         {double_attack, [{0, [
-            {seq(), [stand_plain_attack(), plain_attack()]}
+            {seq(), [plain_attack_no_blow(), plain_attack()]}
         ]}]},
 
         {triple_attack, [{0, [
-            {seq(), [stand_plain_attack(), stand_plain_attack(), stand_plain_attack()]}
+            {seq(), [plain_attack_no_blow(), stand_plain_attack(), stand_plain_attack()]}
         ]}]},
 
         {charm_of_foresight, [{0, [

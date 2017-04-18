@@ -20,7 +20,7 @@ roulette(AttackSpec,
 
     % 获得攻击属性（魔法／物理），放招类型（普攻／技能），是否可以抵抗，是否护甲减免（不考虑），技能失败概率
     % erlang:display(AttackSpec),
-    {AttrType, MoveType, Resistable, _Absorbable, FL}  = AttackSpec,
+    {AttrType, {MoveType, _}, Resistable, _Absorbable, FL}  = AttackSpec,
 
     % 实际的抗性：如果技能不可抵抗，那么实际的魔抗值为0
     ActualRes = case Resistable of
@@ -76,7 +76,7 @@ roulette(AttackSpec,
 repose(#{state:=#{pos:={single, PosO}}=StateO,
          attr:=#{outcome:={single, Outcome}}, range_type:=RangeType} = O,
        #{state:=#{pos:={single, PosD}, hp:={single, HPD}}=StateD,
-         attr:=#{is_frozen:={single, IsFrozen}, is_disarmed:={single, IsDisarmed}, is_stunned:={single, IsStunned}}} = D) ->
+         attr:=#{is_frozen:={single, IsFrozen}, is_disarmed:={single, IsDisarmed}, is_stunned:={single, IsStunned}}} = D, IsBlownOutEnabled) ->
 
     % 根据近战远战类型决定追逃动作
     {NewPosO, NewPosD, NewPosMoveO, NewPosMoveD} = case RangeType of
@@ -112,7 +112,7 @@ repose(#{state:=#{pos:={single, PosO}}=StateO,
     {NewPosD2, NewPosMoveD2} = case {NewPosD, NewPosMoveD} of
         {1, not_assigned_yet} -> {1, stand};
         {_, not_assigned_yet} when
-            (BlownRand > 0.9) and (IsFrozen == 0) and (IsDisarmed == 0) and (IsStunned == 0)
+            IsBlownOutEnabled and (BlownRand > 0.9) and (IsFrozen == 0) and (IsDisarmed == 0) and (IsStunned == 0)
             and (Outcome /= dodged) and (Outcome /=blocked) and (Outcome /= resisted) or (HPD =< 0) ->
             {NewPosD - 1, blown_out};
         _ -> {NewPosD, stand}
@@ -203,8 +203,10 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
     end,
 
     {PosedO, PosedD} = case AttackSpec of
-        {_, attack, _, _, _} ->
-            repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD);
+        {_, {attack, repose_no_blow}, _, _, _} ->
+            repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, false);
+        {_, {attack, _}, _, _, _} ->
+            repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, true);
         _ ->
             {TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD}
         end,
