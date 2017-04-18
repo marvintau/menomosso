@@ -43,7 +43,7 @@ seq({{next_offense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq,
         ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
         ((AbsG == Abs) or (Abs == none)) and ((ResG == Res) or (Res == none)) end,
 
-    CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff} <-Effects],
+    CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff, _} <-Effects],
     FilteredIndex = [ I || {I, T} <- CheckedIndex, T == true, CurrSeq < I, CurrSeq + Last + 1 >= I],
 
     erlang:display(CheckedIndex),
@@ -54,12 +54,12 @@ seq({{next_defense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq,
 
     CheckPatternMatch = fun({{_Op, _Operand, {AttrG, {MoveG, _}, AbsG, ResG, _}}, _}) ->
         
-        erlang:display({MoveG, Move}),
-
         ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
         ((AbsG == Abs) or (Abs == none)) and ((ResG == Res) or (Res == none)) end,
 
-    CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff} <-Effects],
+    erlang:display(Effects),
+
+    CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff, _} <-Effects],
     FilteredIndex = [ I || {I, T} <- CheckedIndex, T == true, CurrSeq < I, CurrSeq + Last + 1 >= I],
 
     {{FilteredIndex, Phase}, Others}.
