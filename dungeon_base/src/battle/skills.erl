@@ -20,12 +20,12 @@ update_skills(Data) ->
 physical_attack_spec(Absorbable) ->
     {physical, {attack, normal}, Absorbable, non_resistable, 0}.
 physical_attack_spec_no_blow() ->
-    {physical, {attack, repose_no_blow}, non_absorbable, non_resistable, 0}.
+    {physical, {attack, repose_no_blow}, absorbable, non_resistable, 0}.
 physical_attack_spec() ->
     {physical, {attack, normal}, absorbable, non_resistable, 0}.
 
 physical_cast_spec() ->
-    {physical, {cast, normal}, non_absorbable, non_resistable, 0}.
+    {physical, {cast, normal}, absorbable, non_resistable, 0}.
 
 magic_cast_spec(Resis) ->
     {magic, {cast, normal}, non_absorbable, Resis, 0}.
