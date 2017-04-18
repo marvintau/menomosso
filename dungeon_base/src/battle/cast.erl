@@ -40,8 +40,8 @@ seq({{seq_norm, Start, Last, Phase}, Others}, CurrSeq, _Effects, _EffectsOther) 
 
 seq({{next_offense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, Effects, _EffectsOther) ->
 
-    CheckPatternMatch = fun({{_Op, _Operand, {AttrG, MoveG, AbsG, ResG, _}}, _}) ->
-        ((AttrG == Attr) or (Attr == none)) and (({MoveG, _} == Move) or (Move == none)) and
+    CheckPatternMatch = fun({{_Op, _Operand, {AttrG, {MoveG, _}, AbsG, ResG, _}}, _}) ->
+        ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
         ((AbsG == Abs) or (Abs == none)) and ((ResG == Res) or (Res == none)) end,
 
     CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff} <-Effects],
@@ -51,8 +51,8 @@ seq({{next_offense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq,
 
 seq({{next_defense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, _EffectsSelf, Effects) ->
 
-    CheckPatternMatch = fun({{_Op, _Operand, {AttrG, MoveG, AbsG, ResG, _}}, _}) ->
-        ((AttrG == Attr) or (Attr == none)) and (({MoveG, _} == Move) or (Move == none)) and
+    CheckPatternMatch = fun({{_Op, _Operand, {AttrG, {MoveG, _}, AbsG, ResG, _}}, _}) ->
+        ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
         ((AbsG == Abs) or (Abs == none)) and ((ResG == Res) or (Res == none)) end,
 
     CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff} <-Effects],
