@@ -53,13 +53,14 @@ seq({{next_offense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq,
 seq({{next_defense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, _EffectsSelf, Effects) ->
 
     CheckPatternMatch = fun({{_Op, _Operand, {AttrG, {MoveG, _}, AbsG, ResG, _}}, _}) ->
+        
+        erlang:display({MoveG, Move}),
+
         ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
         ((AbsG == Abs) or (Abs == none)) and ((ResG == Res) or (Res == none)) end,
 
     CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff} <-Effects],
     FilteredIndex = [ I || {I, T} <- CheckedIndex, T == true, CurrSeq < I, CurrSeq + Last + 1 >= I],
-
-    erlang:display(CheckedIndex),
 
     {{FilteredIndex, Phase}, Others}.
 
