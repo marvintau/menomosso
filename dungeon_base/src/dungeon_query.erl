@@ -17,6 +17,7 @@
     get_player_card/2,
 
     get_card/2,
+    get_card_skills/2,
     get_card_battle/2,
 
     update_preset_card/2,
@@ -296,11 +297,11 @@ update_preset_card(Conn, {CardUUID, PlayerUUID}) ->
 
 %% ------------------------------------------------------------------------
 %% 更新玩家的预设技能
-update_selected_skills(Conn, {SkillList, PlayerUUID}) ->
+update_selected_skills(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
 
     ReformedSkillString = string:join(["\""++binary_to_list(SkillName)++"\"" || SkillName <- SkillList],","),
 
-    Query = list_to_binary(["update players set selected_skills= '{", ReformedSkillString, "}', last_modified=now() where id = '", PlayerUUID, "';"]),
+    Query = list_to_binary(["update players set preset_card_id= '", SelfCardID, "', selected_skills= '{", ReformedSkillString, "}', last_modified=now() where id = '", PlayerUUID, "';"]),
 
     case epgsql:squery(Conn,binary_to_list(Query)) of
         {ok, 1} -> {ok, selected_skills_updated};
