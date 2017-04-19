@@ -69,7 +69,7 @@ roulette(AttackSpec,
     Binned = bin(rand:uniform() * ?MAX_LIMIT / (1 - FailureRate), RouletteWithFailure),
 
     % 得到结果，如果是技能就是cast，平砍是attack
-    Result = element(Binned, {failed, MoveType, dodged, resisted, blocked, critical}),
+    Result = element(Binned, {failed, MoveType, dodge, resist, block, critical}),
     Result.
 
 
@@ -113,7 +113,7 @@ repose(#{state:=#{pos:={single, PosO}}=StateO,
         {1, not_assigned_yet} -> {1, stand};
         {_, not_assigned_yet} when
             IsBlownOutEnabled and (BlownRand > 0.9) and (IsFrozen == 0) and (IsDisarmed == 0) and (IsStunned == 0)
-            and (Outcome /= dodged) and (Outcome /=blocked) and (Outcome /= resisted) or (HPD =< 0) ->
+            and (Outcome /= dodge) and (Outcome /=block) and (Outcome /= resist) or (HPD =< 0) ->
             {NewPosD - 1, blown_out};
         _ -> {NewPosD, stand}
     end,
@@ -163,7 +163,7 @@ trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, state, hp, P}=ToW
             AbsorbedDamage;
         cast ->
             AbsorbedDamage;
-        resisted ->
+        resist ->
             AbsorbedDamage / 10 * rand:uniform();
         _ -> 0
     end,
