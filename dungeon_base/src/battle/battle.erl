@@ -65,23 +65,25 @@ apply_move_ordered(#{offender:=Off}=S, A, #{id:=Off}=B, L) ->
 % When exiting the main loop, the log will be reversed to it's natural
 % order.
 
-loop(_, #{state:=#{hp:={single, HA}}, id:=I1}, #{state:=#{hp:={single, HB}}, id:=I2}, Log) when HA < 0 orelse HB < 0 ->
+loop(_, #{selected_skills:=SelectedA, state:=#{hp:={single, HA}}, id:=I1}=A, #{selected_skills:=SelectedB, state:=#{hp:={single, HB}}, id:=I2}=B, Log) when HA < 0 orelse HB < 0 ->
 
     Winner = if
         HA > HB -> I1;
         true -> I2
     end,
 
+    erlang:display({SelectedA, SelectedB}),
     erlang:display({ended, someone_died}),
     {log, #{records=>lists:reverse(Log), winner=>Winner}};
 
-loop(#{seq:=Seq}, #{state:=#{hp:={single, HA}}, id:=I1}, #{state:=#{hp:={single, HB}}, id:=I2}, Log) when Seq > 22->
+loop(#{seq:=Seq}, #{selected_skills:=SelectedA, state:=#{hp:={single, HA}}=A, id:=I1}, #{selected_skills:=SelectedB, state:=#{hp:={single, HB}}=B, id:=I2}, Log) when Seq > 22->
 
     Winner = if
         HA > HB -> I1;
         true -> I2
     end,
 
+    erlang:display({SelectedA, SelectedB}),
     erlang:display({ended, no_more_skills}),
     {log, #{records=>lists:reverse(Log), winner=>Winner}};
 
