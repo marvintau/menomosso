@@ -203,7 +203,7 @@ create_skills() ->
         ]}]},
 
         {deadly_strike, [{0, [
-            {seq(1), [
+            {seq(), [
                 {{add_inc_mul, {{attr, attr, atk_range, off}, {single, 2.5}}, physical_attack_spec()}, {attr, state, hp, def}}
             ]}
         ]}]},
