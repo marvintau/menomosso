@@ -189,7 +189,7 @@ create_skills() ->
 
         {chain_lock, [{0, [
             {seq(), [
-                {{set, {{single, 1}}, magic_cast_spec(resistable), {attr, attr, cast_disabled, def}}}
+                {{set, {{single, 1}}, magic_cast_spec(resistable)}, {attr, attr, cast_disabled, def}}
             ]}
         ]}]},
 
