@@ -197,7 +197,7 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
     Psn = ref:who(P, O, D),
     TransPsn = trans({Opcode, RefOperand, AttackSpec, Outcome}, {attr, Type, Attr, Psn}),
 
-    {#{attr:=AttrO}=TransO, TransD} = case P of
+    {#{attr:=AttrO, state:=StateO}=TransO, #{state:=StateD}=TransD} = case P of
         off ->  {TransPsn, D};
         def ->  {O, TransPsn}
     end,
@@ -208,7 +208,7 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
         {_, {attack, _}, _, _, _} ->
             repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, true);
         _ ->
-            {TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD}
+            {TransO#{attr:=AttrO#{outcome:={single, Outcome}}, state:=StateO#{pos_move:={single, stand}}}, TransD#{state:=StateD#{pos_move:={single, stand}}}}
         end,
     {PosedO, PosedD}.
 
