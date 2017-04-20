@@ -18,6 +18,7 @@ parse(trans_list, {Index, Name, {Prob, EffectSpecs}}) ->
     lists:concat([parse(single_trans, {Index, Name, EffectSpec, IsSuccessful}) || EffectSpec <- EffectSpecs]);
 
 parse(cast, {Index, SkillName}) ->
+    erlang:display({skill_to_be_find, SkillName}),
     {Name, Groups} = hd(ets:lookup(skills, SkillName)),
     lists:concat([parse(trans_list, {Index, Name, Group}) || Group <- Groups]);
 
