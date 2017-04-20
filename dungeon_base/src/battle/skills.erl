@@ -204,7 +204,7 @@ create_skills() ->
 
         {deadly_strike, [{0, [
             {seq(1), [
-                {{set, {{single, 2.5}}, magic_cast_spec()}, {attr, attr, damage_multiplier, off}}
+                {{add_inc_mul, {{attr, attr, atk_range, off}, {single, 2.5}}, physical_attack_spec()}, {attr, state, hp, def}}
             ]}
         ]}]},
 
