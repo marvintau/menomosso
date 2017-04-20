@@ -193,7 +193,7 @@ create_skills() ->
             ]}
         ]}]},
 
-        {crtical_strike, [{0, [
+        {critical_strike, [{0, [
             {next_attack(1), [
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, dodge, def}},
                 {{set, {{single, 0}}, magic_cast_spec()}, {attr, attr, block, def}},
