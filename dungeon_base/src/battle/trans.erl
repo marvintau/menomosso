@@ -259,7 +259,7 @@ cast(#{seq:=Seq}=S, #{state:=StateO}=O, #{state:=StateD}=D, Log, [{SeqIndex, Ski
 
     NewLog = case Seq == SeqIndex of
         true ->
-            [log_cast(S, SkillName, IsSuccessful, O, D) | Log];
+            [log_cast(S, SkillName, IsSuccessful, StandO, StandD) | Log];
         _ -> Log
     end,
     cast(S, StandO, StandD, NewLog, Remaining).
