@@ -7,7 +7,7 @@
 -export([update_skills/1]).
 
 init_table() ->
-    ets:new(skills, [set, public, named_table]),
+    ets:new(skills, [set, public, named_table, {read_concurrency, true}]),
     create_skills().
 
 update_skills(Data) ->
