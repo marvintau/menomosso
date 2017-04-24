@@ -144,7 +144,7 @@ create_skills() ->
         ]}]},
 
         {talisman_of_death, [{0, [
-            {seq(), [{{add_mul, {{single, -0.15}}, physical_attack_spec()}, {attr, state, hp, def}}]}
+            {seq(), [{{add_mul, {{single, -0.15}}, magic_cast_spec()}, {attr, state, hp, def}}]}
         ]}]},
 
         {talisman_of_spellshrouding, [{0, [
