@@ -60,7 +60,9 @@ seq(LastFor, Stage, Conds) ->
 next_damage() ->
     next_damage(0).
 next_damage(LastFor) ->
-    {{next_defense_norm, LastFor, {physical, attack, none, none}, settling}, []}.
+    next_damage(LastFor, []).
+next_damage(LastFor, Conds) ->
+    {{next_defense_norm, LastFor, {physical, attack, none, none}, settling}, Conds}.
 
 next_attack() ->
     next_attack(1).
@@ -99,7 +101,7 @@ create_skills() ->
         ]}]},
 
         {counterattack, [{0, [
-            {seq(2, counter, [opponent_critical()]), [counter_attack(3)]}
+            {next_damage(0, [opponent_critical()]), [counter_attack(3)]}
         ]}]},
 
         {healing_potion, [{0, [
