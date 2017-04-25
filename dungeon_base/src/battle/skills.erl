@@ -32,12 +32,6 @@ magic_cast_spec(Resis) ->
 magic_cast_spec() ->
     magic_cast_spec(non_resistable).
 
-test_attr(Attr, Dest) ->
-    {{add, {{single, 1}}, magic_cast_spec()}, {attr, attr, Attr, Dest}}.
-
-die() ->
-    {{add, {{single, -1300}}, physical_attack_spec()}, {attr, state, hp, def}}.
-
 plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, blowable}}.
 plain_attack_no_blow() ->
