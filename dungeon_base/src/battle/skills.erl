@@ -99,7 +99,7 @@ create_skills() ->
         ]}]},
 
         {counterattack, [{0, [
-            {seq(2, counter, [opponent_critical()]), [counter_attack(3)]}
+            {next_damage(), [counter_attack(3)]}
         ]}]},
 
         {healing_potion, [{0, [
