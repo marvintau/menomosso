@@ -165,7 +165,7 @@ trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, state, hp, P}=ToW
         attack ->
             AbsorbedDamage;
         cast ->
-            AbsorbedDamage;
+            Damage;
         resist ->
             AbsorbedDamage / 10 * rand:uniform();
         _ -> 0
