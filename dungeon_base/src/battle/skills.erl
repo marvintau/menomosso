@@ -69,7 +69,7 @@ next_attack(LastFor) ->
 
 
 opponent_critical() ->
-    {attack, '==', {attr, attr, outcome, def}}.
+    {critical, '==', {attr, attr, outcome, def}}.
 
 
 create_skills() ->
@@ -99,7 +99,7 @@ create_skills() ->
         ]}]},
 
         {counterattack, [{0, [
-            {next_damage(), [counter_attack(3)]}
+            {seq(2, counter, [opponent_critical()]), [counter_attack(3)]}
         ]}]},
 
         {healing_potion, [{0, [
@@ -149,7 +149,7 @@ create_skills() ->
         ]}]},
 
         {sure_hit, [{0, [
-            {next_attack(1), [
+            {next_attack(), [
                 toggle(def, attr, resist, 0),
                 toggle(def, attr, block, 0),
                 toggle(def, attr, dodge, 0),
