@@ -46,7 +46,7 @@ stand_plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_cast_spec()}, {attr, state, hp, def}, {chase, non_blowable}}.
 
 counter_attack(Times) ->
-    {{add_inc_mul, {{attr, state, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, state, hp, def}}.
+    {{add_inc_mul, {{attr, state, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, state, hp, def}, {stand, blowable}}.
 
 buff(AttrType, Attr, Buff) ->
     {{add_mul, {{single, 1+Buff}}, magic_cast_spec()}, {attr, AttrType, Attr, off}, {stand, non_blowable}}.
