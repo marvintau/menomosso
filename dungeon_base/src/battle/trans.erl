@@ -198,14 +198,14 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}, ReposeType}, O, D) ->
 
     % 将转盘结果加入玩家context，并按结果计算伤害／技能效果，把结果保存在TransPsn里面
     Psn = ref:who(P, O, D),
-    TransPsn = trans({Opcode, RefOperand, AttackSpec, Outcome}, {attr, Type, Attr, Psn}),
+    TheTransedOne = trans({Opcode, RefOperand, AttackSpec, Outcome}, {attr, Type, Attr, Psn}),
 
-    {#{attr:=AttrO, state:=StateO}=TransO, #{state:=StateD}=TransD} = case P of
-        off ->  {TransPsn, D};
-        def ->  {O, TransPsn}
+    {#{attr:=AttrO} = TransO, TransD} = case P of
+        off ->  {TheTransedOne, D};
+        def ->  {O, TheTransedOne}
     end,
 
-    repose(TransO, TransD, ReposeType).
+    repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, ReposeType).
 
     % {PosedO, PosedD} = case AttackSpec of
     %     {_, {attack, repose_no_blow}, _, _, _} ->
