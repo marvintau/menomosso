@@ -149,7 +149,7 @@ create_skills() ->
         ]}]},
 
         {sure_hit, [{0, [
-            {next_attack(2), [
+            {next_attack(1), [
                 toggle(def, attr, resist, 0),
                 toggle(def, attr, block, 0),
                 toggle(def, attr, dodge, 0),
@@ -191,7 +191,7 @@ create_skills() ->
         ]}]},
 
         {critical_strike, [{0, [
-            {next_attack(1), [
+            {next_attack(0), [
                 toggle(def, attr, dodge, 0),
                 toggle(def, attr, block, 0),
                 toggle(off, attr, critical, 120),
