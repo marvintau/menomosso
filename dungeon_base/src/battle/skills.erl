@@ -18,11 +18,9 @@ update_skills(Data) ->
     ok.
 
 physical_attack_spec(Absorbable) ->
-    {physical, {attack, normal}, Absorbable, non_resistable, 0}.
-physical_attack_spec_no_blow() ->
-    {physical, {attack, repose_no_blow}, absorbable, non_resistable, 0}.
+    {physical, attack, Absorbable, non_resistable, 0}.
 physical_attack_spec() ->
-    {physical, {attack, normal}, absorbable, non_resistable, 0}.
+    {physical, attack, absorbable, non_resistable, 0}.
 
 physical_cast_spec() ->
     {physical, {cast, normal}, absorbable, non_resistable, 0}.
@@ -35,7 +33,7 @@ magic_cast_spec() ->
 plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, blowable}}.
 plain_attack_no_blow() ->
-    {{add, {{attr, attr, atk_range, off}}, physical_attack_spec_no_blow()}, {attr, state, hp, def}, {chase, non_blowable}}.
+    {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, non_blowable}}.
 stand_plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_cast_spec()}, {attr, state, hp, def}, {chase, non_blowable}}.
 
@@ -62,7 +60,9 @@ next_damage() ->
 next_damage(LastFor) ->
     next_damage(LastFor, []).
 next_damage(LastFor, Conds) ->
-    {{next_defense_norm, LastFor, {physical, attack, none, none}, settling}, Conds}.
+    next_damage(LastFor, Conds, settling).
+next_damage(LastFor, Conds, Stage) ->
+    {{next_defense_norm, LastFor, {physical, attack, none, none}, Stage}, Conds}.
 
 next_attack() ->
     next_attack(1).
@@ -83,11 +83,11 @@ create_skills() ->
         ]}]},
 
         {double_attack, [{0, [
-            {seq(), [stand_plain_attack(), plain_attack()]}
+            {seq(), [plain_attack_no_blow(), plain_attack()]}
         ]}]},
 
         {triple_attack, [{0, [
-            {seq(), [stand_plain_attack(), stand_plain_attack(), plain_attack_no_blow()]}
+            {seq(), [plain_attack_no_blow(), plain_attack_no_blow(), plain_attack_no_blow()]}
         ]}]},
 
         {charm_of_foresight, [{0, [
@@ -101,7 +101,7 @@ create_skills() ->
         ]}]},
 
         {counterattack, [{0, [
-            {next_damage(0, [opponent_critical()]), [counter_attack(3)]}
+            {next_damage(0, [opponent_critical()], counter), [counter_attack(3)]}
         ]}]},
 
         {healing_potion, [{0, [
