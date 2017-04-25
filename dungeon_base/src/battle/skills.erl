@@ -58,7 +58,7 @@ seq(LastFor, Stage, Conds) ->
     {{seq_norm, 0, LastFor, Stage}, Conds}.
 
 next_damage() ->
-    next_damage(1).
+    next_damage(0).
 next_damage(LastFor) ->
     {{next_defense_norm, LastFor, {physical, attack, none, none}, settling}, []}.
 
