@@ -20,7 +20,7 @@ roulette(AttackSpec,
 
     % 获得攻击属性（魔法／物理），放招类型（普攻／技能），是否可以抵抗，是否护甲减免（不考虑），技能失败概率
     % erlang:display(AttackSpec),
-    {AttrType, {MoveType, _}, Resistable, _Absorbable, FL}  = AttackSpec,
+    {AttrType, MoveType, Resistable, _Absorbable, FL}  = AttackSpec,
 
     % 实际的抗性：如果技能不可抵抗，那么实际的魔抗值为0
     ActualRes = case Resistable of
