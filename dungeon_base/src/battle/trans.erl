@@ -73,34 +73,37 @@ roulette(AttackSpec,
     Result.
 
 
-repose(#{state:=#{pos:={single, PosO}}=StateO,
-         attr:=#{outcome:={single, Outcome}}, range_type:=RangeType} = O,
+repose(#{state:=StateO}=O, #{state:=StateD}=D, {stand, _}) ->
+    {O#{state:=StateO#{pos_move:={single, stand}}}, D#{state:=StateD#{pos_move:={single, stand}}}};
+
+repose(#{state:=#{pos:={single, PosO}}=StateO, attr:=#{outcome:={single, Outcome}}} = O,
        #{state:=#{pos:={single, PosD}, hp:={single, HPD}}=StateD,
-         attr:=#{is_frozen:={single, IsFrozen}, is_disarmed:={single, IsDisarmed}, is_stunned:={single, IsStunned}}} = D, IsBlownOutEnabled) ->
+         attr:=#{is_frozen:={single, IsFrozen}, is_disarmed:={single, IsDisarmed}, is_stunned:={single, IsStunned}}} = D,
+      {ReposeType, IsBlownOutEnabled}) ->
 
     % 根据近战远战类型决定追逃动作
-    {NewPosO, NewPosD, NewPosMoveO, NewPosMoveD} = case RangeType of
+    {NewPosO, NewPosD, NewPosMoveO, NewPosMoveD} = case ReposeType of
 
         % 只有当PosO + PosD == 5 的时候才是格斗距离，比这个小说明远了
-        near when (PosO + PosD) < 5 ->
+        chase when (PosO + PosD) < 5 ->
             {5 - PosD, PosD, chase, not_assigned_yet};
 
         % 如果不是，则说明正是格斗距离，不动
-        near ->
+        chase ->
             {PosO, PosD, stand, not_assigned_yet};
 
         % 只有当 4 >= PosO + PosD >= 3的时候才是远战格斗距离，比这个再远需要追上
-        far when (PosO + PosD) < 3 ->
+        back when (PosO + PosD) < 3 ->
             {PosO + 1, PosD, chase, not_assigned_yet};
 
         % 如果是近战的距离需要跳开
-        far when PosO + PosD == 5 ->
+        back when PosO + PosD == 5 ->
             case PosO of
                 1 -> {PosO, PosD - 2, stand, back_jump_2};
                 _ -> {PosO - 1, PosD, back_jump, not_assigned_yet}
             end;
 
-        far ->
+        back ->
             {PosO, PosD, stand, not_assigned_yet}
 
     end,
@@ -181,7 +184,7 @@ trans({add_inc_mul, {Inc, Mul}, AttackSpec, Outcome}, ToWhom) ->
     trans({add, Inc * Mul, AttackSpec, Outcome}, ToWhom).
 
 
-trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
+trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}, ReposeType}, O, D) ->
 
     % 获得双方的操作数
     RefOperand = case Oper of
@@ -202,15 +205,17 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}}, O, D) ->
         def ->  {O, TransPsn}
     end,
 
-    {PosedO, PosedD} = case AttackSpec of
-        {_, {attack, repose_no_blow}, _, _, _} ->
-            repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, false);
-        {_, {attack, _}, _, _, _} ->
-            repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, true);
-        _ ->
-            {TransO#{attr:=AttrO#{outcome:={single, Outcome}}, state:=StateO#{pos_move:={single, stand}}}, TransD#{state:=StateD#{pos_move:={single, stand}}}}
-        end,
-    {PosedO, PosedD}.
+    repose(TransO, TransD, ReposeType).
+
+    % {PosedO, PosedD} = case AttackSpec of
+    %     {_, {attack, repose_no_blow}, _, _, _} ->
+    %         repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, false);
+    %     {_, {attack, _}, _, _, _} ->
+    %         repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, true);
+    %     _ ->
+    %         {TransO#{attr:=AttrO#{outcome:={single, Outcome}}, state:=StateO#{pos_move:={single, stand}}}, TransD#{state:=StateD#{pos_move:={single, stand}}}}
+    %     end,
+    % {PosedO, PosedD}.
 
 
 
@@ -265,7 +270,7 @@ cast(#{seq:=Seq}=S, #{state:=StateO}=O, #{state:=StateD}=D, Log, [{SeqIndex, Ski
     cast(S, StandO, StandD, NewLog, Remaining).
 
 
-log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Type, Attr, Who}}},
+log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Type, Attr, Who}, _}},
     #{id:=OID, class:=ClassO, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}} = O,
     #{id:=DID, class:=ClassD, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
 ) ->

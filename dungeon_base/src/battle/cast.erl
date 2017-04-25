@@ -40,7 +40,7 @@ seq({{seq_norm, Start, Last, Phase}, Others}, CurrSeq, _Effects, _EffectsOther) 
 
 seq({{next_offense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq, Effects, _EffectsOther) ->
 
-    CheckPatternMatch = fun({{_Op, _Operand, {AttrG, {MoveG, _}, AbsG, ResG, _}}, _}) ->
+    CheckPatternMatch = fun({{_Op, _Operand, {AttrG, {MoveG, _}, AbsG, ResG, _}}, _, _}) ->
         ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
         ((AbsG == Abs) or (Abs == none)) and ((ResG == Res) or (Res == none)) end,
 
