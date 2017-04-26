@@ -94,7 +94,7 @@ insert into card_skills(skill_name, skill_multiple_time, skill_cost, card_id) va
 ('double_attack',                  true,         5,      '00000000-0000-0000-0000-000000000000'),
 ('triple_attack',                  true,         9,      '00000000-0000-0000-0000-000000000000'),
 ('charm_of_foresight',             false,        7,      '00000000-0000-0000-0000-000000000000'),
-('fortify_armor',                  false,        3,      '00000000-0000-0000-0000-000000000000'),
+('increase_dodge',                 false,        3,      '00000000-0000-0000-0000-000000000000'),
 ('increase_crit',                  false,        3,      '00000000-0000-0000-0000-000000000000'),
 ('counterattack',                  false,        5,      '00000000-0000-0000-0000-000000000000'),
 ('healing_potion',                 false,        3,      '00000000-0000-0000-0000-000000000000'),
