@@ -93,8 +93,8 @@ create_skills() ->
         {charm_of_foresight, [{0, [
             {next_damage(), [buff(attr, dodge, 0.25), buff(attr, block, 0.25)]}
         ]}]},
-        {fortify_armor, [{0, [
-            {next_damage(), [buff(attr, armor, 0.3)]}
+        {increase_dodge, [{0, [
+            {next_damage(), [buff(attr, dodge, 0.3)]}
         ]}]},
         {increase_crit, [{0, [
             {next_damage(), [buff(attr, critical, 0.25)]}
