@@ -23,10 +23,10 @@ physical_attack_spec() ->
     {physical, attack, absorbable, non_resistable, 0}.
 
 physical_cast_spec() ->
-    {physical, {cast, normal}, absorbable, non_resistable, 0}.
+    {physical, cast, absorbable, non_resistable, 0}.
 
 magic_cast_spec(Resis) ->
-    {magic, {cast, normal}, non_absorbable, Resis, 0}.
+    {magic, cast, non_absorbable, Resis, 0}.
 magic_cast_spec() ->
     magic_cast_spec(non_resistable).
 
