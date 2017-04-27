@@ -86,10 +86,12 @@ repose(#{state:=#{pos:={single, PosO}}=StateO, attr:=#{outcome:={single, Outcome
 
         % 只有当PosO + PosD == 5 的时候才是格斗距离，比这个小说明远了
         chase when (PosO + PosD) < 5 ->
+            erlang:display(haha),
             {5 - PosD, PosD, chase, not_assigned_yet};
 
         % 如果不是，则说明正是格斗距离，不动
         chase ->
+            erlang:display(hehe),
             {PosO, PosD, stand, not_assigned_yet};
 
         % 只有当 4 >= PosO + PosD >= 3的时候才是远战格斗距离，比这个再远需要追上
