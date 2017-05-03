@@ -101,7 +101,7 @@ repose(#{state:=#{pos:={single, PosO}}=StateO, attr:=#{outcome:={single, Outcome
         % 如果是近战的距离需要跳开
         back when PosO + PosD == 5 ->
             case PosO of
-                1 -> {PosO, PosD - 2, stand, back_jump_2};
+                1 -> {PosO, PosD - 1, stand, back_jump};
                 _ -> {PosO - 1, PosD, back_jump, not_assigned_yet}
             end;
 
