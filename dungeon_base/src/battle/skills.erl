@@ -33,7 +33,7 @@ magic_cast_spec() ->
 plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, blowable}}.
 plain_attack_no_blow() ->
-    {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}, {stand, non_blowable}}.
+    {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, non_blowable}}.
 stand_plain_attack() ->
     {{add, {{attr, attr, atk_range, off}}, physical_cast_spec()}, {attr, state, hp, def}, {chase, non_blowable}}.
 
