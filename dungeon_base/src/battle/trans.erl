@@ -120,7 +120,7 @@ repose(#{state:=#{pos:={single, PosO}}=StateO, attr:=#{outcome:={single, Outcome
             IsBlownOutEnabled and (BlownRand > 0.9) and (IsFrozen == 0) and (IsDisarmed == 0) and (IsStunned == 0)
             and (Outcome /= dodge) and (Outcome /=block) and (Outcome /= resist) or (HPD =< 0) ->
             {NewPosD - 1, blown_out};
-        _ -> {NewPosD, stand}
+        _ -> {NewPosD, NewPosMoveD}
     end,
 
     % {NewPosO, NewPosD2, NewPosMoveO, NewPosMoveD2},
