@@ -83,11 +83,11 @@ create_skills() ->
         ]}]},
 
         {double_attack, [{0, [
-            {seq(), [plain_attack_no_blow(), plain_attack()]}
+            {seq(), [stand_plain_attack(), plain_attack()]}
         ]}]},
 
         {triple_attack, [{0, [
-            {seq(), [plain_attack_no_blow(), plain_attack_no_blow(), plain_attack_no_blow()]}
+            {seq(), [stand_plain_attack(), stand_plain_attack(), plain_attack_no_blow()]}
         ]}]},
 
         {charm_of_foresight, [{0, [
