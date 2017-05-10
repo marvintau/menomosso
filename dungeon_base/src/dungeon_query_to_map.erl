@@ -100,6 +100,8 @@ get_card_map_battle({_ID, CardName, _Level, _Expi, _Stars, _ImageName, Class, Ra
 
     },
 
+    erlang:display({range_type, binary_to_atom(RangeType, utf8)}),
+
     #{
         card_name => CardName,
         class => Class,
