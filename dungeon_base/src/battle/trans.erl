@@ -100,10 +100,7 @@ repose(#{state:=#{pos:={single, PosO}}=StateO, attr:=#{outcome:={single, Outcome
 
         % 如果是近战的距离需要跳开
         back when PosO + PosD == 5 ->
-            case PosO of
-                1 -> {PosO, PosD - 1, stand, back_jump};
-                _ -> {PosO - 1, PosD, back_jump, not_assigned_yet}
-            end;
+            {PosO - 1, PosD, back_jump, not_assigned_yet}
 
         back ->
             {PosO, PosD, stand, not_assigned_yet}
@@ -115,7 +112,7 @@ repose(#{state:=#{pos:={single, PosO}}=StateO, attr:=#{outcome:={single, Outcome
 
     % 如果抽中随机数，且被攻击者不在版边，并且被攻击者不处在冰冻/眩晕/缴械状态，并且被攻击者的反应不是
     {NewPosD2, NewPosMoveD2} = case {NewPosD, NewPosMoveD} of
-        {1, not_assigned_yet} -> {1, stand};
+        % {1, not_assigned_yet} -> {1, stand};
         {_, not_assigned_yet} when
             IsBlownOutEnabled and (BlownRand > 0.9) and (IsFrozen == 0) and (IsDisarmed == 0) and (IsStunned == 0)
             and (Outcome /= dodge) and (Outcome /=block) and (Outcome /= resist) or (HPD =< 0) ->

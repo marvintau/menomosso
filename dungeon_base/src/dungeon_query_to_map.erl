@@ -110,7 +110,7 @@ get_card_map_battle({_ID, CardName, _Level, _Expi, _Stars, _ImageName, Class, Ra
         state => #{
             hp => {single, binary_to_integer(HP)},
             diff => {single, 0},
-            pos => {single, 2},
+            pos => {single, 0},
             pos_move => {single, stand}
         },
 
