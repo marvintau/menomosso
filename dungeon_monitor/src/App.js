@@ -24,7 +24,9 @@ class Body extends Component {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin' : '*'
+        'Origin': 'http://everstream.cn',
+        'Access-Control-Request-Method': 'POST'
+        'Access-Control-Request-Headers': 'X-Requested-With'
       },
       body: JSON.stringify({})
     })
