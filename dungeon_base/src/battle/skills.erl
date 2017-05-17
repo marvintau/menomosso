@@ -223,9 +223,9 @@ create_skills() ->
 
         {unbalancing_strike, [{0, [
             {seq(4), [
-                {{add_mul, {{single, -0.07}}, magic_cast_spec()}, {attr, attr, dodge, def}, {stand, non_blowable}},
-                {{add_mul, {{single, -0.07}}, magic_cast_spec()}, {attr, attr, block, def}, {stand, non_blowable}},
-                {{add_mul, {{single, -0.07}}, magic_cast_spec()}, {attr, attr, hit, def}, {stand, non_blowable}}
+                {{add, {{single, -7}}, magic_cast_spec()}, {attr, attr, dodge, def}, {stand, non_blowable}},
+                {{add, {{single, -7}}, magic_cast_spec()}, {attr, attr, block, def}, {stand, non_blowable}},
+                {{add, {{single, -7}}, magic_cast_spec()}, {attr, attr, hit, def}, {stand, non_blowable}}
             ]}
         ]}]}
     ],
