@@ -22,7 +22,7 @@ content_types_accepted(Req, State) ->
 
 options(Req, State) ->
     Req1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Req),
-    Req2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type">>, Req1),
+    Req2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type, origin">>, Req1),
     Req3 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Req2),
     {ok, Req3, State}.
 
