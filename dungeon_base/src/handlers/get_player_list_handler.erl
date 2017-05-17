@@ -56,4 +56,9 @@ handle_post(Req, State) ->
     {ok, List} = dungeon_base_sup:query({get_player_list, {}}),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(List), NextReq),
-    {true, Res, State}.
+
+    Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
+    Res2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type, origin, access-control-request-origin">>, Res1),
+    Res3 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Res2),
+
+    {true, Res3, State}.
