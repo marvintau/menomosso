@@ -20,6 +20,7 @@ class Body extends Component {
   render() {
 
     let res = fetch('http://everstream.cn:1337/api/get_player_list', {
+      mode: 'no-cors',
       method: 'POST',
       headers: {
         'Accept': 'application/json',
