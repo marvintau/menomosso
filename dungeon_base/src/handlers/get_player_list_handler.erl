@@ -3,6 +3,7 @@
 -export([init/2]).
 -export([content_types_provided/2, content_types_accepted/2]).
 -export([allow_missing_posts/2]).
+-export([options/2]).
 -export([allowed_methods/2]).
 -export([handle_post/2]).
 
@@ -19,6 +20,10 @@ content_types_accepted(Req, State) ->
         {<<"application/json">>, handle_post}
     ], Req, State}.
 
+options(Req, State) ->
+    Req1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"GET, OPTIONS">>, Req),
+    Req2 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Req1),
+    {ok, Req2, State}.
 
 % note that the method won't be called since the callback
 % specified here will be only called when GET and HEAD request
