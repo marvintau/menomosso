@@ -27,8 +27,7 @@ class Body extends Component {
         'Content-Type': 'application/json',
         'Origin': 'http://everstream.cn:3000',
         'Access-Control-Request-Method': 'POST',
-        'Access-Control-Request-Headers': 'X-Requested-With',
-        'Access-Control-Request-Origin': 'http://everstream.cn:3000'
+        'Access-Control-Request-Headers': 'X-Requested-With'
       },
       body: JSON.stringify({})
     })
