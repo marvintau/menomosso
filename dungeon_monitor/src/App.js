@@ -23,139 +23,187 @@ class App extends Component {
   }
 }
 
-
+/// 显示一个属性，可能由Select或者Text表示
 class PropField extends Component {
   constructor(props) {
     super(props);
-
-    this.names = {
-        id : "ID",
-        player_name : "玩家姓名",
-        image_name : "头像图片名",
-        association : "公会",
-        expi : "经验",
-        level : "等级",
-        coins : "金币",
-        diamonds : "钻石",
-        preset_card_id : "预设卡牌",
-        selected_skills : "已选技能",
-        rank : "排名",
-
-        card_id : "预设卡ID",
-        card_name : "卡牌名称",
-        card_image_name : "卡牌头像图片名",
-        card_level: "卡牌等级",
-        card_expi : "卡牌经验值",
-        hp : "卡牌血量",
-        range_type : "攻击类型",
-        class : "职业"
-    }
-
-    this.skillNames = {
-      brave_shield_counterback: "英勇盾击",
-      blade_dance:        "刀剑乱舞",
-      assault:          "猎人大招",
-      freeze:           "法师大招",
-      single_attack:        "单次攻击",
-      double_attack:        "二连击",
-      triple_attack:        "三连击",
-      charm_of_foresight:     "预判",
-      fortify_armor:        "闪避增强",
-      increase_crit:        "暴击增强",
-      counterattack:        "反击",
-      concussion:         "冲击",
-      talisman_of_shielding:    "护盾",
-      deadly_strike:        "死亡一击",
-      critical_strike:      "暴击",
-      shield_breaker:       "破盾",
-      unbalancing_strike:     "失去平衡",
-      talisman_of_death:      "致死",
-      rune_of_the_void:     "虚无",
-      talisman_of_spellshrouding: "抗魔",
-      holy_hand_grenade:      "人品手雷",
-      poison_gas:         "迷烟",
-      shield_wall:        "盾墙",
-      sure_hit:         "必中",
-      double_swing:       "双重攻击",
-      chain_lock:         "武器链",
-      first_aid:          "急救",
-      healing_potion:       "恢复药剂",
-      pierce_armor:       "破甲",
-      flurry:           "瞬步",
-      spellbreak:         "扰乱",
-      perfect_strike:       "精准刺杀",
-      vampiric_bolt:        "吸血",
-      arcane_surge:       "秘法",
-      lower_resist:       "抗性降低",
-      pyromania:          "点燃",
-      mind_blast:         "精神干扰",
-      tornado:          "龙卷风",
-      mend:           "修补",
-      outbreak:         "瘟疫蔓延",
-      roots:            "缠绕",
-      tree_hide:          "树皮护甲",
-      attack_prim:        "主手攻",
-      attack_secd:        "副手攻",
-      critical_prim:        "主手暴",
-      critical_secd:        "副手攻",
-      dodge_prim:         "主手闪避",
-      dodge_secd:         "副手闪避",
-      block_prim:         "主手格挡",
-      block_secd:         "副手格挡",
-      resist_prim:        "主手抵抗",
-      resist_secd:        "副手抵抗",
-      none:           "空技能"
-    }
   }
 
-  field(name, val){
+  field(){
 
-    let actualVal = {label:this.skillNames[val], value:val}
+    switch(this.props.schema.type){
+    case "select" :
 
-    switch(name){
-    case "selected_skills" :
+      let multi, value;
+      if(this.props.schema.multi){
+        multi = true;
+        value = this.props.value.join(",");
+      } else {
+        multi = false;
+        value = this.props.value;
+      }
+
       return (< Select
-        value={this.props.selectedVal}
-        options={Object.keys(this.skillNames).map(skillName => ({label:this.skillNames[skillName], value:skillName}))}
-        onChange={this.props.onSelectChange}/>
-      );
+        value={value}
+        multi={multi} 
+        options={this.props.schema.options}
+        onChange={this.props.onChange} />);
     default :
-      return (<FormControl type="text" value={val} placeholder="Whatever" onChange={this.props.onChange} />)
+      return (<FormControl type="text" value={this.props.value} placeholder="Whatever" onChange={this.props.onChange} />)
     }
   }
 
   render() {
-    // console.log(this.props)
     return (
-      <div style={{width:"20%", float:"left", marginRight:"1em"}}>
-      <ControlLabel>{this.names[this.props.name]}</ControlLabel>
-      {this.field(this.props.name, this.props.value)}
+      <div>
+      <ControlLabel>{this.props.schema.title}</ControlLabel>
+      {this.field()}
       </div>
     );
   }
 }
 
+
+
+// 显示一个玩家的信息
 class PlayerDetail extends Component {
   constructor(props) {
     super(props);
+    
+    let skills = [
+      {value: "brave_shield_counterback",    label:"英勇盾击"},
+      {value: "blade_dance",                 label:"刀剑乱舞"},
+      {value: "assault",                     label:"猎人大招"},
+      {value: "freeze",                      label:"法师大招"},
+      {value: "single_attack",               label:"单次攻击"},
+      {value: "double_attack",               label:"二连击"},
+      {value: "triple_attack",               label:"三连击"},
+      {value: "charm_of_foresight",          label:"预判"},
+      {value: "fortify_armor",               label:"闪避增强"},
+      {value: "increase_crit",               label:"暴击增强"},
+      {value: "counterattack",               label:"反击"},
+      {value: "concussion",                  label:"冲击"},
+      {value: "talisman_of_shielding",       label:"护盾"},
+      {value: "deadly_strike",               label:"死亡一击"},
+      {value: "critical_strike",             label:"暴击"},
+      {value: "shield_breaker",              label:"破盾"},
+      {value: "unbalancing_strike",          label:"失去平衡"},
+      {value: "talisman_of_death",           label:"致死"},
+      {value: "rune_of_the_void",            label:"虚无"},
+      {value: "talisman_of_spellshrouding",  label:"抗魔"},
+      {value: "holy_hand_grenade",           label:"人品手雷"},
+      {value: "poison_gas",                  label:"迷烟"},
+      {value: "shield_wall",                 label:"盾墙"},
+      {value: "sure_hit",                    label:"必中"},
+      {value: "double_swing",                label:"双重攻击"},
+      {value: "chain_lock",                  label:"武器链"},
+      {value: "first_aid",                   label:"急救"},
+      {value: "healing_potion",              label:"恢复药剂"},
+      {value: "pierce_armor",                label:"破甲"},
+      {value: "flurry",                      label:"瞬步"},
+      {value: "spellbreak",                  label:"扰乱"},
+      {value: "perfect_strike",              label:"精准刺杀"},
+      {value: "vampiric_bolt",               label:"吸血"},
+      {value: "arcane_surge",                label:"秘法"},
+      {value: "lower_resist",                label:"抗性降低"},
+      {value: "pyromania",                   label:"点燃"},
+      {value: "mind_blast",                  label:"精神干扰"},
+      {value: "tornado",                     label:"龙卷风"},
+      {value: "mend",                        label:"修补"},
+      {value: "outbreak",                    label:"瘟疫蔓延"},
+      {value: "roots",                       label:"缠绕"},
+      {value: "tree_hide",                   label:"树皮护甲"},
+      {value: "attack_prim",                 label:"主手攻"},
+      {value: "attack_secd",                 label:"副手攻"},
+      {value: "critical_prim",               label:"主手暴"},
+      {value: "critical_secd",               label:"副手攻"},
+      {value: "dodge_prim",                  label:"主手闪避"},
+      {value: "dodge_secd",                  label:"副手闪避"},
+      {value: "block_prim",                  label:"主手格挡"},
+      {value: "block_secd",                  label:"副手格挡"},
+      {value: "resist_prim",                 label:"主手抵抗"},
+      {value: "resist_secd",                 label:"副手抵抗"},
+      {value: "none",                        label:"空技能"}
+    ];
+
+    this.state = {
+      schema : {
+        id :              { title: "玩家ID", type: "string", display: true}, 
+        player_name :     { title: "玩家姓名", type: "string", display: false}, 
+        h1:               {type: "divider"},
+        image_name :      { title: "头像图片名", type: "string", display: false}, 
+        association :     { title: "公会", type: "string", display: false}, 
+        expi :            { title: "经验", type: "number", display: false}, 
+        level :           { title: "等级", type: "number", display: false}, 
+        coins :           { title: "金币", type: "number", display: false}, 
+        diamonds :        { title: "钻石", type: "number", display: false}, 
+        preset_card_id :  { title: "预设卡牌", type: "string", display: true}, 
+        rank :            { title: "排名", type: "number", display: false}, 
+        card_id :         { title: "预设卡ID", type: "string", display: false}, 
+        card_name :       { title: "卡牌名称", type: "string", display: true}, 
+        card_image_name : { title: "卡牌头像图片名", type: "string", display: false}, 
+        card_level:       { title: "卡牌等级", type: "number", display: false}, 
+        card_expi :       { title: "卡牌经验值", type: "number", display: false}, 
+        hp :              { title: "卡牌血量", type: "number", display: false}, 
+        range_type :      { title: "攻击类型", type: "string", display: false}, 
+        class :           { title: "职业", type: "string", display: true},
+        selected_skills : { title: "已选技能", type: "select", display: true, options: skills, multi: true}
+      }
+
+      // props : this.props.playerProps
+    }
   }
 
 
-  createSingleProp(i, k, v){
-    return (<PropField key={i} name={k} value={v} onSelectChange/>)
+  getCardList(){
+    fetch('http://everstream.cn:1337/api/get_player', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Origin': 'http://everstream.cn:3000',
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': 'X-Requested-With'
+      },
+      body: JSON.stringify({id: this.props.playerProps.id})
+    })
+    .then(response => response.json() )
+    .then(list =>{
+      console.log(list)
+    })
+    .catch(error => {
+      console.log(error);
+      return error
+    })
   }
 
-  createProps(obj){
-    return Object.keys(obj).map((key, index) => this.createSingleProp(index, key, obj[key]));
+  componentWillMount(){
+    this.getCardList()
+  }  
+
+  createSingleProp(prop, index){
+    return (<PropField key={index} schema={this.state.schema[prop]} value={this.props.playerProps[prop]}/>)
+  }
+
+  createProps(){
+    return Object.keys(this.state.schema).map((prop, index) => {
+      if(this.state.schema[prop].display){
+        return this.createSingleProp(prop, index);
+      } else if (this.state.schema[prop].type === "divider"){
+        return (<hr key={index} />);
+      } else {
+        return (<div key={index}></div>);
+      }
+    })
   }
 
   render() {
-    console.log(this.props)
-    return (
-      <div>
-        {this.createProps(this.props.playerProps)}
-      </div>
-    );
+    if(this.props.playerProps.hasOwnProperty("id")){
+      console.log(this.props.playerProps)
+      return ( <div> {this.createProps()} </div> );
+    } else {
+      return ( <div/>);
+    }
   }
 }
 
@@ -222,10 +270,11 @@ class Body extends Component {
 
     return (
 
-      <div className="container-fluid">
+      <Col className="container-fluid" md={3}>
+        <ControlLabel>玩家名称</ControlLabel>
         < Select name="Yep" value={this.state.selectedSelfValue} options={this.state.options} onChange={this.updateSelected.bind(this)}/>
         < PlayerDetail playerProps={this.state.selectedSelf}/>
-      </div>
+      </Col>
     )
 
   }
