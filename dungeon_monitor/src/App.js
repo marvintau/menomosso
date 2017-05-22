@@ -127,6 +127,7 @@ class PlayerDetail extends Component {
     ];
 
     this.state = {
+
       schema : {
         id :              { title: "玩家ID", type: "string", display: true}, 
         player_name :     { title: "玩家姓名", type: "string", display: false}, 
@@ -137,7 +138,7 @@ class PlayerDetail extends Component {
         level :           { title: "等级", type: "number", display: false}, 
         coins :           { title: "金币", type: "number", display: false}, 
         diamonds :        { title: "钻石", type: "number", display: false}, 
-        preset_card_id :  { title: "预设卡牌", type: "string", display: true}, 
+        preset_card_id :  { title: "预设卡牌", type: "select", display: true, options:[], multi:false}, 
         rank :            { title: "排名", type: "number", display: false}, 
         card_id :         { title: "预设卡ID", type: "string", display: false}, 
         card_name :       { title: "卡牌名称", type: "string", display: true}, 
@@ -156,6 +157,9 @@ class PlayerDetail extends Component {
 
 
   getCardList(){
+
+    console.log(this.props.playerProps.id);
+
     fetch('http://everstream.cn:1337/api/get_player', {
       method: 'POST',
       headers: {
@@ -170,6 +174,9 @@ class PlayerDetail extends Component {
     .then(response => response.json() )
     .then(list =>{
       console.log(list)
+      this.setState((prevState, props) => {
+        prevState.schema.preset_card_id.options = list;
+      });
     })
     .catch(error => {
       console.log(error);
@@ -177,8 +184,9 @@ class PlayerDetail extends Component {
     })
   }
 
-  componentWillMount(){
-    this.getCardList()
+  componentDidMount(){
+    console.log("yey");
+    this.getCardList()      
   }  
 
   createSingleProp(prop, index){

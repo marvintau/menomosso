@@ -3,6 +3,7 @@
 -export([init/2]).
 -export([content_types_provided/2, content_types_accepted/2]).
 -export([allow_missing_posts/2]).
+-export([options/2]).
 -export([allowed_methods/2]).
 -export([handle_post/2]).
 
