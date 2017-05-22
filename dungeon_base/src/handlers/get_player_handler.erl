@@ -10,7 +10,7 @@ init(Req, Opts) ->
     {cowboy_rest, Req, Opts}.
 
 allowed_methods(Req, Opts) ->
-    {[<<"POST">>], Req, Opts}.
+    {[<<"POST">>, <<"OPTIONS">>], Req, Opts}.
 
 content_types_accepted(Req, State) ->
 
@@ -19,6 +19,12 @@ content_types_accepted(Req, State) ->
         {<<"application/json">>, handle_post}
     ], Req, State}.
 
+
+options(Req, State) ->
+    Req1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Req),
+    Req2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type, origin, access-control-request-origin">>, Req1),
+    Req3 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Req2),
+    {ok, Req3, State}.
 
 % note that the method won't be called since the callback
 % specified here will be only called when GET and HEAD request
@@ -54,4 +60,8 @@ handle_post(Req, State) ->
     end,
 
     Res = cowboy_req:set_resp_body(jiffy:encode(ResEJSON), NextReq),
-    {true, Res, State}.
+    Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
+    Res2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type, origin, access-control-request-origin">>, Res1),
+    Res3 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Res2),
+
+    {true, Res3, State}.

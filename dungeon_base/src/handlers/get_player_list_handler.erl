@@ -55,8 +55,6 @@ handle_post(Req, State) ->
 
     {ok, List} = dungeon_base_sup:query({get_player_list, {}}),
 
-    erlang:display(yay),
-
     Res = cowboy_req:set_resp_body(jiffy:encode(List), NextReq),
 
     Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
