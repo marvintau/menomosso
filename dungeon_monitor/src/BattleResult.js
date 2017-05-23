@@ -134,8 +134,14 @@ class BattleResult extends Component {
 	}
 
 	showResult(){
-		let round = 0;
+
+		let round = 0, stage="";
 		return this.state.battleResult.records.map((record, i) => {
+
+			let selfName = record[this.state.self.id].player_name,
+				oppoName = record[this.state.oppo.id].player_name,
+				selfHP = record[this.state.self.id].hp,
+				oppoHP = record[this.state.oppo.id].hp;
 
 			let roundText = (record.state.seq !== round) ? (<div className="round">{"第 " + record.state.seq + " 回合"}</div>) : (<div/>)
 			round = record.state.seq;
@@ -143,7 +149,8 @@ class BattleResult extends Component {
 			return (
 				<div key={i}>
 					{roundText}
-					{i +":\t" + this.parseRecord(record)}
+					<span className="action">{i +":\t" + this.parseRecord(record)}</span>
+					<span className="hp">{"[" +selfName + " " + selfHP + "] \t" + "[" +oppoName + " " + oppoHP + "]"}</span>
 				</div>
 			)
 		});

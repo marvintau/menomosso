@@ -9,6 +9,11 @@ body {
 	font-size : 120%;
 }
 
+.action{
+	float:left;
+	width: 600px;
+}
+
 .round {
 	margin:10px 0 10px;
 }
