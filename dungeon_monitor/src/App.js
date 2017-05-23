@@ -5,6 +5,7 @@ import 'whatwg-fetch';
 
 import {PlayerDetail} from './PlayerDetail.js';
 import {CardDetail} from './CardDetail.js';
+import {BattleResult} from "./BattleResult.js";
 
 import Select from 'react-select';
 import {Col, ControlLabel, Button} from "react-bootstrap";
@@ -35,7 +36,9 @@ class Body extends Component {
       selectedSelf:{},
       selectedOppo:{},
       selectedSelfValue:{},
-      selectedOppoValue:{}
+      selectedOppoValue:{},
+
+      battle_res:[]
     }
   }
 
@@ -84,10 +87,10 @@ class Body extends Component {
       this.setState((prevState) => {
         prevState.selectedSelfValue = selected;
         prevState.selectedSelf = res.player_profile;
-        prevState.remainingPlayers = prevState.players.filter(playerOption => playerOption.value != selected.value),
+        prevState.remainingPlayers = prevState.players.filter(playerOption => playerOption.value !== selected.value);
         prevState.cards = res.card_profiles;
         prevState.selectedOppoValue = prevState.remainingPlayers[0];
-        prevState.selectedOppo = prevState.playerList.filter(player_profile => player_profile.id == prevState.selectedOppoValue.value)[0]
+        prevState.selectedOppo = prevState.playerList.filter(player_profile => player_profile.id === prevState.selectedOppoValue.value)[0]
         return prevState;
       });
     })
@@ -102,7 +105,7 @@ class Body extends Component {
     console.log(this.state.selectedOppo.id);
     console.log(this.state.selectedOppo.selected_skills);
     console.log(this.state.selectedOppo.preset_card_id);
-    fetch('http://everstream.cn:1337/api/', {
+    fetch('http://everstream.cn:1337/api/battle_request', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -120,7 +123,7 @@ class Body extends Component {
     })
     .then(response => response.json() )
     .then(res =>{
-      console.log(res)
+      this.setState({battle_res:res})
     })
     .catch(error => {
       console.log(error);
@@ -137,7 +140,7 @@ class Body extends Component {
     console.log("changed oppo: "+selected.label);
     this.setState((prevState) => {
       prevState.selectedOppoValue = selected;
-      prevState.selectedOppo = prevState.playerList.filter(player_profile => player_profile.id == prevState.selectedOppoValue.value)[0]
+      prevState.selectedOppo = prevState.playerList.filter(player_profile => player_profile.id === prevState.selectedOppoValue.value)[0]
       return prevState
     })
   }
@@ -172,8 +175,8 @@ class Body extends Component {
         < PlayerDetail cardProps={this.state.cards} playerProps={this.state.selectedOppo}/>
       </Col>
       <Col className="container-fluid" md={3}>
-      <div><b>开打？</b></div>
       <Button bsStyle="primary" bsSize="large" onClick={this.beginBattle.bind(this)}>开打！</Button>
+      <BattleResult battleResult={this.state.battle_res} self={this.state.selectedSelf} oppo={this.state.selectedOppo} />
       </Col>
       </div>
     )
