@@ -69,6 +69,31 @@ class Body extends Component {
     })
   }
 
+  getCardList(){
+    fetch('http://everstream.cn:1337/api/get_card_list', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Origin': 'http://everstream.cn:3000',
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': 'X-Requested-With'
+      },
+      body: JSON.stringify({})
+    })
+    .then(response => response.json() )
+    .then(list =>{
+      let options = list.map(elem => ({value:elem.id, label:elem.card_name}))
+      this.setState({cardList:list, cardOptions:options}, ()=>{
+        console.log(this.state);
+      })
+    })
+    .catch(error => {
+      console.log(error);
+      return error
+    })    
+  }
+
   getPlayerProfile(selected){
 
     fetch('http://everstream.cn:1337/api/get_player', {
@@ -148,6 +173,7 @@ class Body extends Component {
   // 开始加载元素之前获得玩家列表
   componentWillMount(){
     this.getPlayerList()
+    this.getCardList()
   }
 
   onSelectCard(selected){

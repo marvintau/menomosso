@@ -260,7 +260,7 @@ get_card_list(Conn, _) ->
     Query = list_to_binary(["select * from cards;"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, _, [Res]} -> {ok, dungeon_query_to_map:get_card_map(Res)};
+        {ok, _, Res} -> {ok, dungeon_query_to_map:get_card_map(Res)};
         _ -> {error, get_card_failed}
     end.
 
