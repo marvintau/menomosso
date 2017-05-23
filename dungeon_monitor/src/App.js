@@ -164,15 +164,15 @@ class Body extends Component {
     return (
       <div>
       <Col className="container-fluid" md={3}>
-        <ControlLabel>玩家名称</ControlLabel>
+        <ControlLabel>选择对手</ControlLabel>
+        < Select name="Yep" value={this.state.selectedOppoValue} options={this.state.remainingPlayers} onChange={this.onSelectOppo.bind(this)} clearable={false}/>
+        < PlayerDetail cardProps={this.state.cards} playerProps={this.state.selectedOppo}/>
+        <hr/>
+        <ControlLabel>选择己方玩家（第一步）</ControlLabel>
         < Select name="Yep" value={this.state.selectedSelfValue} options={this.state.players} onChange={this.onSelectSelf.bind(this)} clearable={false}/>
         < PlayerDetail cardProps={this.state.cards} playerProps={this.state.selectedSelf}/>
         <hr/>
         < CardDetail cardProps={this.state.cards} player={this.state.selectedSelf} onChange={this.onSelectCard.bind(this)}/>
-        <hr/>
-        <ControlLabel>对手名称</ControlLabel>
-        < Select name="Yep" value={this.state.selectedOppoValue} options={this.state.remainingPlayers} onChange={this.onSelectOppo.bind(this)} clearable={false}/>
-        < PlayerDetail cardProps={this.state.cards} playerProps={this.state.selectedOppo}/>
       </Col>
       <Col className="container-fluid" md={3}>
       <Button bsStyle="primary" bsSize="large" onClick={this.beginBattle.bind(this)}>开打！</Button>
