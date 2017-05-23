@@ -17,6 +17,7 @@
     get_player_card/2,
 
     get_card/2,
+    get_card_list/2,
     get_card_skills/2,
     get_card_battle/2,
 
