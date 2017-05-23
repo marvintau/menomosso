@@ -24,6 +24,10 @@ stop() ->
 start(_StartType, _StartArgs) ->
     Dispatch = cowboy_router:compile([
             {'_', [
+
+                  {"/api/get_card_list", get_card_list_handler, []},
+                  {"/api/update_card", update_card_handler, []},
+
                    {"/api/add_new_player", add_new_player_handler, []},
                    {"/api/get_player", get_player_handler, []},
                    {"/api/get_player_list", get_player_list_handler, []},

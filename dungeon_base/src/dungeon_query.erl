@@ -255,6 +255,14 @@ get_player_battle(Conn, {PlayerUUID}) ->
 %% 得到玩家信息，包含玩家信息，和玩家所持的所有卡牌的具体信息
 %% NOTE: 一般情况下主要用于自己
 
+get_card_list(Conn, _) ->
+    Query = list_to_binary(["select * from cards;"]),
+
+    case epgsql:squery(Conn, binary_to_list(Query)) of
+        {ok, _, [Res]} -> {ok, dungeon_query_to_map:get_card_map(Res)};
+        _ -> {error, get_card_failed}
+    end.
+
 get_card(Conn, {CardUUID}) ->
     Query = list_to_binary(["select * from cards where id='",CardUUID , "';"]),
 
