@@ -374,7 +374,7 @@ update_card( Conn, {UpdatedProfile, CardUUID}) ->
             last_modified=now()
             where id='", CardUUID, "';"]),
 
-    erlang:display(Query);
+    erlang:display(Query),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} -> {ok, card_updated};
