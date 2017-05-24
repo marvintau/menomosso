@@ -227,8 +227,8 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}, ReposeType}, O, D) ->
 % Accepts cond description
 
 log_cast(S, SkillName, IsSuccessful,
-    #{id:=OID, class:=ClassO, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}} = O,
-    #{id:=DID, class:=ClassD, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
+    #{id:=OID, profession:=ClassO, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}} = O,
+    #{id:=DID, profession:=ClassD, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
 ) ->
 
     CastOutcome = case IsSuccessful of
@@ -241,8 +241,8 @@ log_cast(S, SkillName, IsSuccessful,
     #{
         state => maps:remove(offender, S),
         effect => #{skill_name=>SkillName, outcome => CastOutcome, attr=> none, dest=>none, diff => 0},
-        OID => #{player_name=>NameO, class=>ClassO, role=>offender, order=>init, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
-        DID => #{player_name=>NameD, class=>ClassD, role=>defender, order=>init, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
+        OID => #{player_name=>NameO, profession=>ClassO, role=>offender, order=>init, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
+        DID => #{player_name=>NameD, profession=>ClassD, role=>defender, order=>init, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
     }.
 
 cast(S, #{casts:=Casts}=O, D, Log) ->
@@ -271,8 +271,8 @@ cast(#{seq:=Seq}=S, #{state:=StateO}=O, #{state:=StateD}=D, Log, [{SeqIndex, Ski
 
 
 log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Type, Attr, Who}, _}},
-    #{id:=OID, class:=ClassO, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}} = O,
-    #{id:=DID, class:=ClassD, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
+    #{id:=OID, profession:=ClassO, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}} = O,
+    #{id:=DID, profession:=ClassD, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
 ) ->
 
     InitOrFollow = case Stage of
@@ -290,8 +290,8 @@ log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Type, Attr, Who}, _}},
     #{
         state => maps:remove(offender, S),
         effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, dest=>Dest, diff => ref:val({attr, Type, diff, Who}, O, D)},
-        OID => #{player_name=>NameO, class=>ClassO, role=>offender, order=>InitOrFollow, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
-        DID => #{player_name=>NameD, class=>ClassD, role=>defender, order=>InitOrFollow, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
+        OID => #{player_name=>NameO, profession=>ClassO, role=>offender, order=>InitOrFollow, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
+        DID => #{player_name=>NameD, profession=>ClassD, role=>defender, order=>InitOrFollow, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
     }.
 
 
