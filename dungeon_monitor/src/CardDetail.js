@@ -12,25 +12,25 @@ class CardDetail extends Component{
 
     this.state = {
     	schema : {
-			id  : {type:"number", title:"卡牌ID", display:true, readonly:true},
-			card_name  : {type:"number", title:"卡牌名称", display:true},
-			image_name  : {type:"number", title:"头像名称", display:true},
+			id  : {type:"string", title:"卡牌ID", display:true, readonly:true},
+			card_name  : {type:"string", title:"卡牌名称", display:true},
+			image_name  : {type:"string", title:"头像名称", display:true},
 			profession  : {type:"select", title:"职业", options:[{value:"hunter", label:"猎人"}, {value:"warrior", label:"战士"}, {value:"rogue", label:"刺客"}, {value:"mage", label:"法师"}],display:true},
 			atk_type  : {type:"select", title:"类型", options: [{value:"magic", label:"魔法"}, {value:"physical", label:"物理"}], display:true},
 			range_type  : {type:"select", title:"范围", options:[{value:"near", label:"近战"}, {value:"far", label:"远战"}], display:true},
-			expi  : {type:"number", title:"经验", display:true},
-			stars  : {type:"number", title:"经验", display:true},
-			level  : {type:"number", title:"等级", display:true},
-			hp  : {type:"number", title:"血量", display:true},
-			armor  : {type:"number", title:"护甲", display:true},
-    		agility  : {type:"number", title:"敏捷", display:true},
-			atk_min  : {type:"number", title:"最小攻击", display:true},
-			atk_max  : {type:"number", title:"最大攻击", display:true},
-			block  : {type:"number", title:"格挡", display:true},
-			critical  : {type:"number", title:"暴击", display:true},
-			dodge  : {type:"number", title:"闪避", display:true},
-			hit  : {type:"number", title:"命中", display:true},
-			resist  : {type:"number", title:"抵抗", display:true}
+			expi  : {type:"string", title:"经验", display:true},
+			stars  : {type:"string", title:"经验", display:true},
+			level  : {type:"string", title:"等级", display:true},
+			hp  : {type:"string", title:"血量", display:true},
+			armor  : {type:"string", title:"护甲", display:true},
+    		agility  : {type:"string", title:"敏捷", display:true},
+			atk_min  : {type:"string", title:"最小攻击", display:true},
+			atk_max  : {type:"string", title:"最大攻击", display:true},
+			block  : {type:"string", title:"格挡", display:true},
+			critical  : {type:"string", title:"暴击", display:true},
+			dodge  : {type:"string", title:"闪避", display:true},
+			hit  : {type:"string", title:"命中", display:true},
+			resist  : {type:"string", title:"抵抗", display:true}
     	},
     	card: this.props.cardProps
     }
@@ -84,10 +84,10 @@ class CardDetail extends Component{
 		  	// when input is a select box
 		  	if(value.hasOwnProperty("value")){
 		  		console.log(prop + " " + value.value);
-		  		card[prop] = value.value
+		  		card[prop] = value.value.toString();
 		  	} else {
 		  		console.log(prop + " " + value);
-		  		card[prop] = value
+		  		card[prop] = value.toString();
 		  	}
   		}
   	}

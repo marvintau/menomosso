@@ -376,7 +376,9 @@ update_card( Conn, {UpdatedProfile, CardUUID}) ->
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} -> {ok, card_updated};
-        _ -> {error, update_card_failed}
+        Error ->
+            erlang:display(Error),
+            {error, update_card_failed}
     end.
 
 
