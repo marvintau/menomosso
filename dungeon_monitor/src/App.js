@@ -181,8 +181,11 @@ class Body extends Component {
         updated_card:cardProps
       })
     })
+    .then(response => response.json())
     .then(res =>{
-      console.log(res)
+      if(res.res === "card_updated"){
+        this.getCardList()
+      }
     })
     .catch(error => {
       console.log(error);
