@@ -41,7 +41,7 @@ create table cards (
     profession Professions,
     range_type RangeTypes,
 
-    hp int, armor int, agi int, hit int, block int, dodge int, resist int, critical int,
+    hp int, armor int, agility int, hit int, block int, dodge int, resist int, critical int,
 
     atk_type PrimTypes, atk_max int, atk_min int,
 
