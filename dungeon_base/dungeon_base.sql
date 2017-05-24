@@ -69,7 +69,7 @@ insert into players(id,                  player_name,        image_name,  associ
 
 
 insert into cards
-(id,                                     card_name,  level,   expi,   stars, image_name,        profession, range_type, hp,   armor, agi, hit, block, dodge, resist, critical, atk_type, atk_max, atk_min, last_added, last_modified) values
+(id,                                     card_name,  level,   expi,   stars, image_name,        profession, range_type, hp,   armor, agility, hit, block, dodge, resist, critical, atk_type, atk_max, atk_min, last_added, last_modified) values
 ('946ae77c-183b-4538-b439-ac9036024676', '普通刺客',     1,      1,       1, 'normal_rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
 ('15d715a8-d585-48fc-a65a-286fc41c9a3f', '霸道刺客',     1,      1,       1, 'awaken_rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
 ('a0c1a883-2995-4526-856c-26870e5b3f74', '普通猎人',     1,      1,       1, 'normal_hunter',   'hunter',   'far',      3400, 4500,  40,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),

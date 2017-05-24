@@ -181,7 +181,7 @@ add_new_card(Conn, _) ->
 
     Query = list_to_binary([
         "insert into cards(id, card_name, level, expi, image_name, profession,
-         range_type, hp, armor, agi, hit, block, dodge, resist,
+         range_type, hp, armor, agility, hit, block, dodge, resist,
          critical, atk_type, atk_max, atk_min, last_added, last_modified) values
         ('", CardID, "', 'NEWCARD', 1, 100, 'normal_rogue','rogue',
         'near', 2700, 4500, 75, 35, 0, 30, 35, 30, 'physical',
@@ -353,24 +353,27 @@ update_card( Conn, {UpdatedProfile, CardUUID}) ->
 
     Query = list_to_binary(["
         update cards set
-        card_name='", maps:get(card_name, UpdatedProfile), "',
-        image_name='", maps:get(image_name, UpdatedProfile), "',
-        profession='", maps:get(profession, UpdatedProfile), "',
-        range_type='", maps:get(range_type, UpdatedProfile), "',
-        hp='", maps:get(hp, UpdatedProfile), "',
-        armor='", maps:get(armor, UpdatedProfile), "',
-        agi='", maps:get(agi, UpdatedProfile), "',
-        hit='", maps:get(hit, UpdatedProfile), "',
-        block='", maps:get(block, UpdatedProfile), "',
-        dodge='", maps:get(dodge, UpdatedProfile), "',
-        resist='", maps:get(resist, UpdatedProfile), "',
-        critical='", maps:get(critical, UpdatedProfile), "',
-        prim_type='", maps:get(prim_type, UpdatedProfile), "',
-        prim_max='", maps:get(prim_max, UpdatedProfile), "',
-        prim_min='", maps:get(prim_min, UpdatedProfile), "',
-        secd_type='", maps:get(secd_type, UpdatedProfile), "',
-        secd_max='", maps:get(secd_max, UpdatedProfile), "',
-        secd_min='", maps:get(secd_min, UpdatedProfile), "',
+            id = ", maps:get(id, UpdatedProfile), ",
+            card_name = ", maps:get(card_name, UpdatedProfile), ",
+            level = ", maps:get(level, UpdatedProfile), ",
+            expi = ", maps:get(expi, UpdatedProfile), ",
+            stars = ", maps:get(stars, UpdatedProfile), ",
+            image_name = ", maps:get(image_name, UpdatedProfile), ",
+            profession = ", maps:get(profession, UpdatedProfile), ",
+            range_type = ", maps:get(range_type, UpdatedProfile), ",
+            hp = ", maps:get(hp, UpdatedProfile), ",
+            armor = ", maps:get(armor, UpdatedProfile), ",
+            agility = ", maps:get(agility, UpdatedProfile), ",
+            hit = ", maps:get(hit, UpdatedProfile), ",
+            block = ", maps:get(block, UpdatedProfile), ",
+            dodge = ", maps:get(dodge, UpdatedProfile), ",
+            resist = ", maps:get(resist, UpdatedProfile), ",
+            critical = ", maps:get(critical, UpdatedProfile), ",
+            atk_type = ", maps:get(atk_type, UpdatedProfile), ",
+            atk_max = ", maps:get(atk_max, UpdatedProfile), ",
+            atk_min = ", maps:get(atk_min, UpdatedProfile), ",
+            last_added = ", maps:get(last_added, UpdatedProfile), ",
+
             last_modified=now()
             where id='", CardUUID, "';"]),
 

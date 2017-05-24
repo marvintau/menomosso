@@ -80,7 +80,7 @@ class PlayerDetail extends Component {
         diamonds :        { title: "钻石", type: "number", display: false}, 
         // preset_card_id :  { title: "预设卡牌", type: "select", display: true, options:this.props.cardOptions, multi:false}, 
         rank :            { title: "排名", type: "number", display: false}, 
-        selected_skills : { title: "已选技能", type: "select", display: true, options: skills, multi: true, limit:10}
+        selected_skills : { title: "已选技能", type: "select", display: true, options: skills, multi: true, limit:10, readonly:this.props.skillReadOnly}
       },
 
       playerProps : {}
@@ -105,10 +105,10 @@ class PlayerDetail extends Component {
 
   componentWillReceiveProps(props){
     if(props.playerProps.hasOwnProperty("id")){
-      console.log("current: "+this.state.playerProps.player_name)
-      console.log("change:" + props.playerProps.player_name)
+      // console.log("current: "+this.state.playerProps.player_name)
+      // console.log("change:" + props.playerProps.player_name)
       this.setState({playerProps : props.playerProps}, () => {
-        console.log("changed"+props.playerProps.player_name)
+        // console.log("changed"+props.playerProps.player_name)
       });
     }
   }

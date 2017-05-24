@@ -51,11 +51,11 @@ handle_post(Req, State) ->
             {<<"Nah">>, Req}
     end,
 
-    Data = jiffy:decode(ReqBody),
+    #{id:=CardID, updated_card:=UpdatedCard} = jiffy:decode(ReqBody, [return_map]),
 
-    erlang:display(Data),
+    {ok, Res} = dungeon_base_sup:query({update_card, {UpdatedCard, CardID}}),
 
-    % {ok, List} = dungeon_base_sup:query({get_player_list, {}}),
+    erlang:display(Res),
 
     Res = cowboy_req:set_resp_body(<<"{}">>, NextReq),
 

@@ -31,7 +31,8 @@ class Body extends Component {
       playerList:[],
       players:[],
       remainingPlayers:[],
-      cards:[],
+      cardList:[],
+      cardOptions:[],
 
       selectedSelf:{},
       selectedOppo:{},
@@ -94,42 +95,7 @@ class Body extends Component {
     })    
   }
 
-  getPlayerProfile(selected){
-
-    fetch('http://everstream.cn:1337/api/get_player', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Origin': 'http://everstream.cn:3000',
-        'Access-Control-Request-Method': 'POST',
-        'Access-Control-Request-Headers': 'X-Requested-With'
-      },
-      body: JSON.stringify({id: selected.value})
-    })
-    .then(response => response.json() )
-    .then(res =>{
-      this.setState((prevState) => {
-        prevState.selectedSelfValue = selected;
-        prevState.selectedSelf = res.player_profile;
-        prevState.remainingPlayers = prevState.players.filter(playerOption => playerOption.value !== selected.value);
-        prevState.cards = res.card_profiles;
-        prevState.selectedOppoValue = prevState.remainingPlayers[0];
-        prevState.selectedOppo = prevState.playerList.filter(player_profile => player_profile.id === prevState.selectedOppoValue.value)[0]
-        return prevState;
-      });
-    })
-    .catch(error => {
-      console.log(error);
-      return error
-    })
-  }
-
   beginBattle(){
-    console.log(this.state.selectedSelf.id);
-    console.log(this.state.selectedOppo.id);
-    console.log(this.state.selectedOppo.selected_skills);
-    console.log(this.state.selectedOppo.preset_card_id);
     fetch('http://everstream.cn:1337/api/battle_request', {
       method: 'POST',
       headers: {
@@ -156,9 +122,23 @@ class Body extends Component {
     })
   }
 
+  updatePlayerInfo(){
+
+  }
+
+
   onSelectSelf(selected){
     console.log("changed self player: "+selected.label);
-    this.getPlayerProfile(selected)
+    // this.getPlayerProfile(selected)
+    this.setState((prevState) => {
+      prevState.selectedSelfValue = selected;
+      prevState.selectedSelf = prevState.playerList.filter(player_profile => player_profile.id === prevState.selectedSelfValue.value)[0]
+      prevState.remainingPlayers = prevState.players.filter(playerOption => playerOption.value !== selected.value);
+
+      prevState.selectedOppoValue = prevState.remainingPlayers[0];
+      prevState.selectedOppo = prevState.playerList.filter(player_profile => player_profile.id === prevState.selectedOppoValue.value)[0]
+      return prevState
+    })
   }
 
   onSelectOppo(selected){
@@ -172,8 +152,8 @@ class Body extends Component {
 
   // 开始加载元素之前获得玩家列表
   componentWillMount(){
-    this.getPlayerList()
     this.getCardList()
+    this.getPlayerList()
   }
 
   onSelectCard(selected){
@@ -185,6 +165,32 @@ class Body extends Component {
     })
   }
 
+  updateCardInfo(cardProps){
+    console.log(cardProps);
+    fetch('http://everstream.cn:1337/api/update_card', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Origin': 'http://everstream.cn:3000',
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': 'X-Requested-With'
+      },
+      body: JSON.stringify({
+        id: this.state.selectedSelf.preset_card_id,
+        updated_card:cardProps
+      })
+    })
+    .then(res =>{
+      console.log(res)
+    })
+    .catch(error => {
+      console.log(error);
+      return error
+    })
+
+  }
+
   render() {
 
     return (
@@ -192,13 +198,14 @@ class Body extends Component {
       <Col className="container-fluid" md={3}>
         <ControlLabel>选择对手</ControlLabel>
         < Select name="Yep" value={this.state.selectedOppoValue} options={this.state.remainingPlayers} onChange={this.onSelectOppo.bind(this)} clearable={false}/>
-        < PlayerDetail cardProps={this.state.cards} playerProps={this.state.selectedOppo}/>
+        < PlayerDetail cardProps={this.state.cards} playerProps={this.state.selectedOppo} skillReadOnly={true}/>
         <hr/>
         <ControlLabel>选择己方玩家（第一步）</ControlLabel>
         < Select name="Yep" value={this.state.selectedSelfValue} options={this.state.players} onChange={this.onSelectSelf.bind(this)} clearable={false}/>
-        < PlayerDetail cardProps={this.state.cards} playerProps={this.state.selectedSelf}/>
+        < PlayerDetail cardProps={this.state.cards} playerProps={this.state.selectedSelf} skillReadOnly={false}/>
+        <hr/><Button bsStyle="success" bsSize="sm">修改玩家信息并提交</Button>
         <hr/>
-        < CardDetail cardProps={this.state.cards} player={this.state.selectedSelf} onChange={this.onSelectCard.bind(this)}/>
+        < CardDetail cardProps={this.state.cardList} player={this.state.selectedSelf} onChange={this.onSelectCard.bind(this)} afterGetCardProps={this.updateCardInfo.bind(this)}/>
       </Col>
       <Col className="container-fluid" md={3}>
       <Button bsStyle="primary" bsSize="large" onClick={this.beginBattle.bind(this)}>开打！</Button>

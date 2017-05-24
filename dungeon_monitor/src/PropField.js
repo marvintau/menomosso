@@ -56,25 +56,31 @@ class PropField extends Component {
     switch(this.props.schema.type){
     case "select" :
 
+      let filterOptions = (options, searchFilter, selectedOptions) => {
+        return options
+      }
+
       return (< Select
+        ref="prop"
         value={this.state.value}
         multi={this.props.schema.multi} 
         options={this.props.schema.options}
-        onChange={this.handleSelectChange.bind(this)} />);
+        onChange={this.handleSelectChange.bind(this)}
+        inputProps={{readOnly:this.props.schema.readOnly}}
+        filterOptions={filterOptions}/>);
     
     default :
 
       if(this.props.schema.readonly){
-        return (<FormControl readOnly type="text" value={this.state.value} placeholder="Whatever" onChange={this.handleChange} />)
+        return (<FormControl ref="prop" readOnly type="text" value={this.state.value} placeholder="Whatever" onChange={this.handleChange} />)
       } else {
-        return (<FormControl type="text" value={this.state.value} placeholder="Whatever" onChange={this.handleChange} />)
+        return (<FormControl ref="prop" type="text" value={this.state.value} placeholder="Whatever" onChange={this.handleChange} />)
       }
 
     }
   }
 
   componentWillReceiveProps(nextProp){
-    console.log(nextProp.value);
     this.setState({value:nextProp.value});
   }
 

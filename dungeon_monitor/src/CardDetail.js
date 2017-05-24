@@ -4,6 +4,7 @@ import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
 import {PropField} from "./PropField.js";
+import {Button} from "react-bootstrap";
 
 class CardDetail extends Component{
   constructor(props) {
@@ -13,11 +14,13 @@ class CardDetail extends Component{
     	schema : {
 			id  : {type:"number", title:"卡牌ID", display:true, readonly:true},
 			card_name  : {type:"number", title:"卡牌名称", display:true},
-			class  : {type:"select", title:"职业", options:[{value:"hunter", label:"猎人"}, {value:"warrior", label:"战士"}, {value:"rogue", label:"刺客"}, {value:"mage", label:"法师"}],display:true},
+			image_name  : {type:"number", title:"头像名称", display:true},
+			profession  : {type:"select", title:"职业", options:[{value:"hunter", label:"猎人"}, {value:"warrior", label:"战士"}, {value:"rogue", label:"刺客"}, {value:"mage", label:"法师"}],display:true},
 			atk_type  : {type:"select", title:"类型", options: [{value:"magic", label:"魔法"}, {value:"physical", label:"物理"}], display:true},
 			range_type  : {type:"select", title:"范围", options:[{value:"near", label:"近战"}, {value:"far", label:"远战"}], display:true},
-			expi  : {type:"number", title:"经验", display:false},
-			level  : {type:"number", title:"等级", display:false},
+			expi  : {type:"number", title:"经验", display:true},
+			stars  : {type:"number", title:"经验", display:true},
+			level  : {type:"number", title:"等级", display:true},
 			hp  : {type:"number", title:"血量", display:true},
 			armor  : {type:"number", title:"护甲", display:true},
     		agility  : {type:"number", title:"敏捷", display:true},
@@ -69,12 +72,38 @@ class CardDetail extends Component{
   	}
   }
 
+  handleClick(){
+
+  	let card = {}
+
+  	for (var prop in this.state.schema){
+  		if(this.state.schema.hasOwnProperty(prop)){
+
+  			let value = this.refs[prop].refs.prop.props.value;
+
+		  	// when input is a select box
+		  	if(value.hasOwnProperty("value")){
+		  		console.log(prop + " " + value.value);
+		  		card[prop] = value.value
+		  	} else {
+		  		console.log(prop + " " + value);
+		  		card[prop] = value
+		  	}
+  		}
+  	}
+
+  	this.props.afterGetCardProps(card);
+  }
+
   render(){
   	if(this.props.cardProps.length>0){
 	  	return (
 			<div>
 			{this.createSelect()}
 			{this.createProps()}
+	        <hr/>
+	        <Button bsStyle="success" bsSize="sm" onClick={this.handleClick.bind(this)}>修改卡牌属性并提交</Button>
+
 			</div>
 	  	)  		
   	} else {
