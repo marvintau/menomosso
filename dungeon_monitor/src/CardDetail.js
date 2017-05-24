@@ -19,7 +19,7 @@ class CardDetail extends Component{
 			atk_type  : {type:"select", title:"类型", options: [{value:"magic", label:"魔法"}, {value:"physical", label:"物理"}], display:true},
 			range_type  : {type:"select", title:"范围", options:[{value:"near", label:"近战"}, {value:"far", label:"远战"}], display:true},
 			expi  : {type:"string", title:"经验", display:true},
-			stars  : {type:"string", title:"经验", display:true},
+			stars  : {type:"string", title:"星儿", display:true},
 			level  : {type:"string", title:"等级", display:true},
 			hp  : {type:"string", title:"血量", display:true},
 			armor  : {type:"string", title:"护甲", display:true},
