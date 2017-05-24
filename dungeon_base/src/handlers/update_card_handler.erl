@@ -57,7 +57,7 @@ handle_post(Req, State) ->
 
     erlang:display(Res),
 
-    Res = cowboy_req:set_resp_body(<<"{}">>, NextReq),
+    Res = cowboy_req:set_resp_body(<<"Res">>, NextReq),
 
     Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
     Res2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type, origin, access-control-request-origin">>, Res1),
