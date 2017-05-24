@@ -51,7 +51,7 @@ handle_post(Req, State) ->
             {<<"Nah">>, Req}
     end,
 
-    #{id:=CardID, updated_card:=UpdatedCard} = jiffy:decode(ReqBody, [return_maps]),
+    #{<<"id">>:=CardID, <<"updated_card">>:=UpdatedCard} = jiffy:decode(ReqBody, [return_maps]),
 
     {ok, Res} = dungeon_base_sup:query({update_card, {UpdatedCard, CardID}}),
 

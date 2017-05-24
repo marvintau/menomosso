@@ -353,7 +353,6 @@ update_card( Conn, {UpdatedProfile, CardUUID}) ->
 
     Query = list_to_binary(["
         update cards set
-            id = ", maps:get(id, UpdatedProfile), ",
             card_name = ", maps:get(card_name, UpdatedProfile), ",
             level = ", maps:get(level, UpdatedProfile), ",
             expi = ", maps:get(expi, UpdatedProfile), ",
