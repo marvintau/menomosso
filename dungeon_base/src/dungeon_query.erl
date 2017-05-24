@@ -371,8 +371,6 @@ update_card( Conn, {UpdatedProfile, CardUUID}) ->
             atk_type = ", maps:get(<<"atk_type">>, UpdatedProfile), ",
             atk_max = ", maps:get(<<"atk_max">>, UpdatedProfile), ",
             atk_min = ", maps:get(<<"atk_min">>, UpdatedProfile), ",
-            last_added = ", maps:get(<<"last_added">>, UpdatedProfile), ",
-
             last_modified=now()
             where id='", CardUUID, "';"]),
 
