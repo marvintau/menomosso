@@ -8,7 +8,7 @@ reform_selected_skills(PresetSkillBinary) ->
 
 get_listed_player_map(
     {ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rank, _, _,
-     CardID, CardName, CardImageName, CardLevel, CardExpi, _Stars, Class, RangeType, HP, _Armor, _Agility, _Hit, _Block, _Dodge, _Resist, _Critical, _AtkType, _AtkMax, _AtkMin, _, _}) ->
+     CardID, CardName, CardImageName, CardLevel, CardExpi, _Stars, Profession, RangeType, HP, _Armor, _Agility, _Hit, _Block, _Dodge, _Resist, _Critical, _AtkType, _AtkMax, _AtkMin, _, _}) ->
 
     #{
         id => ID, 
@@ -30,7 +30,7 @@ get_listed_player_map(
         card_expi => binary_to_integer(CardExpi),
         hp => binary_to_integer(HP),
         range_type => RangeType,
-        class => Class
+        profession => Profession
 
         % stars => binary_to_integer(Stars),
         % armor => binary_to_integer(Armor),
@@ -71,7 +71,7 @@ get_card_map({ID, CardName, ImageName, Level, Expi, Stars, Profession, RangeType
          critical => binary_to_integer(Critical)}.
 
 
-get_card_map_battle({_ID, CardName, _Level, _Expi, _Stars, _ImageName, Class, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
+get_card_map_battle({_ID, CardName, _Level, _Expi, _Stars, _ImageName, Profession, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
 
     Attr = #{
 
@@ -104,7 +104,7 @@ get_card_map_battle({_ID, CardName, _Level, _Expi, _Stars, _ImageName, Class, Ra
 
     #{
         card_name => CardName,
-        class => Class,
+        profession => Profession,
         range_type => binary_to_atom(RangeType, utf8),
 
         effects => [],
