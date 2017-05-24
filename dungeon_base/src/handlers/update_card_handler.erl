@@ -53,11 +53,11 @@ handle_post(Req, State) ->
 
     #{<<"id">>:=CardID, <<"updated_card">>:=UpdatedCard} = jiffy:decode(ReqBody, [return_maps]),
 
-    {ok, Res} = dungeon_base_sup:query({update_card, {UpdatedCard, CardID}}),
+    {ok, UpdateRes} = dungeon_base_sup:query({update_card, {UpdatedCard, CardID}}),
 
-    erlang:display(Res),
+    erlang:display(UpdateRes),
 
-    Res = cowboy_req:set_resp_body(<<"Res">>, NextReq),
+    Res = cowboy_req:set_resp_body(<<UpdateRes>>, NextReq),
 
     Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
     Res2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type, origin, access-control-request-origin">>, Res1),
