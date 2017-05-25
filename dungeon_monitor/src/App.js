@@ -191,7 +191,13 @@ class Body extends Component {
       console.log(error);
       return error
     })
+  }
 
+  updatePresetSkill(){
+    let value = this.refs.self.refs.selected_skills.state.value.split(",");
+    this.setState((prevState, _) => {
+      prevState.selectedSelf.selected_skills = value;
+    })
   }
 
   render() {
@@ -205,8 +211,8 @@ class Body extends Component {
         <hr/>
         <ControlLabel>选择己方玩家（第一步）</ControlLabel>
         < Select name="Yep" value={this.state.selectedSelfValue} options={this.state.players} onChange={this.onSelectSelf.bind(this)} clearable={false}/>
-        < PlayerDetail cardProps={this.state.cards} playerProps={this.state.selectedSelf} skillReadOnly={false}/>
-        <hr/><Button bsStyle="success" bsSize="sm">修改玩家信息并提交</Button>
+        < PlayerDetail ref="self" cardProps={this.state.cards} playerProps={this.state.selectedSelf} skillReadOnly={false}/>
+        <hr/><Button bsStyle="success" bsSize="sm" onClick={this.updatePresetSkill.bind(this)}>修改玩家信息并提交</Button>
         <hr/>
         < CardDetail cardProps={this.state.cardList} player={this.state.selectedSelf} onChange={this.onSelectCard.bind(this)} afterGetCardProps={this.updateCardInfo.bind(this)}/>
       </Col>

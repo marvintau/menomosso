@@ -18,7 +18,6 @@ class PropField extends Component {
   }
 
   handleSelectChange(selected){
-    // console.log(this.state.value.split(","));
     if(this.props.schema.multi){
       if(this.props.schema.limit && this.state.value.split(",").length <= this.props.schema.limit){
         let joined = (selected.map(sel => sel.value)).join(",");
