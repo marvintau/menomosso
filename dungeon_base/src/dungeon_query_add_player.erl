@@ -2,7 +2,7 @@
 -author('Yue Marvin Tao').
 
 
--export([add_player/1]).
+-export([add_player/1, add_player_card/3]).
 
 %% 向数据表内添加新的信息
 
@@ -78,7 +78,7 @@ add_chest_record(Conn, PlayerUUID) ->
 %% 向player_card表内添加给定玩家ID的卡牌条目
 %% NOTE: 不要单独export
 
-add_player_card(Conn, {CardUUID, PlayerUUID}) ->
+add_player_card(Conn, CardUUID, PlayerUUID) ->
     Query = list_to_binary(["insert into player_card_info values
     (uuid_generate_v4(), '", CardUUID, "', '", PlayerUUID, "', now(), now());"]),
 
@@ -106,11 +106,11 @@ add_player(Conn) ->
 
     {ok, new_player_added} = add_player_profile(Conn, NewID, CheckedName),
 
-    {ok, new_card_added} = add_player_card(Conn, {"946ae77c-183b-4538-b439-ac9036024676", NewID}),
-    {ok, new_card_added} = add_player_card(Conn, {"15d715a8-d585-48fc-a65a-286fc41c9a3f", NewID}),
-    {ok, new_card_added} = add_player_card(Conn, {"849d31be-b9cd-494c-9ccd-7cc656153b57", NewID}),
-    {ok, new_card_added} = add_player_card(Conn, {"1b0cf5e0-2164-46fd-8424-2146fca99fb9", NewID}),
-    {ok, new_card_added} = add_player_card(Conn, {"db1c75ca-aa32-4f2b-9bb1-355267d4a2ad", NewID}),
+    {ok, new_card_added} = add_player_card(Conn, "946ae77c-183b-4538-b439-ac9036024676", NewID),
+    {ok, new_card_added} = add_player_card(Conn, "15d715a8-d585-48fc-a65a-286fc41c9a3f", NewID),
+    {ok, new_card_added} = add_player_card(Conn, "849d31be-b9cd-494c-9ccd-7cc656153b57", NewID),
+    {ok, new_card_added} = add_player_card(Conn, "1b0cf5e0-2164-46fd-8424-2146fca99fb9", NewID),
+    {ok, new_card_added} = add_player_card(Conn, "db1c75ca-aa32-4f2b-9bb1-355267d4a2ad", NewID),
     
     {ok, new_chest_record_created} = add_chest_record(Conn, NewID),
 

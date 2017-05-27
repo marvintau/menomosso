@@ -62,6 +62,9 @@ close(Conn) ->
 add_new_player(Conn, _) ->
     dungeon_query_add_player:add_player(Conn).
 
+add_player_card(Conn, {CardUUID, PlayerUUID}) ->
+    dungeon_query_add_player:add_new_card(Conn, CardUUID, PlayerUUiD).
+
 %% ------------------------------------------------------------------------
 %% 添加一个新卡牌，并且返回生成的ID
 
