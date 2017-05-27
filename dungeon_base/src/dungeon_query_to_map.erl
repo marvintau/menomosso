@@ -36,7 +36,7 @@ get_listed_player_map(
     }.
 
 
-get_player_map({ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rank, _, _}) ->
+get_player_map({ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rate, Rank, _, _}) ->
 
     #{
         id => ID, 
