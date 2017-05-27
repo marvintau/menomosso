@@ -219,7 +219,7 @@ update_selected_skills(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
 
 update_rate(Conn, {Rate, PlayerUUID}) ->
     Query = list_to_binary(["update players set
-        rate = ", float_to_binary(Rate), ", last_modified=now() where id = '", PlayerUUID, "';"]),
+        rating = ", float_to_binary(Rate), ", last_modified=now() where id = '", PlayerUUID, "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} -> {ok, rate_updated};
