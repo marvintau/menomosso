@@ -77,8 +77,8 @@ handle_post(Req, State) ->
 
     {NewRateA, NewRateB} = {RateA + K * (ResA - ExpectA), RateB + K * (ResB - ExpectB)},
 
-    {ok, rate_updated} = dungeon_base_sup:query({update_rate, {RateA, IdA}}),
-    {ok, rate_updated} = dungeon_base_sup:query({update_rate, {RateB, IdB}}),
+    {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateA, IdA}}),
+    {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateB, IdB}}),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(Log), NextReq),
 
