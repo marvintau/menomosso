@@ -75,7 +75,7 @@ handle_post(Req, State) ->
     ExpectA = 1/(1+math:exp(RateB - RateA)),
     ExpectB = 1/(1+math:exp(RateA - RateB)),
 
-    {NewRateA, NewRateB} = {RateA + K * (ResA - ExpectA), RateB + K * (ResB - ExpectB)}，
+    {NewRateA, NewRateB} = {RateA + K * (ResA - ExpectA), RateB + K * (ResB - ExpectB)},
 
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {RateA, IdA}}),
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {RateB, IdB}}),
