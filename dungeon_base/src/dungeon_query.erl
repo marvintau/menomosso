@@ -217,16 +217,6 @@ update_selected_skills(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
 %% 更新玩家的排名
 %% NOTE: 服务器完成，不提供webAPI
 
-calculate_ranking_rate(RateA, RateB, ResA, ResB) ->
-    
-    K = 16,
-
-    ExpectA = 1/(1+math:exp(RateB - RateA)),
-    ExpectB = 1/(1+math:exp(RateA - RateB)),
-
-    {res, RateA + K * (ResA - ExpectA), RateB + K * (ResB - ExpectB)}.
-
-
 update_ranking(Conn, {Ranking, PlayerUUID}) ->
     Query = list_to_binary(["update players set
         player_ranking = ", Ranking, ", last_modified=now() where id = '", PlayerUUID, "';"]),

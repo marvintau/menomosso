@@ -7,7 +7,7 @@ reform_selected_skills(PresetSkillBinary) ->
     [binary_to_atom(Skill, utf8) || Skill <- binary:split(Trimmed, <<",">>, [global])].
 
 get_listed_player_map(
-    {ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rank, _, _,
+    {ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rate, Rank, _, _,
      CardID, CardName, CardImageName, CardLevel, CardExpi, _Stars, Profession, RangeType, HP, _Armor, _Agility, _Hit, _Block, _Dodge, _Resist, _Critical, _AtkType, _AtkMax, _AtkMin, _, _}) ->
 
     #{
@@ -21,6 +21,7 @@ get_listed_player_map(
         diamonds => binary_to_integer(Diamonds),
         preset_card_id => PresetCardID,
         selected_skills => reform_selected_skills(PresetSkills),
+        rate => binary_to_float(Rate),
         rank => binary_to_integer(Rank),
 
         card_id => CardID,
@@ -32,17 +33,6 @@ get_listed_player_map(
         range_type => RangeType,
         profession => Profession
 
-        % stars => binary_to_integer(Stars),
-        % armor => binary_to_integer(Armor),
-        % agility => binary_to_integer(Agility),
-        % atk_type => AtkType,
-        % atk_max => binary_to_integer(AtkMax),
-        % atk_min => binary_to_integer(AtkMin),
-        % hit => binary_to_integer(Hit),
-        % block => binary_to_integer(Block),
-        % dodge => binary_to_integer(Dodge),
-        % resist => binary_to_integer(Resist),
-        % critical => binary_to_integer(Critical)
     }.
 
 
@@ -59,6 +49,7 @@ get_player_map({ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, 
         diamonds => binary_to_integer(Diamonds),
         preset_card_id => PresetCardID,
         selected_skills => reform_selected_skills(PresetSkills),
+        rate => binary_to_float(Rate),
         rank => binary_to_integer(Rank)
     }.
 

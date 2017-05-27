@@ -42,6 +42,7 @@ content_types_provided(Req, State) ->
 allow_missing_posts(Req, State) ->
     {false, Req, State}.
 
+
 handle_post(Req, State) ->
 
     {ReqBody, NextReq} = try cowboy_req:read_body(Req) of
@@ -53,20 +54,24 @@ handle_post(Req, State) ->
             {<<"Nah">>, Req}
     end,
 
-    {[{_, Id1}, {_, Id2}, {_, SelfCardID}, {_, Skills}]} = jiffy:decode(ReqBody),
+    {[{_, IdA}, {_, IdB}, {_, SelfCardID}, {_, Skills}]} = jiffy:decode(ReqBody),
 
     error_logger:info_report(battle_begins),
 
-    {ok, _} = dungeon_base_sup:query({update_selected_skills, {Skills, SelfCardID, Id1}}),
+    {ok, _} = dungeon_base_sup:query({update_selected_skills, {Skills, SelfCardID, IdA}}),
 
-    {ok, BattleContext1} = dungeon_base_sup:query({get_player_battle, {Id1}}),
-    {ok, BattleContext2} = dungeon_base_sup:query({get_player_battle, {Id2}}),
+    {ok, #{rank:=RankA}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
+    {ok, #{rank:=RankB}=BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
 
-    erlang:display(BattleContext1),
+    {log, #{winner:=Winner}=Log} = battle:start({BattleContext1, BattleContext2}),
 
-    {log, Log} = battle:start({BattleContext1, BattleContext2}),
+    % K = 16,
 
-    error_logger:info_report(Log),
+    % ExpectA = 1/(1+math:exp(RateB - RateA)),
+    % ExpectB = 1/(1+math:exp(RateA - RateB)),
+
+    % {RateA + K * (ResA - ExpectA), RateB + K * (ResB - ExpectB)}.
+
 
     Res = cowboy_req:set_resp_body(jiffy:encode(Log), NextReq),
 
