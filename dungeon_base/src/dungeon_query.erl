@@ -223,7 +223,9 @@ update_rate(Conn, {Rate, PlayerUUID}) ->
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} -> {ok, rate_updated};
-        _       -> {error, update_rate_failed}
+        Error       ->
+            error_logger:info_report(Error),
+            {error, update_rate_failed}
     end.
 
 %% ------------------------------------------------------------------------
