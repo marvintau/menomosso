@@ -60,18 +60,25 @@ handle_post(Req, State) ->
 
     {ok, _} = dungeon_base_sup:query({update_selected_skills, {Skills, SelfCardID, IdA}}),
 
-    {ok, #{rank:=RankA}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
-    {ok, #{rank:=RankB}=BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
+    {ok, #{rate:=RateA}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
+    {ok, #{rate:=RateB}=BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
 
     {log, #{winner:=Winner}=Log} = battle:start({BattleContextA, BattleContextB}),
 
-    % K = 16,
+    {ResA, ResB} = case Winner of
+        IdA -> {1, 0};
+        IdB -> {0, 1}
+    end,
 
-    % ExpectA = 1/(1+math:exp(RateB - RateA)),
-    % ExpectB = 1/(1+math:exp(RateA - RateB)),
+    K = 16,
 
-    % {RateA + K * (ResA - ExpectA), RateB + K * (ResB - ExpectB)}.
+    ExpectA = 1/(1+math:exp(RateB - RateA)),
+    ExpectB = 1/(1+math:exp(RateA - RateB)),
 
+    {NewRateA, NewRateB} = {RateA + K * (ResA - ExpectA), RateB + K * (ResB - ExpectB)}.
+
+    {ok, rate_updated} = dungeon_base_sup:query({update_rate, {RateA, IdA}}),
+    {ok, rate_updated} = dungeon_base_sup:query({update_rate, {RateB, IdB}}),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(Log), NextReq),
 

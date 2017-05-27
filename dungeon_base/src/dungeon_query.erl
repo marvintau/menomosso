@@ -214,16 +214,16 @@ update_selected_skills(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
     end.
 
 %% ------------------------------------------------------------------------
-%% 更新玩家的排名
+%% 更新玩家的积分
 %% NOTE: 服务器完成，不提供webAPI
 
-update_ranking(Conn, {Ranking, PlayerUUID}) ->
+update_rate(Conn, {Rate, PlayerUUID}) ->
     Query = list_to_binary(["update players set
-        player_ranking = ", Ranking, ", last_modified=now() where id = '", PlayerUUID, "';"]),
+        rate = ", Rate, ", last_modified=now() where id = '", PlayerUUID, "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, 1} -> {ok, ranking_updated};
-        _       -> {error, update_ranking_failed}
+        {ok, 1} -> {ok, rate_updated};
+        _       -> {error, update_rate_failed}
     end.
 
 %% ------------------------------------------------------------------------
