@@ -63,7 +63,7 @@ handle_post(Req, State) ->
     {ok, #{rank:=RankA}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
     {ok, #{rank:=RankB}=BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
 
-    {log, #{winner:=Winner}=Log} = battle:start({BattleContext1, BattleContext2}),
+    {log, #{winner:=Winner}=Log} = battle:start({BattleContextA, BattleContextB}),
 
     % K = 16,
 
