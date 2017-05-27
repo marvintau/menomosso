@@ -23,7 +23,7 @@
 
     update_preset_card/2,
     update_selected_skills/2,
-    update_ranking/2,
+    update_rate/2,
     update_level/2,
     update_card/2,
 
