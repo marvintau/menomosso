@@ -80,7 +80,7 @@ loop(#{seq:=Seq}, #{selected_skills:=SelectedA, state:=#{hp:={single, HA}}=A, id
 
     {Winner, Loser} = if
         HA > HB -> {I1, I2};
-        true -> {I2, I1}''
+        true -> {I2, I1}
     end,
 
     erlang:display({SelectedA, SelectedB}),
