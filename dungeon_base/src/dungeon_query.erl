@@ -91,7 +91,7 @@ add_new_card(Conn, _) ->
 %% TODO: 未来将会加上更多限定条件，譬如排名等，来限制获取的玩家数目
 
 get_player_list(Conn, _) ->
-    Query = list_to_binary(["select * from players, cards where players.preset_card=cards.id;"]),
+    Query = list_to_binary(["select * from players, cards where players.preset_card=cards.id order by  players.rating;"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, _, Players} -> {ok, [dungeon_query_to_map:get_listed_player_map(Player) || Player <- Players]};
@@ -227,6 +227,7 @@ update_rate(Conn, {Rate, PlayerUUID}) ->
             error_logger:info_report(Error),
             {error, update_rate_failed}
     end.
+
 
 %% ------------------------------------------------------------------------
 %% 更新玩家的级别
