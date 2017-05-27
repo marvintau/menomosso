@@ -15,7 +15,7 @@ create table players (
     preset_card uuid,
     selected_skills text[10],
 
-    player_ranking int,
+    player_ranking double precision,
 
     last_login TIMESTAMP,
     last_modified TIMESTAMP

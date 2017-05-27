@@ -65,6 +65,9 @@ handle_post(Req, State) ->
     erlang:display(BattleContext1),
 
     {log, Log} = battle:start({BattleContext1, BattleContext2}),
+
+    error_logger:info_report(Log),
+
     Res = cowboy_req:set_resp_body(jiffy:encode(Log), NextReq),
 
     Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
