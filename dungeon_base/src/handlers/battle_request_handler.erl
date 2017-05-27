@@ -63,7 +63,7 @@ handle_post(Req, State) ->
     {ok, #{rate:=RateA}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
     {ok, #{rate:=RateB}=BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
 
-    {log, #{winner:=Winner}=Log} = battle:start({BattleContextA, BattleContextB}),
+    {log, #{winner:=Winner, loser:=Loser}=Log} = battle:start({BattleContextA, BattleContextB}),
 
     {ResA, ResB} = case Winner of
         IdA -> {1, 0};
@@ -75,12 +75,15 @@ handle_post(Req, State) ->
     ExpectA = 1/(1+math:exp(RateB - RateA)),
     ExpectB = 1/(1+math:exp(RateA - RateB)),
 
-    {NewRateA, NewRateB} = {RateA + K * (ResA - ExpectA), RateB + K * (ResB - ExpectB)},
+    NewRateA = RateA + K * (ResA - ExpectA),
+    NewRateB = RateB + K * (ResB - ExpectB),
 
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateA, IdA}}),
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateB, IdB}}),
 
-    Res = cowboy_req:set_resp_body(jiffy:encode(Log), NextReq),
+    RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}},
+
+    Res = cowboy_req:set_resp_body(jiffy:encode(RatedLog), NextReq),
 
     Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
     Res2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type, origin, access-control-request-origin">>, Res1),
