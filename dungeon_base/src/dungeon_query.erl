@@ -63,7 +63,7 @@ add_new_player(Conn, _) ->
     dungeon_query_add_player:add_player(Conn).
 
 add_player_card(Conn, {CardUUID, PlayerUUID}) ->
-    dungeon_query_add_player:add_new_card(Conn, CardUUID, PlayerUUiD).
+    dungeon_query_add_player:add_new_card(Conn, CardUUID, PlayerUUID).
 
 %% ------------------------------------------------------------------------
 %% 添加一个新卡牌，并且返回生成的ID
@@ -221,8 +221,8 @@ calculate_ranking_rate(RateA, RateB, ResA, ResB) ->
     
     K = 16,
 
-    ExpectA = 1/(1+exp(RateB - RateA)),
-    ExpectB = 1/(1+exp(RateA - RateB)),
+    ExpectA = 1/(1+math:exp(RateB - RateA)),
+    ExpectB = 1/(1+math:exp(RateA - RateB)),
 
     {res, RateA + K * (ResA - ExpectA), RateB + K * (ResB - ExpectB)}.
 
