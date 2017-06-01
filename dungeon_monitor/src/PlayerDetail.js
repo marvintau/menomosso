@@ -79,7 +79,8 @@ class PlayerDetail extends Component {
         coins :           { title: "金币", type: "number", display: false}, 
         diamonds :        { title: "钻石", type: "number", display: false}, 
         // preset_card_id :  { title: "预设卡牌", type: "select", display: true, options:this.props.cardOptions, multi:false}, 
-        rank :            { title: "排名", type: "number", display: false}, 
+        rank :            { title: "排名", type: "number", display: true}, 
+        rate :            { title: "积分", type: "number", display: true}, 
         selected_skills : { title: "已选技能", type: "select", display: true, options: skills, multi: true, limit:10, readonly:this.props.skillReadOnly}
       },
 
