@@ -80,6 +80,7 @@ handle_post(Req, State) ->
 
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateA, IdA}}),
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateB, IdB}}),
+    {ok, rank_updated} = dungeon_base_sup:query({update_rank, {}}),
 
     RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}},
 
