@@ -46,7 +46,7 @@ add_player_profile(Conn, PlayerUUID, PlayerName) ->
     '946ae77c-183b-4538-b439-ac9036024676',
     '{\"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\",
       \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\"}',
-    10.5, 1, now(), now()
+    1000.5, 1, now(), now()
     );"]),
 
     case epgsql:squery(Conn,binary_to_list(Query)) of
