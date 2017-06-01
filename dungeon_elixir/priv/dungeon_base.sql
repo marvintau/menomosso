@@ -144,8 +144,8 @@ create table chest_spec (
 );
 
 insert into chest_spec(chest_id, chest_name, min_item_types, max_item_types, open_interval) values
-(0000, '空气宝箱',  1, 1, 1), (0001, '木质宝箱',    1, 1, 1), (0002, '铁宝箱', 1, 2, 2),
-(0003, '铜宝箱',   2, 2, 4), (0004, '银宝箱', 2, 3, 8), (0005, '金宝箱', 3, 3, 16);
+(0000, '空气宝箱',	1, 1, 1), (0001, '木质宝箱',	1, 1, 1), (0002, '铁宝箱',	1, 2, 2),
+(0003, '铜宝箱',	2, 2, 4), (0004, '银宝箱',	2, 3, 8), (0005, '金宝箱',	3, 3, 16);
 
 
 drop table if exists item_from_chest;

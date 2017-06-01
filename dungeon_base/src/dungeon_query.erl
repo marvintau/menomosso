@@ -73,7 +73,7 @@ add_new_card(Conn, _) ->
     CardID = uuid:uuid_to_string(uuid:get_v4_urandom()),
 
     Query = list_to_binary([
-        "insert into cards(id, card_name, level, expi, image_name, profession,
+        "insert into cards(player_id, card_name, level, expi, image_name, profession,
          range_type, hp, armor, agility, hit, block, dodge, resist,
          critical, atk_type, atk_max, atk_min, last_added, last_modified) values
         ('", CardID, "', 'NEWCARD', 1, 100, 'normal_rogue','rogue',
@@ -91,7 +91,7 @@ add_new_card(Conn, _) ->
 %% TODO: 未来将会加上更多限定条件，譬如排名等，来限制获取的玩家数目
 
 get_player_list(Conn, _) ->
-    Query = list_to_binary(["select * from players, cards where players.preset_card=cards.id order by players.rating desc;"]),
+    Query = list_to_binary(["select * from players, cards where players.preset_card=cards.card_id order by players.rating desc;"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, _, Players} -> {ok, [dungeon_query_to_map:get_listed_player_map(Player) || Player <- Players]};
@@ -111,7 +111,7 @@ get_card_skills(Conn, {CardID}) ->
     [#{skill_name=>SkillName, skill_multiple_time=>SKillMultipleTime, skill_cost=>binary_to_integer(SkillCost)} || {SkillName, SKillMultipleTime, SkillCost} <- CardInfoRes].
 
 get_player(Conn, {PlayerUUID}) ->
-    QueryProfile = list_to_binary(["select * from players where id='", PlayerUUID,"';"]),
+    QueryProfile = list_to_binary(["select * from players where player_id='", PlayerUUID,"';"]),
 
     Profile = epgsql:squery(Conn,binary_to_list(QueryProfile)),
 
@@ -119,7 +119,7 @@ get_player(Conn, {PlayerUUID}) ->
         select * from player_card_info
         where player_id = '", PlayerUUID, "'
         ) tem
-        inner join cards on cards.id=tem.card_id;"]),
+        inner join cards on cards.card_id=tem.card_id;"]),
 
     case Profile of
         {ok, _, [PlayerRes]} ->
@@ -135,7 +135,7 @@ get_player(Conn, {PlayerUUID}) ->
 
 get_player_battle(Conn, {PlayerUUID}) ->
 
-    QueryProfile = list_to_binary(["select * from players where id='", PlayerUUID,"';"]),
+    QueryProfile = list_to_binary(["select * from players where player_id='", PlayerUUID,"';"]),
     {ok, _, [Player]} = epgsql:squery(Conn,binary_to_list(QueryProfile)),
 
     #{preset_card_id:=OffCardID} = PlayerMap = dungeon_query_to_map:get_player_map(Player),
@@ -158,7 +158,7 @@ get_card_list(Conn, _) ->
     end.
 
 get_card(Conn, {CardUUID}) ->
-    Query = list_to_binary(["select * from cards where id='",CardUUID , "';"]),
+    Query = list_to_binary(["select * from cards where card_id='",CardUUID , "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, _, [Res]} -> {ok, dungeon_query_to_map:get_card_map(Res)};
@@ -166,7 +166,7 @@ get_card(Conn, {CardUUID}) ->
     end.
 
 get_card_battle(Conn, {CardUUID}) ->
-    Query = list_to_binary(["select * from cards where id='",CardUUID , "';"]),
+    Query = list_to_binary(["select * from cards where card_id='",CardUUID , "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, _, [Res]} -> {ok, dungeon_query_to_map:get_card_map_battle(Res)};
@@ -191,7 +191,7 @@ get_player_card(Conn, {PlayerUUID}) ->
 update_preset_card(Conn, {CardUUID, PlayerUUID}) ->
     Query = list_to_binary(["update players set
         preset_card = '", CardUUID, "', last_modified=now()
-        where id = '", PlayerUUID, "';"]),
+        where player_id = '", PlayerUUID, "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} -> {ok, preset_card_updated};
@@ -204,7 +204,7 @@ update_selected_skills(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
 
     ReformedSkillString = string:join(["\""++binary_to_list(SkillName)++"\"" || SkillName <- SkillList],","),
 
-    Query = list_to_binary(["update players set preset_card= '", SelfCardID, "', selected_skills= '{", ReformedSkillString, "}', last_modified=now() where id = '", PlayerUUID, "';"]),
+    Query = list_to_binary(["update players set preset_card= '", SelfCardID, "', selected_skills= '{", ReformedSkillString, "}', last_modified=now() where player_id = '", PlayerUUID, "';"]),
 
     case epgsql:squery(Conn,binary_to_list(Query)) of
         {ok, 1} -> {ok, selected_skills_updated};
@@ -219,7 +219,7 @@ update_selected_skills(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
 
 update_rate(Conn, {Rate, PlayerUUID}) ->
     Query = list_to_binary(["update players set
-        rating = ", float_to_binary(Rate), ", last_modified=now() where id = '", PlayerUUID, "';"]),
+        rating = ", float_to_binary(Rate), ", last_modified=now() where player_id = '", PlayerUUID, "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} -> {ok, rate_updated};
@@ -227,6 +227,17 @@ update_rate(Conn, {Rate, PlayerUUID}) ->
             error_logger:info_report(Error),
             {error, update_rate_failed}
     end.
+
+update_rank(Conn, {}) ->
+    Query = "update players set ranking=row_number from (select player_id, rating, row_number() over (order by rating desc) from players) temp where players.player_id=temp.player_id;",
+
+    case epgsql:squery(Conn, Query) of
+        {ok, _} -> {ok, rank_updated};
+        Error   ->
+            error_logger:info_report(Error),
+            {error, update_rank_failed}
+    end.
+
 
 
 %% ------------------------------------------------------------------------
@@ -236,7 +247,7 @@ update_rate(Conn, {Rate, PlayerUUID}) ->
 update_level(Conn, {Level, PlayerUUID}) ->
     Query = list_to_binary(["update players set
         player_level = ", Level, ", last_modified=now()
-        where id = '", PlayerUUID, "';"]),
+        where player_id = '", PlayerUUID, "';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} -> {ok, level_updated};
@@ -268,7 +279,7 @@ update_card( Conn, {UpdatedProfile, CardUUID}) ->
             atk_max = '", maps:get(<<"atk_max">>, UpdatedProfile), "',
             atk_min = '", maps:get(<<"atk_min">>, UpdatedProfile), "',
             last_modified=now()
-            where id='", CardUUID, "';"]),
+            where card_id='", CardUUID, "';"]),
 
     erlang:display(binary_to_list(Query)),
 
