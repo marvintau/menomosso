@@ -15,7 +15,7 @@ create table players (
     preset_card uuid,
     selected_skills text[10],
 
-    rating double precision,
+    rating  int,
     ranking int,
 
     last_login TIMESTAMP,
@@ -64,8 +64,8 @@ create table player_card_info (
 
 insert into players
 ( player_id,                  player_name,        image_name,  association, expi,  player_level,  coins,   diamonds, preset_card,                            selected_skills,                                                                                                                                                             rating, ranking, last_login, last_modified) values
-('8673cc53-e2a8-4375-b6a3-007e2ebe6d5f', 'Max Planc',               '1', '联盟',          1,             1,    100,   100,      '946ae77c-183b-4538-b439-ac9036024676', '{"single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "none", "single_attack"}',          1000.5,     1,               now(),      now()),
-('68b19bbe-bc2a-400f-b4e7-6e632b3b908f', 'Erwin Schodinger',        '1', '部落',          1,             1,    100,   100,      '1b0cf5e0-2164-46fd-8424-2146fca99fb9', '{"single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack"}', 1000.5,     1,               now(),      now());
+('8673cc53-e2a8-4375-b6a3-007e2ebe6d5f', 'Max Planc',               '1', '联盟',          1,             1,    100,   100,      '946ae77c-183b-4538-b439-ac9036024676', '{"single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "none", "single_attack"}',          1000,     1,               now(),      now()),
+('68b19bbe-bc2a-400f-b4e7-6e632b3b908f', 'Erwin Schodinger',        '1', '部落',          1,             1,    100,   100,      '1b0cf5e0-2164-46fd-8424-2146fca99fb9', '{"single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack"}', 1000,     1,               now(),      now());
 
 
 insert into cards
@@ -167,7 +167,7 @@ insert into supply_spec(supply_id, supply_name, cooldown_time) values
 
 
 
-drop table if exists supply_ cascade;
+-- drop table if exists supply_ cascade;
 
 drop table if exists item_from_chest;
 create table item_from_chest (
