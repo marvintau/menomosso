@@ -75,8 +75,8 @@ handle_post(Req, State) ->
     ExpectA = 1/(1+math:exp(RateB - RateA)),
     ExpectB = 1/(1+math:exp(RateA - RateB)),
 
-    NewRateA = RateA + K * (ResA - ExpectA),
-    NewRateB = RateB + K * (ResB - ExpectB),
+    NewRateA = round(RateA + K * (ResA - ExpectA)),
+    NewRateB = round(RateB + K * (ResB - ExpectB)),
 
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateA, IdA}}),
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateB, IdB}}),
@@ -85,7 +85,7 @@ handle_post(Req, State) ->
     {ok, {RankA}} = dungeon_base_sup:query({get_player_rank, {IdA}}),
     {ok, {RankB}} = dungeon_base_sup:query({get_player_rank, {IdB}}),
 
-    RatedLog = Log#{new_rate=>#{IdA=>round(NewRateA), IdB => round(NewRateB)}, new_rank=>#{IdA=>binary_to_integer(RankA), IdB=>binary_to_integer(RankB)}},
+    RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}, new_rank=>#{IdA=>binary_to_integer(RankA), IdB=>binary_to_integer(RankB)}},
 
     erlang:display(RatedLog),
     Res = cowboy_req:set_resp_body(jiffy:encode(RatedLog), NextReq),

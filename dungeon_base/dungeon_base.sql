@@ -148,9 +148,26 @@ insert into chest_spec(chest_id, chest_name, min_item_types, max_item_types, ope
 (0001, '木质宝箱',    1, 1, 1),
 (0002, '铁宝箱',      1, 2, 2),
 (0003, '铜宝箱',      2, 2, 4),
-(0004, '银宝箱', 2, 3, 8),
-(0005, '金宝箱', 3, 3, 16);
+(0004, '银宝箱',      2, 3, 8),
+(0005, '金宝箱',      3, 3, 16);
 
+drop table if exists supply_spec cascade;
+create table supply_spec(
+    supply_id int,
+    supply_name character varying(40),
+    cooldown_time int
+
+    UNIQUE(supply_id)
+)
+
+insert into supply_spec(supply_id, supply_name, cooldown_time) values
+(1,   '小型补给箱',   300),
+(2,   '中型补给箱',   7200),
+(3,   '大型补给箱',   21600);
+
+
+
+drop table if exists supply_ cascade;
 
 drop table if exists item_from_chest;
 create table item_from_chest (

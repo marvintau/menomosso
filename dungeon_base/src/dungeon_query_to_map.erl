@@ -21,7 +21,7 @@ get_listed_player_map(
         diamonds => binary_to_integer(Diamonds),
         preset_card_id => PresetCardID,
         selected_skills => reform_selected_skills(PresetSkills),
-        rate => round(binary_to_float(Rate)),
+        rate => binary_to_integer(Rate),
         rank => binary_to_integer(Rank),
 
         card_id => CardID,
@@ -49,7 +49,7 @@ get_player_map({ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, 
         diamonds => binary_to_integer(Diamonds),
         preset_card_id => PresetCardID,
         selected_skills => reform_selected_skills(PresetSkills),
-        rate => round(binary_to_float(Rate)),
+        rate => binary_to_integer(Rate),
         rank => binary_to_integer(Rank)
     }.
 
