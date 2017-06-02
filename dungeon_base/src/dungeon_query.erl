@@ -15,6 +15,7 @@
     get_player_battle/2,
     get_player_list/2,
     get_player_card/2,
+    get_player_rank/1,
 
     get_card/2,
     get_card_list/2,
@@ -239,7 +240,15 @@ update_rank(Conn, {}) ->
             {error, update_rank_failed}
     end.
 
+get_player_rank(Conn, {PlayerUUID}) ->
+    Query = list_to_binary(["select ranking from players where player_id='",PlayerUUID,"';"]),
 
+    case epgsql:squery(Conn, binary_to_list(Query) ) of
+        {ok, _, [Res]} -> {ok, Res};
+        Error ->
+            error_logger:info_report(Error),
+            {error, get_player_rank_failed}
+        end.
 
 %% ------------------------------------------------------------------------
 %% 更新玩家的级别

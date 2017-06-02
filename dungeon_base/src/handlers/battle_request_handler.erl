@@ -82,7 +82,10 @@ handle_post(Req, State) ->
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateB, IdB}}),
     {ok, rank_updated} = dungeon_base_sup:query({update_rank, {}}),
 
-    RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}},
+    {ok, RankA} = dungeon_base_sup:query({get_rank, {IdA}}),
+    {ok, RankB} = dungeon_base_sup:query({get_rank, {IdB}}),
+
+    RatedLog = Log#{new_rate=>#{IdA=>round(NewRateA), IdB => round(NewRateB)}, new_rank=>#{IdA=>RankA, IdB=>RankB}},
 
     Res = cowboy_req:set_resp_body(jiffy:encode(RatedLog), NextReq),
 
