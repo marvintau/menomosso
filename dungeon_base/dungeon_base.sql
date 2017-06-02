@@ -158,7 +158,7 @@ create table supply_spec(
     cooldown_time int,
 
     UNIQUE(supply_id)
-)
+);
 
 insert into supply_spec(supply_id, supply_name, cooldown_time) values
 (1,   '小型补给箱',   300),
