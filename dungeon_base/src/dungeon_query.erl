@@ -15,7 +15,7 @@
     get_player_battle/2,
     get_player_list/2,
     get_player_card/2,
-    get_player_rank/1,
+    get_player_rank/2,
 
     get_card/2,
     get_card_list/2,
