@@ -87,7 +87,6 @@ handle_post(Req, State) ->
 
     RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}, new_rank=>#{IdA=>binary_to_integer(RankA), IdB=>binary_to_integer(RankB)}},
 
-    erlang:display(RatedLog),
     Res = cowboy_req:set_resp_body(jiffy:encode(RatedLog), NextReq),
 
     Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
