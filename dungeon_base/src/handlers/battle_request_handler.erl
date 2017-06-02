@@ -85,7 +85,7 @@ handle_post(Req, State) ->
     {ok, {RankA}} = dungeon_base_sup:query({get_player_rank, {IdA}}),
     {ok, {RankB}} = dungeon_base_sup:query({get_player_rank, {IdB}}),
 
-    RatedLog = Log#{new_rate=>#{IdA=>round(NewRateA), IdB => round(NewRateB)}, new_rank=>#{IdA=>RankA, IdB=>RankB}},
+    RatedLog = Log#{new_rate=>#{IdA=>round(NewRateA), IdB => round(NewRateB)}, new_rank=>#{IdA=>list_to_integer(RankA), IdB=>list_to_integer(RankB)}},
 
     erlang:display(RatedLog),
     Res = cowboy_req:set_resp_body(jiffy:encode(RatedLog), NextReq),
