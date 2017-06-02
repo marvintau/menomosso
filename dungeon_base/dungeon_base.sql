@@ -155,7 +155,7 @@ drop table if exists supply_spec cascade;
 create table supply_spec(
     supply_id int,
     supply_name character varying(40),
-    cooldown_time int
+    cooldown_time int,
 
     UNIQUE(supply_id)
 )
