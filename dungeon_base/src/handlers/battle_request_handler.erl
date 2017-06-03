@@ -87,7 +87,15 @@ handle_post(Req, State) ->
 
     RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}, new_rank=>#{IdA=>binary_to_integer(RankA), IdB=>binary_to_integer(RankB)}},
 
-    Res = cowboy_req:set_resp_body(jiffy:encode(RatedLog), NextReq),
+    Supply = case dungeon_query:add_supply({PlayerID, round(rand:uniform(3))}) of
+        {ok, PlayerID, LootID, SupplyType} -> #{player_id => PlayerID, loot_id=>list_to_binary(LootID), supply_type=> SupplyType, error=> <<"none">>};
+        {full, _} -> #{error => <<"full">>};
+        Err -> #{error => Err}
+    end,
+
+    SuppliedLog = RatedLog#{supply=>Supply},
+
+    Res = cowboy_req:set_resp_body(jiffy:encode(SuppliedLog), NextReq),
 
     Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
     Res2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type, origin, access-control-request-origin">>, Res1),
