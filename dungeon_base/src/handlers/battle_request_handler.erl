@@ -87,7 +87,7 @@ handle_post(Req, State) ->
 
     RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}, new_rank=>#{IdA=>binary_to_integer(RankA), IdB=>binary_to_integer(RankB)}},
 
-    Supply = case dungeon_query:add_supply({PlayerID, round(rand:uniform(3))}) of
+    Supply = case dungeon_query:add_supply({IdA, round(rand:uniform(3))}) of
         {ok, PlayerID, LootID, SupplyType} -> #{player_id => PlayerID, loot_id=>list_to_binary(LootID), supply_type=> SupplyType, error=> <<"none">>};
         {full, _} -> #{error => <<"full">>};
         Err -> #{error => Err}
