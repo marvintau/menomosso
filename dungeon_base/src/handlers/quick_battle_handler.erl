@@ -62,14 +62,14 @@ handle_post(Req, State) ->
 
     error_logger:info_report(battle_begins),
 
-    {ok, #{card_profiles:=CardsA, preset_card_id:=CardIdA} = PlayerA} = dungeon_base_sup:query({get_player, {IdA}}),
-    {ok, #{card_profiles:=CardsB, preset_card_id:=CardIdB} = PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
+    {ok, #{preset_card_id:=CardIdA} = PlayerA} = dungeon_base_sup:query({get_player, {IdA}}),
+    {ok, #{preset_card_id:=CardIdB} = PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
 
 
-    PlayerAWithCards = PlayerA#{card => hd([Card || Card <- CardsA, maps:get(id, Card) =:= CardIdA ])},
+    PlayerAWithCards = PlayerA#{card => hd([Card || Card <- maps:get(card_profiles, PlayerA), maps:get(id, Card) =:= CardIdA ])},
     PlayerAWithCardProfilesRemoved = maps:remove(card_profiles, PlayerAWithCards),
 
-    PlayerBWithCards = PlayerB#{card => hd([Card || Card <- CardsB, maps:get(id, Card) =:= CardIdB ])},
+    PlayerBWithCards = PlayerB#{card => hd([Card || Card <- maps:get(card_profiles, PlayerB), maps:get(id, Card) =:= CardIdB ])},
     PlayerBWithCardProfilesRemoved = maps:remove(card_profiles, PlayerBWithCards),
 
     error_logger:info_report(PlayerAWithCardProfilesRemoved),
