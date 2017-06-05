@@ -68,10 +68,10 @@ handle_post(Req, State) ->
 
     PlayerAWithCards = PlayerA#{card => hd([Card || Card <- CardsA, maps:get(id, Card) =:= CardIdA ])},
     PlayerAWithCardProfilesRemoved = maps:remove(card_profiles, PlayerAWithCards),
-
+    erlang:display(CardsA),
     PlayerBWithCards = PlayerB#{card => hd([Card || Card <- CardsB, maps:get(id, Card) =:= CardIdB ])},
     PlayerBWithCardProfilesRemoved = maps:remove(card_profiles, PlayerBWithCards),
-
+    erlang:display(CardsB),
     error_logger:info_report(PlayerAWithCardProfilesRemoved),
 
     {ok, #{rate:=RateA}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),

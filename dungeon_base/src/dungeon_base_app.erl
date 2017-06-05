@@ -38,8 +38,6 @@ start(_StartType, _StartArgs) ->
                    {"/api/battle_request", battle_request_handler, []},
                    {"/api/quick_battle", quick_battle_handler, []},
 
-
-                   {"/api/add_new_supply", add_new_supply_handler, []},
                    {"/api/check_supply", check_supply_handler, []},
                    {"/api/open_supply", open_supply_handler, []}
                   ]}
