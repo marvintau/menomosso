@@ -66,10 +66,10 @@ handle_post(Req, State) ->
     {ok, #{card_profiles:=CardsB, preset_card_id:=CardIdB} = PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
 
 
-    PlayerAWithCards = PlayerA#{card => hd([Card || Card <- CardsA, maps:get(id, Card) =:= CardIDA ])},
+    PlayerAWithCards = PlayerA#{card => hd([Card || Card <- CardsA, maps:get(id, Card) =:= CardIdA ])},
     PlayerAWithCardProfilesRemoved = maps:remove(card_profiles, PlayerAWithCards),
 
-    PlayerBWithCards = PlayerB#{card => hd([Card || Card <- CardsB, maps:get(id, Card) =:= CardIDB ])},
+    PlayerBWithCards = PlayerB#{card => hd([Card || Card <- CardsB, maps:get(id, Card) =:= CardIdB ])},
     PlayerBWithCardProfilesRemoved = maps:remove(card_profiles, PlayerBWithCards),
 
     error_logger:info_report(PlayerAWithCardProfilesRemoved),
