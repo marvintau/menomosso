@@ -62,6 +62,11 @@ handle_post(Req, State) ->
 
     error_logger:info_report(battle_begins),
 
+    {ok, PlayerA} = dungeon_base_sup:query({get_player, {IdA}}),
+    {ok, PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
+
+    error_logger:info_report(PlayerA),
+
     {ok, #{rate:=RateA}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
     {ok, #{rate:=RateB}=BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
 
@@ -95,7 +100,7 @@ handle_post(Req, State) ->
         Err -> #{error => Err}
     end,
 
-    SuppliedLog = RatedLog#{supply=>Supply},
+    SuppliedLog = RatedLog#{supply=>Supply, player_self=>},
 
     Res = cowboy_req:set_resp_body(jiffy:encode(SuppliedLog), NextReq),
 
