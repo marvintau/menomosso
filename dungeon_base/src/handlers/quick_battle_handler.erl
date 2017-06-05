@@ -100,7 +100,7 @@ handle_post(Req, State) ->
         Err -> #{error => Err}
     end,
 
-    SuppliedLog = RatedLog#{supply=>Supply, player_self=>},
+    SuppliedLog = RatedLog#{supply=>Supply},
 
     Res = cowboy_req:set_resp_body(jiffy:encode(SuppliedLog), NextReq),
 
