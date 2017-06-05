@@ -62,10 +62,17 @@ handle_post(Req, State) ->
 
     error_logger:info_report(battle_begins),
 
-    {ok, PlayerA} = dungeon_base_sup:query({get_player, {IdA}}),
-    {ok, PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
+    {ok, #{card_profiles:=CardsA, preset_card_id:=CardIdA} = PlayerA} = dungeon_base_sup:query({get_player, {IdA}}),
+    {ok, #{card_profiles:=CardsB, preset_card_id:=CardIdB} = PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
 
-    error_logger:info_report(PlayerA),
+
+    PlayerAWithCards = PlayerA#{card => hd([Card || Card <- CardsA, maps:get(id, Card) =:= CardIDA ])},
+    PlayerAWithCardProfilesRemoved = maps:remove(card_profiles, PlayerAWithCards),
+
+    PlayerBWithCards = PlayerB#{card => hd([Card || Card <- CardsB, maps:get(id, Card) =:= CardIDB ])},
+    PlayerBWithCardProfilesRemoved = maps:remove(card_profiles, PlayerBWithCards),
+
+    error_logger:info_report(PlayerAWithCardProfilesRemoved),
 
     {ok, #{rate:=RateA}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
     {ok, #{rate:=RateB}=BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
