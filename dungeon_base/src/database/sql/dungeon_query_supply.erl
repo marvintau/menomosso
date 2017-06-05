@@ -78,14 +78,10 @@ fetch_supply_items(Conn, PlayerID, {_, ItemID, ItemQty, _, _}) ->
 		<<"1">> ->
 			Res=dungeon_query:update_coin(Conn, {binary_to_integer(ItemQty), PlayerID}),
 			erlang:display(Res);
-		<<"2">> ->
-			dungeon_query:add_player_card(Conn, {"946ae77c-183b-4538-b439-ac9036024676", PlayerID});
-		<<"3">> ->
-			dungeon_query:add_player_card(Conn, {"1b0cf5e0-2164-46fd-8424-2146fca99fb9", PlayerID});
-		<<"4">> ->
-			dungeon_query:add_player_card(Conn, {"a009e5e9-2057-4353-9871-309d68752c1b", PlayerID});
-		<<"5">> ->
-			dungeon_query:add_player_card(Conn, {"a0c1a883-2995-4526-856c-26870e5b3f74", PlayerID});
+		<<"2">> ->dungeon_query:update_frag(Conn, {ItemQty, <<"946ae77c-183b-4538-b439-ac9036024676">>, PlayerID});
+		<<"3">> ->dungeon_query:update_frag(Conn, {ItemQty, <<"1b0cf5e0-2164-46fd-8424-2146fca99fb9">>, PlayerID});
+		<<"4">> ->dungeon_query:update_frag(Conn, {ItemQty, <<"a009e5e9-2057-4353-9871-309d68752c1b">>, PlayerID});
+		<<"5">> ->dungeon_query:update_frag(Conn, {ItemQty, <<"a0c1a883-2995-4526-856c-26870e5b3f74">>, PlayerID});
 		_ ->
 			not_implemented_yet
 	end.

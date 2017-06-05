@@ -8,7 +8,7 @@ reform_selected_skills(PresetSkillBinary) ->
 
 get_listed_player_map(
     {ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rate, Rank, _, _,
-     CardID, CardName, CardImageName, CardLevel, CardExpi, _Stars, Profession, RangeType, HP, _Armor, _Agility, _Hit, _Block, _Dodge, _Resist, _Critical, _AtkType, _AtkMax, _AtkMin, _, _}) ->
+     CardID, CardName, CardImageName, CardLevel, _Stars, Profession, RangeType, HP, _Armor, _Agility, _Hit, _Block, _Dodge, _Resist, _Critical, _AtkType, _AtkMax, _AtkMin, _, _}) ->
 
     #{
         id => ID, 
@@ -28,7 +28,6 @@ get_listed_player_map(
         card_name => CardName,
         card_image_name => CardImageName,
         card_level=> binary_to_integer(CardLevel),
-        card_expi => binary_to_integer(CardExpi),
         hp => binary_to_integer(HP),
         range_type => RangeType,
         profession => Profession
@@ -53,16 +52,16 @@ get_player_map({ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, 
         rank => binary_to_integer(Rank)
     }.
 
-get_card_map({ID, CardName, ImageName, Level, Expi, Stars, Profession, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
+get_card_map({ID, CardName, ImageName, Level, Stars, Profession, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _, Frags}) ->
 
-    #{id => ID, card_name => CardName, image_name => ImageName, level=> binary_to_integer(Level), expi => binary_to_integer(Expi), stars => binary_to_integer(Stars), profession => Profession,
+    #{id => ID, card_name => CardName, image_name => ImageName, level=> binary_to_integer(Level), stars => binary_to_integer(Stars), profession => Profession,
          range_type => RangeType, hp => binary_to_integer(HP), armor => binary_to_integer(Armor), agility => binary_to_integer(Agility),
          atk_type => AtkType, atk_max => binary_to_integer(AtkMax), atk_min => binary_to_integer(AtkMin),
          hit => binary_to_integer(Hit), block => binary_to_integer(Block), dodge => binary_to_integer(Dodge), resist => binary_to_integer(Resist),
-         critical => binary_to_integer(Critical)}.
+         critical => binary_to_integer(Critical), frags=> binary_to_integer(Frags)}.
 
 
-get_card_map_battle({_ID, CardName, _Level, _Expi, _Stars, _ImageName, Profession, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
+get_card_map_battle({_ID, CardName, _Level, _Stars, _ImageName, Profession, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _}) ->
 
     Attr = #{
 
