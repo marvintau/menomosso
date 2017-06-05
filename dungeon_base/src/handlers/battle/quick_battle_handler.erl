@@ -58,7 +58,7 @@ handle_post(Req, State) ->
     {ok, List} = dungeon_base_sup:query({get_player_list, {}}),
     erlang:display({show_id, IdA}),
     #{id:=IdB} = lists:nth(rand:uniform(length(List)), List),
-
+    erlang:display({show_id, IdB}),
 
 
     error_logger:info_report(battle_begins),
