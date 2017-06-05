@@ -56,6 +56,7 @@ handle_post(Req, State) ->
     {[{_, IdA}]} = jiffy:decode(ReqBody),
 
     {ok, List} = dungeon_base_sup:query({get_player_list, {}}),
+    erlang:display(List),
     #{id:=IdB} = lists:nth(rand:uniform(length(List)), List),
 
 
