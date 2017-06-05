@@ -56,7 +56,7 @@ handle_post(Req, State) ->
     {[{_, IdA}]} = jiffy:decode(ReqBody),
 
     {ok, List} = dungeon_base_sup:query({get_player_list, {}}),
-    erlang:display(List),
+    erlang:display({show_id, IdA}),
     #{id:=IdB} = lists:nth(rand:uniform(length(List)), List),
 
 
@@ -69,10 +69,10 @@ handle_post(Req, State) ->
 
     PlayerAWithCards = PlayerA#{card => hd([Card || Card <- CardsA, maps:get(id, Card) =:= CardIdA ])},
     PlayerAWithCardProfilesRemoved = maps:remove(card_profiles, PlayerAWithCards),
-    erlang:display(CardsA),
+
     PlayerBWithCards = PlayerB#{card => hd([Card || Card <- CardsB, maps:get(id, Card) =:= CardIdB ])},
     PlayerBWithCardProfilesRemoved = maps:remove(card_profiles, PlayerBWithCards),
-    erlang:display(CardsB),
+
     error_logger:info_report(PlayerAWithCardProfilesRemoved),
 
     {ok, #{rate:=RateA}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
