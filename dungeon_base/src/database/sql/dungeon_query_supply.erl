@@ -42,7 +42,7 @@ add_new_supply(Conn, PlayerUUID, SupplyID) ->
 	end.
 
 check_supply_remaining_time(Conn, PlayerUUID) ->
-	Query = list_to_binary(["select loot_id, date_part('epoch', interval '1s' * cooldown_time - (now()-acquire_time)) * interval '1s' as remaining
+	Query = list_to_binary(["select loot_id, supply_type, date_part('epoch', interval '1s' * cooldown_time - (now()-acquire_time)) * interval '1s' as remaining
 		from supply_name join (select loot_id, acquire_time, supply_id from player_supply_loot where player_id='", PlayerUUID, "' and is_opened='f') as tem on tem.supply_id=supply_name.supply_id;"]),
 
 	{ok, _, Res} = epgsql:squery(Conn, binary_to_list(Query)),

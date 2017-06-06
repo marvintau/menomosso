@@ -48,7 +48,7 @@ handle_post(Req, State) ->
     {[{<<"player_id">>, PlayerID}]} = jiffy:decode(ReqBody),
 
     Payload = case dungeon_base_sup:query({check_supply,{PlayerID}}) of
-        {ok, QueryRes} -> [#{loot_id=> LootID, remaining_time=> RemainingTime} || {LootID, RemainingTime} <- QueryRes];
+        {ok, QueryRes} -> [#{loot_id=> LootID, supply_type=>SupplyType, remaining_time=> RemainingTime} || {LootID, SupplyType, RemainingTime} <- QueryRes];
         Err -> #{error => Err}
     end,
 
