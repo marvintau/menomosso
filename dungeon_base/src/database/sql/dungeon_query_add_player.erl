@@ -106,11 +106,10 @@ add_player(Conn) ->
 
     {ok, new_player_added} = add_player_profile(Conn, NewID, CheckedName),
 
-    {ok, new_card_added} = add_player_card(Conn, "946ae77c-183b-4538-b439-ac9036024676", NewID),
-    {ok, new_card_added} = add_player_card(Conn, "15d715a8-d585-48fc-a65a-286fc41c9a3f", NewID),
-    {ok, new_card_added} = add_player_card(Conn, "849d31be-b9cd-494c-9ccd-7cc656153b57", NewID),
-    {ok, new_card_added} = add_player_card(Conn, "1b0cf5e0-2164-46fd-8424-2146fca99fb9", NewID),
-    {ok, new_card_added} = add_player_card(Conn, "db1c75ca-aa32-4f2b-9bb1-355267d4a2ad", NewID),
+    {ok, new_card_added} = add_player_card(Conn, '946ae77c-183b-4538-b439-ac9036024676', NewID),
+    {ok, new_card_added} = add_player_card(Conn, 'a0c1a883-2995-4526-856c-26870e5b3f74', NewID),
+    {ok, new_card_added} = add_player_card(Conn, 'a009e5e9-2057-4353-9871-309d68752c1b', NewID),
+    {ok, new_card_added} = add_player_card(Conn, '1b0cf5e0-2164-46fd-8424-2146fca99fb9', NewID),
     
     {ok, new_chest_record_created} = add_chest_record(Conn, NewID),
 
