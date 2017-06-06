@@ -80,7 +80,7 @@ add_chest_record(Conn, PlayerUUID) ->
 
 add_player_card(Conn, CardUUID, PlayerUUID) ->
     Query = list_to_binary(["insert into player_card_info values
-    (uuid_generate_v4(), '", CardUUID, "', '", PlayerUUID, "', 1, now(), now());"]),
+    (uuid_generate_v4(), '", CardUUID, "', '", PlayerUUID, "', 1, now(), now()), 1, 1, 0;"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} -> {ok, new_card_added};
