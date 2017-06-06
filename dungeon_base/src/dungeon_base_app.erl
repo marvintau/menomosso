@@ -39,7 +39,9 @@ start(_StartType, _StartArgs) ->
                    {"/api/quick_battle", quick_battle_handler, []},
 
                    {"/api/check_supply", check_supply_handler, []},
-                   {"/api/open_supply", open_supply_handler, []}
+                   {"/api/open_supply", open_supply_handler, []},
+
+                   {"/api/update_card_level_handler", update_card_level_handler, []}
                   ]}
         ]),
 

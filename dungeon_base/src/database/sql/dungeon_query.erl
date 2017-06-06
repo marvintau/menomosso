@@ -30,6 +30,7 @@
     update_coin/2,
     update_level/2,
     update_card/2,
+    update_card_level/2,
 
     check_chest_update/2,
     open_chest_update/2,
@@ -99,10 +100,12 @@ add_new_card(Conn, _) ->
 %% TODO: 未来将会加上更多限定条件，譬如排名等，来限制获取的玩家数目
 
 get_player_list(Conn, _) ->
-    Query = list_to_binary(["select * from players, cards where players.preset_card=cards.card_id order by players.rating desc;"]),
-
+    % Query = list_to_binary(["select * from players, cards where players.preset_card=cards.card_id order by players.rating desc;"]),
+    Query = list_to_binary(["select distinct players.*, cards.*, level, stars from players, cards, player_card_info where players.preset_card=player_card_info.card_id and players.preset_card=cards.card_id order by players.rating desc;"]),
     case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, _, Players} -> {ok, [dungeon_query_to_map:get_listed_player_map(Player) || Player <- Players]};
+        {ok, _, Players} -> 
+            error_logger:info_report(Players),
+            {ok, [dungeon_query_to_map:get_listed_player_map(Player) || Player <- Players]};
         Error ->
             error_logger:info_report(Error),
             {error, get_player_list_failed}
@@ -123,9 +126,9 @@ get_player(Conn, {PlayerUUID}) ->
 
     Profile = epgsql:squery(Conn,binary_to_list(QueryProfile)),
 
-    QueryCard = list_to_binary(["select cards.*, frags from (
-        select * from player_card_info
-        where player_id = '", PlayerUUID, "'
+    QueryCard = list_to_binary(["select cards.*, frags, level, stars, frags_required, coins_required from (
+        select * from player_card_info, card_level_up
+        where player_id = '", PlayerUUID, "' and player_card_info.level=card_level_up.card_level
         ) tem
         inner join cards on cards.card_id=tem.card_id;"]),
 
@@ -332,6 +335,36 @@ update_card( Conn, {UpdatedProfile, CardUUID}) ->
             erlang:display(Error),
             {error, update_card_failed}
     end.
+
+update_card_level(Conn, {PlayerUUID, CardUUID}) ->
+    QueryGetLevel = list_to_binary(["select level, frags, frags_required, coins_required from player_card_info where player_id='", PlayerUUID, "' and card_id='", CardUUID, "';"]),
+    {ok, _, [{Level, CurrentFrags, FragsRequired, CoinsRequired}]} = epgsql:squery(Conn, binary_to_list(QueryGetLevel)),
+    
+    QueryGetCoin = list_to_binary(["select coins from players where player_id='", PlayerUUID,"';"]),
+    {ok, _, [{CurrentCoins}]} = eqpsql:squery(Conn, binary_to_list(QueryGetCoin)),
+
+    FragsInteger = binary_to_integer(CurrentFrags),
+    FragsRequiredInteger = binary_to_integer(FragsRequired),
+    CoinsInteger = binary_to_integer(CurrentCoins),
+    CoinsRequiredInteger = binary_to_integer(CoinsRequired),
+
+
+    case (FragsInteger >= FragsRequiredInteger) and (CoinsInteger >= CoinsRequiredInteger) of
+        false ->
+            {error, insufficient_frags_or_coins};
+        _ ->
+            QuerySetLevel = list_to_binary(["update player_card_info set level=", integer_to_binary(binary_to_integer(Level)+1),", 
+                                            frags=", integer_to_binary(FragsInteger-FragsRequiredInteger),";"]),
+            {ok, 1} = epqsql:squery(Conn, binary_to_list(QuerySetLevel)),
+
+            QuerySetCoins = list_to_binary(["update players set coins=", integer_to_binary(CoinsInteger - CoinsRequiredInteger)," "]) ,
+            {ok, 1} = epgsql:squery(Conn, binary_to_list(QuerySetCoins)),
+
+            {ok, Level, CoinsInteger-CoinsRequiredInteger, FragsInteger-FragsRequiredInteger}
+    end.
+
+
+
 
 check_chest_update(Conn, {PlayerID}) ->
     dungeon_query_timed_chest:check_chest_and_update(Conn, PlayerID).

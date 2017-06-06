@@ -35,8 +35,6 @@ create table cards (
     card_id uuid, unique(card_id),
     card_name text,
     image_name text,
-    level int,
-    stars int,
 
     profession Professions,
     range_type RangeTypes,
@@ -57,27 +55,29 @@ create table player_card_info (
     card_id uuid,
     player_id uuid,
     frags int default 1,
+    level int,
+    stars int,
 
     last_added TIMESTAMP,
     last_modified timestamp
 );
 
 insert into players
-( player_id,                  player_name,        image_name,  association, expi,  player_level,  coins,   diamonds, preset_card,                            selected_skills,                                                                                                                                                             rating, ranking, last_login, last_modified) values
+( player_id,                             player_name,        image_name,  association, expi,  player_level,  coins,   diamonds, preset_card,                            selected_skills,                                                                                                                                                             rating, ranking, last_login, last_modified) values
 ('8673cc53-e2a8-4375-b6a3-007e2ebe6d5f', 'Max Planc',               '1', '联盟',          1,             1,    100,   100,      '946ae77c-183b-4538-b439-ac9036024676', '{"single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "none", "single_attack"}',          1000,     1,               now(),      now()),
 ('68b19bbe-bc2a-400f-b4e7-6e632b3b908f', 'Erwin Schodinger',        '1', '部落',          1,             1,    100,   100,      '1b0cf5e0-2164-46fd-8424-2146fca99fb9', '{"single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack"}', 1000,     1,               now(),      now());
 
 
 insert into cards
-(card_id,                              card_name,   level,  stars, image_name,        profession, range_type, hp,   armor, agility, hit, block, dodge, resist, critical, atk_type, atk_max, atk_min, last_added, last_modified) values
-('946ae77c-183b-4538-b439-ac9036024676', '普通刺客',     1,      1, 'normal_rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('15d715a8-d585-48fc-a65a-286fc41c9a3f', '霸道刺客',     1,      1, 'awaken_rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('a0c1a883-2995-4526-856c-26870e5b3f74', '普通猎人',     1,      1, 'normal_hunter',   'hunter',   'far',      3400, 4500,  40,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('be2d65f0-3c93-457e-8180-de7c93a365a5', '痴呆猎人',     1,      1, 'awaken_hunter',   'hunter',   'far',      3400, 4500,  40,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('a009e5e9-2057-4353-9871-309d68752c1b', '普通法师',     1,      1, 'normal_mage',     'mage',     'far',      2300, 2700,  35,  20,  0,     20,    15,     35,     'physical',     350,     320,      now(),      now()),
-('db1c75ca-aa32-4f2b-9bb1-355267d4a2ad', '暴躁法师',     1,      1, 'awaken_mage',     'mage',     'far',      2300, 2700,  35,  20,  0,     20,    15,     35,     'physical',     350,     320,      now(),      now()),
-('849d31be-b9cd-494c-9ccd-7cc656153b57', '普通战士',     1,      1, 'normal_warrior',  'warrior',  'near',     3400, 4500,  50,  35,  30,    30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('1b0cf5e0-2164-46fd-8424-2146fca99fb9', '癫狂战士',     1,      1, 'awaken_warrior',  'warrior',  'near',     3400, 4500,  50,  35,  30,    30,    35,     30,     'physical',     350,     320,      now(),      now());
+(card_id,                              card_name,   image_name,        profession, range_type, hp,   armor, agility, hit, block, dodge, resist, critical, atk_type, atk_max, atk_min, last_added, last_modified) values
+('946ae77c-183b-4538-b439-ac9036024676', '普通刺客', 'normal_rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('15d715a8-d585-48fc-a65a-286fc41c9a3f', '霸道刺客', 'awaken_rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('a0c1a883-2995-4526-856c-26870e5b3f74', '普通猎人', 'normal_hunter',   'hunter',   'far',      3400, 4500,  40,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('be2d65f0-3c93-457e-8180-de7c93a365a5', '痴呆猎人', 'awaken_hunter',   'hunter',   'far',      3400, 4500,  40,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('a009e5e9-2057-4353-9871-309d68752c1b', '普通法师', 'normal_mage',     'mage',     'far',      2300, 2700,  35,  20,  0,     20,    15,     35,     'physical',     350,     320,      now(),      now()),
+('db1c75ca-aa32-4f2b-9bb1-355267d4a2ad', '暴躁法师', 'awaken_mage',     'mage',     'far',      2300, 2700,  35,  20,  0,     20,    15,     35,     'physical',     350,     320,      now(),      now()),
+('849d31be-b9cd-494c-9ccd-7cc656153b57', '普通战士', 'normal_warrior',  'warrior',  'near',     3400, 4500,  50,  35,  30,    30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('1b0cf5e0-2164-46fd-8424-2146fca99fb9', '癫狂战士', 'awaken_warrior',  'warrior',  'near',     3400, 4500,  50,  35,  30,    30,    35,     30,     'physical',     350,     320,      now(),      now());
 
 select * from cards;
 
@@ -130,5 +130,23 @@ select * from card_skills;
 
 
 insert into player_card_info
-select uuid_generate_v4(), cards.card_id cards_id, players.player_id players_id, 1, now(), now() from cards cross join players;
+select uuid_generate_v4(), cards.card_id cards_id, players.player_id players_id, 1, 1, 0, now(), now() from cards cross join players;
 
+
+drop table if exists card_level_up cascade;
+create table card_level_up (card_level int, frags_required int, coins_required int);
+
+insert into card_level_up(card_level, frags_required, coins_required) values
+(1,        0,          0),
+(2,        2,          5),
+(3,        4,          20),
+(4,        10,         50),
+(5,        20,         150),
+(6,        50,         400),
+(7,        100,        1000),
+(8,        200,        2000),
+(9,        400,        4000),
+(10,       800,        8000),
+(11,       1000,       20000),
+(12,       2000,       50000),
+(13,       5000,       100000);
