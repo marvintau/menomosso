@@ -69,11 +69,11 @@ insert into players
 
 
 insert into cards
-(card_id,                              card_name,   image_name,        profession, range_type, hp,   armor, agility, hit, block, dodge, resist,      critical, atk_type, atk_max, atk_min, last_added, last_modified) values
-('946ae77c-183b-4538-b439-ac9036024676', '普通刺客', 'normal_rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('a0c1a883-2995-4526-856c-26870e5b3f74', '普通猎人', 'normal_hunter',   'hunter',   'far',      3400, 4500,  40,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
-('a009e5e9-2057-4353-9871-309d68752c1b', '普通法师', 'normal_mage',     'mage',     'far',      2300, 2700,  35,  20,  0,     20,    15,     35,     'physical',     350,     320,      now(),      now()),
-('1b0cf5e0-2164-46fd-8424-2146fca99fb9', '癫狂战士', 'awaken_warrior',  'warrior',  'near',     3400, 4500,  50,  35,  30,    30,    35,     30,     'physical',     350,     320,      now(),      now());
+(card_id,                              card_name,   image_name,  profession, range_type, hp,   armor, agility, hit, block, dodge, resist,      critical, atk_type, atk_max, atk_min, last_added, last_modified) values
+('946ae77c-183b-4538-b439-ac9036024676', '普通刺客', 'rogue',    'rogue',    'near',     2700, 4500,  75,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('a0c1a883-2995-4526-856c-26870e5b3f74', '普通猎人', 'hunter',   'hunter',   'far',      3400, 4500,  40,  35,  0,     30,    35,     30,     'physical',     350,     320,      now(),      now()),
+('a009e5e9-2057-4353-9871-309d68752c1b', '普通法师', 'mage',     'mage',     'far',      2300, 2700,  35,  20,  0,     20,    15,     35,     'physical',     350,     320,      now(),      now()),
+('1b0cf5e0-2164-46fd-8424-2146fca99fb9', '癫狂战士', 'warrior',  'warrior',  'near',     3400, 4500,  50,  35,  30,    30,    35,     30,     'physical',     350,     320,      now(),      now());
 
 select * from cards;
 
