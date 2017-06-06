@@ -79,8 +79,7 @@ add_chest_record(Conn, PlayerUUID) ->
 %% NOTE: 不要单独export
 
 add_player_card(Conn, CardUUID, PlayerUUID) ->
-    Query = list_to_binary(["insert into player_card_info values
-    (uuid_generate_v4(), '", CardUUID, "', '", PlayerUUID, "', 1, 1, 0, now(), now());"]),
+    Query = list_to_binary(["insert into player_card_info values (uuid_generate_v4(), '", CardUUID, "', '", PlayerUUID, "', 1, 1, 0, now(), now());"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} -> {ok, new_card_added};
