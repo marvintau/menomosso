@@ -366,7 +366,7 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
 
 update_quick_battle_counter(Conn, {PlayerUUID}) ->
     QueryUpdate = list_to_binary(["update players set quick_battle_counter=quick_battle_counter+1 where player_id='", PlayerUUID,"';"]) ,
-    {ok, 1} = epgsql:squery(Conn, binary_to_list(QueryUpdate))
+    {ok, 1} = epgsql:squery(Conn, binary_to_list(QueryUpdate)).
 
 
 check_chest_update(Conn, {PlayerID}) ->
