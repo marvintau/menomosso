@@ -4,6 +4,12 @@
 
 -export([add_new_supply/3, check_supply_remaining_time/2, open_supply/2]).
 
+rand_true_false() ->
+	case rand:uniform(2) of
+		1 -> <<"true">>;
+		_ -> <<"false">>
+	end.
+
 add_new_supply(Conn, PlayerUUID, SupplyID) ->
 
 	quickrand:seed(),
@@ -13,7 +19,7 @@ add_new_supply(Conn, PlayerUUID, SupplyID) ->
 
     QueryAddLoot = list_to_binary([
     	"insert into player_supply_loot(loot_id, player_id, supply_id, acquire_time, open_time, is_opened, buff1, buff2, buff3) values
-		('", LootID, "', '", PlayerUUID,"', ", integer_to_binary(SupplyID),", now(), null, false, false, false, false);"
+		('", LootID, "', '", PlayerUUID,"', ", integer_to_binary(SupplyID),", now(), null, false, ", rand_true_false(),", ", rand_true_false(), ", ", rand_true_false(), ");"
     ]),
 
     QueryAddLootItems = list_to_binary([
@@ -42,8 +48,8 @@ add_new_supply(Conn, PlayerUUID, SupplyID) ->
 	end.
 
 check_supply_remaining_time(Conn, PlayerUUID) ->
-	Query = list_to_binary(["select loot_id, tem.supply_id supply_type, date_part('epoch', interval '1s' * cooldown_time - (now()-acquire_time)) * interval '1s' as remaining
-		from supply_name join (select loot_id, acquire_time, supply_id from player_supply_loot where player_id='", PlayerUUID, "' and is_opened='f') as tem on tem.supply_id=supply_name.supply_id;"]),
+	Query = list_to_binary(["select loot_id, tem.supply_id supply_type, buff1, buff2, buff3, date_part('epoch', interval '1s' * cooldown_time - (now()-acquire_time)) * interval '1s' as remaining
+		from supply_name join (select loot_id, acquire_time, supply_id, buff1, buff2, buff3 from player_supply_loot where player_id='", PlayerUUID, "' and is_opened='f') as tem on tem.supply_id=supply_name.supply_id;"]),
 
 	{ok, _, Res} = epgsql:squery(Conn, binary_to_list(Query)),
 	error_logger:info_report(Res),

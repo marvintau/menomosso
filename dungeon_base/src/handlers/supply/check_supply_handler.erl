@@ -45,10 +45,12 @@ handle_post(Req, State) ->
             {<<"Nah">>, Req}
     end,
 
-    {[{<<"player_id">>, PlayerID}]} = jiffy:decode(ReqBody),
+    {[{_, PlayerID}]} = jiffy:decode(ReqBody),
 
     Payload = case dungeon_base_sup:query({check_supply,{PlayerID}}) of
-        {ok, QueryRes} -> [#{loot_id=> LootID, supply_type=>SupplyType, remaining_time=> RemainingTime} || {LootID, SupplyType, RemainingTime} <- QueryRes];
+        {ok, QueryRes} ->
+            erlang:display(QueryRes),
+            [#{loot_id=> LootID, supply_type=>SupplyType, buff1=>Buff1, buff2=>Buff2, buff3=>Buff3, remaining_time=> RemainingTime} || {LootID, SupplyType, Buff1, Buff2, Buff3, RemainingTime} <- QueryRes];
         Err -> #{error => Err}
     end,
 

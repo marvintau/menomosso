@@ -32,6 +32,8 @@
     update_card/2,
     update_card_level/2,
 
+    update_quick_battle_counter/2,
+
     check_chest_update/2,
     open_chest_update/2,
 
@@ -365,9 +367,12 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
 
 
 update_quick_battle_counter(Conn, {PlayerUUID}) ->
-    QueryUpdate = list_to_binary(["update players set quick_battle_counter=quick_battle_counter+1 where player_id='", PlayerUUID,"';"]) ,
-    {ok, 1} = epgsql:squery(Conn, binary_to_list(QueryUpdate)).
+    QueryUpdate = list_to_binary(["update players set quick_battle_counter=(quick_battle_counter+1)%5 where player_id='", PlayerUUID,"';"]) ,
+    {ok, 1} = epgsql:squery(Conn, binary_to_list(QueryUpdate)),
 
+    Query = list_to_binary(["select quick_battle_counter from players where player_id='", PlayerUUID, "';"]),
+    {ok, _, [{Res}]} = epgsql:squery(Conn, binary_to_list(Query)),
+    binary_to_integer(Res).
 
 check_chest_update(Conn, {PlayerID}) ->
     dungeon_query_timed_chest:check_chest_and_update(Conn, PlayerID).
