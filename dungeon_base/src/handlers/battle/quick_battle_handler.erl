@@ -126,7 +126,7 @@ handle_post(Req, State) ->
         {ok, PlayerID, LootID, SupplyType} -> #{player_id => PlayerID, loot_id=>list_to_binary(LootID), supply_type=> SupplyType, error=> <<"none">>};
         {full, _} -> #{error => <<"full">>};
         Err -> #{error => Err}
-    end;
+    end,
 
     SuppliedLog = RatedLog#{supply=>Supply, player_self=>PlayerAWithCardProfilesRemoved, player_oppo=>PlayerBWithCardProfilesRemoved},
 
