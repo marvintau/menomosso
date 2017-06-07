@@ -135,7 +135,8 @@ get_player(Conn, {PlayerUUID}) ->
         inner join cards on cards.card_id=tem.card_id;"]),
 
     case Profile of
-        {ok, _, [PlayerRes]} ->
+        {ok, PlayerColumns, [PlayerRes]} ->
+            error_logger:info_report(PlayerColumns),
             {ok, _, CardRes} = epgsql:squery(Conn,binary_to_list(QueryCard)),
 
             CardMapList = [dungeon_query_to_map:get_card_map(Card) || Card <- CardRes],
