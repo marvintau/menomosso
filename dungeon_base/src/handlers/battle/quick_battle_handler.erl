@@ -57,7 +57,7 @@ handle_post(Req, State) ->
 
     {ok, List} = dungeon_base_sup:query({get_player_list, {}}),
     erlang:display({show_id, IdA}),
-    IdB = lists:nth(rand:uniform(length(List)-1), lists:delete(IdA, [maps:get(player_id, Player) || Player <- List])),
+    IdB = lists:nth(rand:uniform(length(List)-1), lists:delete(IdA, [maps:get(id, Player) || Player <- List])),
     erlang:display({show_id, IdB}),
 
 
