@@ -7,7 +7,7 @@ reform_selected_skills(PresetSkillBinary) ->
     [binary_to_atom(Skill, utf8) || Skill <- binary:split(Trimmed, <<",">>, [global])].
 
 get_listed_player_map(
-    {ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rate, Rank, _, _,
+    {ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rate, Rank, QuickBattleCounter, _, _,
      CardID, CardName, CardImageName, Profession, RangeType, HP, _Armor, _Agility, _Hit, _Block, _Dodge, _Resist, _Critical, _AtkType, _AtkMax, _AtkMin, _, _, CardLevel, CardStars}) ->
 
     #{
@@ -23,6 +23,7 @@ get_listed_player_map(
         selected_skills => reform_selected_skills(PresetSkills),
         rate => binary_to_integer(Rate),
         rank => binary_to_integer(Rank),
+        quick_battle_counter => binary_to_integer(QuickBattleCounter),
 
         card_id => CardID,
         card_name => CardName,
@@ -36,7 +37,7 @@ get_listed_player_map(
     }.
 
 
-get_player_map({ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rate, Rank, _, _}) ->
+get_player_map({ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, PresetCardID, PresetSkills, Rate, Rank, QuickBattleCounter, _, _}) ->
 
     #{
         id => ID, 
@@ -50,7 +51,8 @@ get_player_map({ID, Name, ImageName, Association, Expi, Level, Coins, Diamonds, 
         preset_card_id => PresetCardID,
         selected_skills => reform_selected_skills(PresetSkills),
         rate => binary_to_integer(Rate),
-        rank => binary_to_integer(Rank)
+        rank => binary_to_integer(Rank),
+        quick_battle_counter => binary_to_integer(QuickBattleCounter)
     }.
 
 get_card_map({ID, CardName, ImageName, Profession, RangeType, HP, Armor, Agility, Hit, Block, Dodge, Resist, Critical, AtkType, AtkMax, AtkMin, _, _, Frags, Level, Stars, FragsRequired, CoinsRequired}) ->

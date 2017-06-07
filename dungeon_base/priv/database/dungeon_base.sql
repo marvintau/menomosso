@@ -18,6 +18,8 @@ create table players (
     rating  int,
     ranking int,
 
+    quick_battle_counter int,
+
     last_login TIMESTAMP,
     last_modified TIMESTAMP
 );
@@ -63,9 +65,9 @@ create table player_card_info (
 );
 
 insert into players
-( player_id,                             player_name,        image_name,  association, expi,  player_level,  coins,   diamonds, preset_card,                            selected_skills,                                                                                                                                                             rating, ranking, last_login, last_modified) values
-('8673cc53-e2a8-4375-b6a3-007e2ebe6d5f', 'Max Planc',               '1', '联盟',          1,             1,    100,   100,      '946ae77c-183b-4538-b439-ac9036024676', '{"single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "none", "single_attack"}',          1000,     1,               now(),      now()),
-('68b19bbe-bc2a-400f-b4e7-6e632b3b908f', 'Erwin Schodinger',        '1', '部落',          1,             1,    100,   100,      '1b0cf5e0-2164-46fd-8424-2146fca99fb9', '{"single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack"}', 1000,     1,               now(),      now());
+( player_id,                             player_name,        image_name,  association, expi,  player_level,  coins,   diamonds, preset_card,                            selected_skills,                                                                                                                                                             rating, ranking, quick_battle_counter, last_login, last_modified) values
+('8673cc53-e2a8-4375-b6a3-007e2ebe6d5f', 'Max Planc',               '1', '联盟',          1,             1,    100,   100,      '946ae77c-183b-4538-b439-ac9036024676', '{"single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "triple_attack", "single_attack", "double_attack", "none", "single_attack"}',          1000,     1,                        0, now(),      now()),
+('68b19bbe-bc2a-400f-b4e7-6e632b3b908f', 'Erwin Schodinger',        '1', '部落',          1,             1,    100,   100,      '1b0cf5e0-2164-46fd-8424-2146fca99fb9', '{"single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack"}', 1000,     1,                        0, now(),      now());
 
 
 insert into cards

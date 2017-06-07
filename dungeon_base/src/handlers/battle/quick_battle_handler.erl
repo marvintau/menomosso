@@ -67,10 +67,10 @@ handle_post(Req, State) ->
     {ok, #{card_profiles:=CardsB, player_profile:=#{preset_card_id:=CardIdB}} = PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
 
 
-    PlayerAWithCards = PlayerA#{card => hd([Card || Card <- CardsA, maps:get(id, Card) =:= CardIdA ])},
+    PlayerAWithCards = PlayerA#{card => hd([CardA || CardA <- CardsA, maps:get(id, CardA) =:= CardIdA ])},
     PlayerAWithCardProfilesRemoved = maps:remove(card_profiles, PlayerAWithCards),
 
-    PlayerBWithCards = PlayerB#{card => hd([Card || Card <- CardsB, maps:get(id, Card) =:= CardIdB ])},
+    PlayerBWithCards = PlayerB#{card => hd([CardB || CardB <- CardsB, maps:get(id, CardB) =:= CardIdB ])},
     PlayerBWithCardProfilesRemoved = maps:remove(card_profiles, PlayerBWithCards),
 
     error_logger:info_report(PlayerAWithCardProfilesRemoved),
@@ -101,6 +101,8 @@ handle_post(Req, State) ->
     {ok, {RankB}} = dungeon_base_sup:query({get_player_rank, {IdB}}),
 
     RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}, new_rank=>#{IdA=>binary_to_integer(RankA), IdB=>binary_to_integer(RankB)}},
+
+
 
     Supply = case dungeon_base_sup:query({add_supply, {IdA, round(rand:uniform(3))}}) of
         {ok, PlayerID, LootID, SupplyType} -> #{player_id => PlayerID, loot_id=>list_to_binary(LootID), supply_type=> SupplyType, error=> <<"none">>};
