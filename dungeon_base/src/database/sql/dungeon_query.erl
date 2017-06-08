@@ -8,7 +8,6 @@
     close/1,
 
     add_new_player/2,
-    add_new_card/2,
     add_player_card/2,
 
     get_player/2,
@@ -42,6 +41,43 @@
     open_supply/2
 ]).
 
+array_to_list(Array) ->
+    Trimmed = list_to_binary(tl(lists:droplast(binary_to_list(Array)))),
+    binary:split(Trimmed, <<",">>, [global]).
+
+range_to_list(Range) ->
+    Trimmed = list_to_binary(tl(lists:droplast(binary_to_list(Range)))),
+    [A, B] = binary:split(Trimmed, <<",">>, [global]),
+    [binary_to_integer(A), binary_to_integer(B)].
+
+type_convert_helper(int4, Field)        -> binary_to_integer(Field);
+type_convert_helper(int4range, Field)   -> range_to_list(Field);
+type_convert_helper({array, _}, Field)  -> array_to_list(Field);
+type_convert_helper(_, Field)           -> Field.
+
+type_convert_helper_context(int4, Field)        -> {single, binary_to_integer(Field)};
+type_convert_helper_context(int4range, Field)   -> {range, range_to_list(Field)};
+type_convert_helper_context({array, _}, Field)  -> {single, array_to_list(Field)};
+type_convert_helper_context(_, Field)           -> {single, Field}.
+
+type_convert(ZippedRecord) ->
+    [ {Name, type_convert_helper(Type, Field)} || {{Name, Type}, Field} <- ZippedRecord].
+type_convert_context(ZippedRecord) ->
+    [ {Name, type_convert_helper_context(Type, Field)} || {{Name, Type}, Field} <- ZippedRecord].
+
+
+% 适用于select查询语句
+get_mapped_records(ColumnSpec, Records) ->
+    error_logger:info_report(ColumnSpec),
+    ColumnNames = [ {binary_to_atom(Name, utf8), Type} || {_, Name, Type, _, _, _} <- ColumnSpec],
+    ListedRecords = [tuple_to_list(Record) || Record <-Records],
+    [maps:from_list(type_convert(lists:zip(ColumnNames, ListedRecord))) || ListedRecord <- ListedRecords].
+
+get_mapped_records_context(ColumnSpec, Records) ->
+    error_logger:info_report(ColumnSpec),
+    ColumnNames = [ {binary_to_atom(Name, utf8), Type} || {_, Name, Type, _, _, _} <- ColumnSpec],
+    ListedRecords = [tuple_to_list(Record) || Record <-Records],
+    [maps:from_list(type_convert_context(lists:zip(ColumnNames, ListedRecord))) || ListedRecord <- ListedRecords].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 开始和结束数据库会话
@@ -76,24 +112,6 @@ add_new_player(Conn, _) ->
 add_player_card(Conn, {CardUUID, PlayerUUID}) ->
     dungeon_query_add_player:add_player_card(Conn, CardUUID, PlayerUUID).
 
-%% ------------------------------------------------------------------------
-%% 添加一个新卡牌，并且返回生成的ID
-
-add_new_card(Conn, _) ->
-    quickrand:seed(),
-    CardID = uuid:uuid_to_string(uuid:get_v4_urandom()),
-
-    Query = list_to_binary([
-        "insert into cards(player_id, card_name, level, expi, image_name, profession,
-         range_type, hp, armor, agility, hit, block, dodge, resist,
-         critical, atk_type, atk_max, atk_min, last_added, last_modified) values
-        ('", CardID, "', 'NEWCARD', 1, 100, 'normal_rogue','rogue',
-        'near', 2700, 4500, 75, 35, 0, 30, 35, 30, 'physical',
-        350, 300, now(), now())"]),
-
-    {ok, 1} = epgsql:squery(Conn, binary_to_list(Query)),
-    {ok, CardID}.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -102,12 +120,11 @@ add_new_card(Conn, _) ->
 %% TODO: 未来将会加上更多限定条件，譬如排名等，来限制获取的玩家数目
 
 get_player_list(Conn, _) ->
-    % Query = list_to_binary(["select * from players, cards where players.preset_card=cards.card_id order by players.rating desc;"]),
     Query = list_to_binary(["select distinct players.*, cards.*, level, stars from players, cards, player_card_info where players.preset_card=player_card_info.card_id and players.preset_card=cards.card_id order by players.rating desc;"]),
     case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, _, Players} -> 
-            error_logger:info_report(Players),
-            {ok, [dungeon_query_to_map:get_listed_player_map(Player) || Player <- Players]};
+        {ok, ColumnSpec, Players} -> 
+            error_logger:info_report(get_mapped_records(ColumnSpec, Players)),
+            {ok, get_mapped_records(ColumnSpec, Players)};
         Error ->
             error_logger:info_report(Error),
             {error, get_player_list_failed}
@@ -118,10 +135,10 @@ get_player_list(Conn, _) ->
 %% 得到玩家信息，包含玩家信息，和玩家所持的所有卡牌的具体信息
 %% NOTE: 一般情况下主要用于自己
 
-get_card_skills(Conn, {CardID}) ->
+get_card_skills(Conn, CardID) ->
     Query = list_to_binary(["select skill_name, skill_multiple_time, skill_cost from card_skills where card_id in('", CardID,"', '00000000-0000-0000-0000-000000000000');"]),
-    {ok, _, CardInfoRes} = epgsql:squery(Conn, binary_to_list(Query)),
-    [#{skill_name=>SkillName, skill_multiple_time=>SKillMultipleTime, skill_cost=>binary_to_integer(SkillCost)} || {SkillName, SKillMultipleTime, SkillCost} <- CardInfoRes].
+    {ok, SkillSpec, Skills} = epgsql:squery(Conn, binary_to_list(Query)),
+    get_mapped_records(SkillSpec, Skills).
 
 get_player(Conn, {PlayerUUID}) ->
     QueryProfile = list_to_binary(["select * from players where player_id='", PlayerUUID,"';"]),
@@ -135,14 +152,14 @@ get_player(Conn, {PlayerUUID}) ->
         inner join cards on cards.card_id=tem.card_id;"]),
 
     case Profile of
-        {ok, PlayerColumns, [PlayerRes]} ->
-            error_logger:info_report(PlayerColumns),
-            {ok, _, CardRes} = epgsql:squery(Conn,binary_to_list(QueryCard)),
+        {ok, PlayerColumnSpec, PlayerRes} ->
 
-            CardMapList = [dungeon_query_to_map:get_card_map(Card) || Card <- CardRes],
-            CardMapWithSkills = [maps:put(skills, get_card_skills(Conn, {maps:get(id, CardMap)}), CardMap) || CardMap <- CardMapList],
+            {ok, CardColumnSpec, CardRes} = epgsql:squery(Conn,binary_to_list(QueryCard)),
 
-            {ok, #{player_profile => dungeon_query_to_map:get_player_map(PlayerRes), card_profiles => CardMapWithSkills}};
+            CardMappedRes = [ CardMap#{skills=> get_card_skills(Conn, CardID)} || #{card_id:=CardID} = CardMap <- get_mapped_records(CardColumnSpec, CardRes)],
+
+            {ok, #{player_profile => hd(get_mapped_records(PlayerColumnSpec, PlayerRes)), card_profiles => CardMappedRes}};
+
         {ok, _, []} -> {error, player_not_found};
         _ -> {error, get_player_failed}
     end.
@@ -150,9 +167,13 @@ get_player(Conn, {PlayerUUID}) ->
 get_player_battle(Conn, {PlayerUUID}) ->
 
     QueryProfile = list_to_binary(["select * from players where player_id='", PlayerUUID,"';"]),
-    {ok, _, [Player]} = epgsql:squery(Conn,binary_to_list(QueryProfile)),
+    {ok, PlayerColumnSpec, Player} = epgsql:squery(Conn,binary_to_list(QueryProfile)),
+    #{preset_card_id:=OffCardID} = PlayerMapped = hd(get_mapped_records(Player)),
 
-    #{preset_card_id:=OffCardID} = PlayerMap = dungeon_query_to_map:get_player_map(Player),
+    QueryCard = list_to_binary(["select * from cards where card_id='",CardUUID , "';"]),
+
+    {ok, CardColumnSpec, Card} = epgsql:squery(Conn, binary_to_list(Query)) of
+    CardMapped = hd(get_mapped_records(CardColumnSpec, Card)),
 
     {ok, Card} = get_card_battle(Conn, {OffCardID}),
 
@@ -180,12 +201,6 @@ get_card(Conn, {CardUUID}) ->
     end.
 
 get_card_battle(Conn, {CardUUID}) ->
-    Query = list_to_binary(["select * from cards where card_id='",CardUUID , "';"]),
-
-    case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, _, [Res]} -> {ok, dungeon_query_to_map:get_card_map_battle(Res)};
-        _ -> {error, get_card_failed}
-    end.
 
 %% ------------------------------------------------------------------------
 %% 获得某位玩家的所有卡牌ID
