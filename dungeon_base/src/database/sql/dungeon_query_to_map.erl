@@ -93,8 +93,6 @@ get_card_map_battle({_ID, CardName, _ImageName, Profession, RangeType, HP, Armor
 
     },
 
-    erlang:display({range_type, binary_to_atom(RangeType, utf8)}),
-
     #{
         card_name => CardName,
         profession => Profession,

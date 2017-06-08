@@ -13,15 +13,8 @@
     get_player/2,
     get_player_battle/2,
     get_player_list/2,
-    get_player_card/2,
     get_player_rank/2,
 
-    get_card/2,
-    get_card_list/2,
-    get_card_skills/2,
-    get_card_battle/2,
-
-    update_preset_card/2,
     update_selected_skills/2,
     update_rate/2,
     update_rank/2,
@@ -41,43 +34,6 @@
     open_supply/2
 ]).
 
-array_to_list(Array) ->
-    Trimmed = list_to_binary(tl(lists:droplast(binary_to_list(Array)))),
-    binary:split(Trimmed, <<",">>, [global]).
-
-range_to_list(Range) ->
-    Trimmed = list_to_binary(tl(lists:droplast(binary_to_list(Range)))),
-    [A, B] = binary:split(Trimmed, <<",">>, [global]),
-    [binary_to_integer(A), binary_to_integer(B)].
-
-type_convert_helper(int4, Field)        -> binary_to_integer(Field);
-type_convert_helper(int4range, Field)   -> range_to_list(Field);
-type_convert_helper({array, _}, Field)  -> array_to_list(Field);
-type_convert_helper(_, Field)           -> Field.
-
-type_convert_helper_context(int4, Field)        -> {single, binary_to_integer(Field)};
-type_convert_helper_context(int4range, Field)   -> {range, range_to_list(Field)};
-type_convert_helper_context({array, _}, Field)  -> {single, array_to_list(Field)};
-type_convert_helper_context(_, Field)           -> {single, Field}.
-
-type_convert(ZippedRecord) ->
-    [ {Name, type_convert_helper(Type, Field)} || {{Name, Type}, Field} <- ZippedRecord].
-type_convert_context(ZippedRecord) ->
-    [ {Name, type_convert_helper_context(Type, Field)} || {{Name, Type}, Field} <- ZippedRecord].
-
-
-% 适用于select查询语句
-get_mapped_records(ColumnSpec, Records) ->
-    error_logger:info_report(ColumnSpec),
-    ColumnNames = [ {binary_to_atom(Name, utf8), Type} || {_, Name, Type, _, _, _} <- ColumnSpec],
-    ListedRecords = [tuple_to_list(Record) || Record <-Records],
-    [maps:from_list(type_convert(lists:zip(ColumnNames, ListedRecord))) || ListedRecord <- ListedRecords].
-
-get_mapped_records_context(ColumnSpec, Records) ->
-    error_logger:info_report(ColumnSpec),
-    ColumnNames = [ {binary_to_atom(Name, utf8), Type} || {_, Name, Type, _, _, _} <- ColumnSpec],
-    ListedRecords = [tuple_to_list(Record) || Record <-Records],
-    [maps:from_list(type_convert_context(lists:zip(ColumnNames, ListedRecord))) || ListedRecord <- ListedRecords].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 开始和结束数据库会话
@@ -120,11 +76,15 @@ add_player_card(Conn, {CardUUID, PlayerUUID}) ->
 %% TODO: 未来将会加上更多限定条件，譬如排名等，来限制获取的玩家数目
 
 get_player_list(Conn, _) ->
-    Query = list_to_binary(["select distinct players.*, cards.*, level, stars from players, cards, player_card_info where players.preset_card=player_card_info.card_id and players.preset_card=cards.card_id order by players.rating desc;"]),
+    Query = list_to_binary(["
+        select distinct players.*, cards.*, level, stars from players, cards, player_card_info
+        where players.preset_card_id=player_card_info.card_id and players.preset_card_id=cards.card_id order by players.rating desc;
+    "]),
+
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, ColumnSpec, Players} -> 
-            error_logger:info_report(get_mapped_records(ColumnSpec, Players)),
-            {ok, get_mapped_records(ColumnSpec, Players)};
+            error_logger:info_report(util:get_mapped_records(ColumnSpec, Players)),
+            {ok, util:get_mapped_records(ColumnSpec, Players)};
         Error ->
             error_logger:info_report(Error),
             {error, get_player_list_failed}
@@ -135,97 +95,13 @@ get_player_list(Conn, _) ->
 %% 得到玩家信息，包含玩家信息，和玩家所持的所有卡牌的具体信息
 %% NOTE: 一般情况下主要用于自己
 
-get_card_skills(Conn, CardID) ->
-    Query = list_to_binary(["select skill_name, skill_multiple_time, skill_cost from card_skills where card_id in('", CardID,"', '00000000-0000-0000-0000-000000000000');"]),
-    {ok, SkillSpec, Skills} = epgsql:squery(Conn, binary_to_list(Query)),
-    get_mapped_records(SkillSpec, Skills).
-
 get_player(Conn, {PlayerUUID}) ->
-    QueryProfile = list_to_binary(["select * from players where player_id='", PlayerUUID,"';"]),
+    dungeon_query_get_player_info:get_player_info(Conn, PlayerUUID).
 
-    Profile = epgsql:squery(Conn,binary_to_list(QueryProfile)),
-
-    QueryCard = list_to_binary(["select cards.*, frags, level, stars, frags_required, coins_required from (
-        select * from player_card_info, card_level_up
-        where player_id = '", PlayerUUID, "' and player_card_info.level=card_level_up.card_level
-        ) tem
-        inner join cards on cards.card_id=tem.card_id;"]),
-
-    case Profile of
-        {ok, PlayerColumnSpec, PlayerRes} ->
-
-            {ok, CardColumnSpec, CardRes} = epgsql:squery(Conn,binary_to_list(QueryCard)),
-
-            CardMappedRes = [ CardMap#{skills=> get_card_skills(Conn, CardID)} || #{card_id:=CardID} = CardMap <- get_mapped_records(CardColumnSpec, CardRes)],
-
-            {ok, #{player_profile => hd(get_mapped_records(PlayerColumnSpec, PlayerRes)), card_profiles => CardMappedRes}};
-
-        {ok, _, []} -> {error, player_not_found};
-        _ -> {error, get_player_failed}
-    end.
 
 get_player_battle(Conn, {PlayerUUID}) ->
+    dungeon_query_get_battle_context:get_battle_context(Conn, PlayerUUID).
 
-    QueryProfile = list_to_binary(["select * from players where player_id='", PlayerUUID,"';"]),
-    {ok, PlayerColumnSpec, Player} = epgsql:squery(Conn,binary_to_list(QueryProfile)),
-    #{preset_card_id:=OffCardID} = PlayerMapped = hd(get_mapped_records(Player)),
-
-    QueryCard = list_to_binary(["select * from cards where card_id='",CardUUID , "';"]),
-
-    {ok, CardColumnSpec, Card} = epgsql:squery(Conn, binary_to_list(Query)) of
-    CardMapped = hd(get_mapped_records(CardColumnSpec, Card)),
-
-    {ok, Card} = get_card_battle(Conn, {OffCardID}),
-
-    {ok, maps:merge(PlayerMap, Card)}.
-
-
-%% ------------------------------------------------------------------------
-%% 得到玩家信息，包含玩家信息，和玩家所持的所有卡牌的具体信息
-%% NOTE: 一般情况下主要用于自己
-
-get_card_list(Conn, _) ->
-    Query = list_to_binary(["select * from cards;"]),
-
-    case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, _, Res} -> {ok, [dungeon_query_to_map:get_card_map(Card) || Card <- Res ]};
-        _ -> {error, get_card_failed}
-    end.
-
-get_card(Conn, {CardUUID}) ->
-    Query = list_to_binary(["select * from cards where card_id='",CardUUID , "';"]),
-
-    case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, _, [Res]} -> {ok, dungeon_query_to_map:get_card_map(Res)};
-        _ -> {error, get_card_failed}
-    end.
-
-get_card_battle(Conn, {CardUUID}) ->
-
-%% ------------------------------------------------------------------------
-%% 获得某位玩家的所有卡牌ID
-%% NOTE: consider to deprecate
-get_player_card(Conn, {PlayerUUID}) ->
-    Query = list_to_binary(["select card_id from player_card_info where player_id = '", PlayerUUID, "';"]),
-
-    case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, _, [{ID}]} -> {ok, ID};
-        _ -> {error, add_card_failed}
-    end.
-
-
-%% ------------------------------------------------------------------------
-%% 更新玩家的预设卡牌ID
-
-update_preset_card(Conn, {CardUUID, PlayerUUID}) ->
-    Query = list_to_binary(["update players set
-        preset_card = '", CardUUID, "', last_modified=now()
-        where player_id = '", PlayerUUID, "';"]),
-
-    case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, 1} -> {ok, preset_card_updated};
-        _ -> {error, update_preset_card_failed}
-    end.
 
 %% ------------------------------------------------------------------------
 %% 更新玩家的预设技能
@@ -258,10 +134,7 @@ update_rate(Conn, {Rate, PlayerUUID}) ->
     end.
 
 update_coin(Conn, {CoinIncre, PlayerUUID}) ->
-    Query = list_to_binary(["select coins from players where player_id='", PlayerUUID,"';"]),
-    {ok, _, [{Coin}]} = epgsql:squery(Conn, binary_to_list(Query) ),
-
-    QueryUpdate = list_to_binary(["update players set coins=", integer_to_binary(binary_to_integer(Coin) + CoinIncre), " where player_id='", PlayerUUID,"';"]),
+    QueryUpdate = list_to_binary(["update players set coins=coins+", integer_to_binary(CoinIncre), " where player_id='", PlayerUUID,"';"]),
     {ok, 1} = epgsql:squery(Conn, binary_to_list(QueryUpdate) ),
 
     QueryNew = list_to_binary(["select coins from players where player_id='", PlayerUUID,"';"]),
@@ -275,17 +148,14 @@ update_frag(Conn, {FragIncre, CardID, PlayerUUID}) ->
     case lists:keymember(CardID, 2, Cards) of
         false -> add_player_card(Conn, {CardID, PlayerUUID});
         _ ->
-            QueryCheckFrags = list_to_binary(["select frags from player_card_info where player_id='", PlayerUUID, "' and card_id='", CardID, "';"]),
-            {ok, _, [{Frags}]} = epgsql:squery(Conn, binary_to_list(QueryCheckFrags)),
-            erlang:display({Frags, FragIncre}),
-            FragsIntegerNew = binary_to_integer(Frags) + binary_to_integer(FragIncre),
-
-            QueryAdd = list_to_binary(["update player_card_info set frags=", integer_to_binary(FragsIntegerNew), " where player_id='", PlayerUUID, "' and card_id='", CardID, "';"]),
+            QueryAdd = list_to_binary(["update player_card_info set frags=frags+", binary_to_integer(FragIncre), " where player_id='", PlayerUUID, "' and card_id='", CardID, "';"]),
             {ok, _} = epgsql:squery(Conn, binary_to_list(QueryAdd))
     end.
 
 update_rank(Conn, {}) ->
-    Query = "update players set ranking=row_number from (select player_id, rating, row_number() over (order by rating desc) from players) temp where players.player_id=temp.player_id;",
+    Query = "update players set ranking=row_number from 
+                (select player_id, rating, row_number() over (order by rating desc) from players)
+                temp where players.player_id=temp.player_id;",
 
     case epgsql:squery(Conn, Query) of
         {ok, _} -> {ok, rank_updated};
@@ -304,19 +174,6 @@ get_player_rank(Conn, {PlayerUUID}) ->
             {error, get_player_rank_failed}
         end.
 
-%% ------------------------------------------------------------------------
-%% 更新玩家的级别
-%% NOTE: 服务器完成，不提供webAPI
-
-% update_level(Conn, {Level, PlayerUUID}) ->
-%     Query = list_to_binary(["update players set
-%         player_level = ", Level, ", last_modified=now()
-%         where player_id = '", PlayerUUID, "';"]),
-
-%     case epgsql:squery(Conn, binary_to_list(Query)) of
-%         {ok, 1} -> {ok, level_updated};
-%         _ -> {error, update_level_failed}
-%     end.
 
 update_level(Conn, {Level, PlayerUUID}) ->
     dungeon_query_player_level:update_level(Conn, Level, PlayerUUID).
@@ -371,7 +228,7 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
         false ->
             {error, insufficient_frags_or_coins};
         _ ->
-            QuerySetLevel = list_to_binary(["update player_card_info set level=", integer_to_binary(binary_to_integer(Level)+1),", 
+            QuerySetLevel = list_to_binary(["update player_card_info set level=level+1, 
                                             frags=", integer_to_binary(FragsInteger-FragsRequiredInteger),";"]),
             {ok, 1} = epqsql:squery(Conn, binary_to_list(QuerySetLevel)),
 

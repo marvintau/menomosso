@@ -7,11 +7,11 @@
 
 % ------------- HELPER FUNCTION FOR CHOOSING NEW OFFENDER --------------
 
-toss(#{selected_skills:=[rune_of_the_void|_], id:=A}, _) -> A;
-toss(_, #{selected_skills:=[rune_of_the_void|_], id:=B}) -> B;
+toss(#{selected_skills:=[<<"rune_of_the_voplayer_id">>|_], player_id:=A}, _) -> A;
+toss(_, #{selected_skills:=[<<"rune_of_the_voplayer_id">>|_], player_id:=B}) -> B;
 
-toss(#{id:=A, attr:=#{agility:={single, AgiA}}},
-     #{id:=B, attr:=#{agility:={single, AgiB}}}) ->
+toss(#{player_id:=A, attr:=#{agility:={single, AgiA}}},
+     #{player_id:=B, attr:=#{agility:={single, AgiB}}}) ->
     case rand:uniform() * (AgiA + AgiB) > AgiA of
         true -> B;
         _    -> A
@@ -52,10 +52,10 @@ apply_move_both(#{stage:=casting}=S, A, B, L) ->
     {RefreshedA, RefreshedB, Op2Eff3Log}.
 
 
-apply_move_ordered(#{offender:=Off}=S, #{id:=Off}=A, B, L) ->
+apply_move_ordered(#{offender:=Off}=S, #{player_id:=Off}=A, B, L) ->
     apply_move_both(S, A, B, L);
 
-apply_move_ordered(#{offender:=Off}=S, A, #{id:=Off}=B, L) ->
+apply_move_ordered(#{offender:=Off}=S, A, #{player_id:=Off}=B, L) ->
     {NewB, NewA, NewL} = apply_move_both(S, B, A, L),
     {NewA, NewB, NewL}.
 
@@ -65,7 +65,7 @@ apply_move_ordered(#{offender:=Off}=S, A, #{id:=Off}=B, L) ->
 % When exiting the main loop, the log will be reversed to it's natural
 % order.
 
-loop(_, #{selected_skills:=SelectedA, state:=#{hp:={single, HA}}, id:=I1}=A, #{selected_skills:=SelectedB, state:=#{hp:={single, HB}}, id:=I2}=B, Log) when HA < 0 orelse HB < 0 ->
+loop(_, #{selected_skills:=SelectedA, state:=#{hp:={single, HA}}, player_id:=I1}=A, #{selected_skills:=SelectedB, state:=#{hp:={single, HB}}, player_id:=I2}=B, Log) when HA < 0 orelse HB < 0 ->
 
     {Winner, Loser} = if
         HA > HB -> {I1, I2};
@@ -76,7 +76,7 @@ loop(_, #{selected_skills:=SelectedA, state:=#{hp:={single, HA}}, id:=I1}=A, #{s
     erlang:display({ended, someone_died}),
     {log, #{records=>lists:reverse(Log), winner=>Winner, loser=>Loser}};
 
-loop(#{seq:=Seq}, #{selected_skills:=SelectedA, state:=#{hp:={single, HA}}=A, id:=I1}, #{selected_skills:=SelectedB, state:=#{hp:={single, HB}}=B, id:=I2}, Log) when Seq > 22->
+loop(#{seq:=Seq}, #{selected_skills:=SelectedA, state:=#{hp:={single, HA}}=A, player_id:=I1}, #{selected_skills:=SelectedB, state:=#{hp:={single, HB}}=B, player_id:=I2}, Log) when Seq > 22->
 
     {Winner, Loser} = if
         HA > HB -> {I1, I2};

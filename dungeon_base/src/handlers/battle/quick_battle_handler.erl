@@ -57,26 +57,27 @@ handle_post(Req, State) ->
 
     {ok, List} = dungeon_base_sup:query({get_player_list, {}}),
     erlang:display({show_id, IdA}),
-    IdB = lists:nth(rand:uniform(length(List)-1), lists:delete(IdA, [maps:get(id, Player) || Player <- List])),
+    IdB = lists:nth(rand:uniform(length(List)-1), lists:delete(IdA, [maps:get(player_id, Player) || Player <- List])),
     erlang:display({show_id, IdB}),
 
 
     error_logger:info_report(battle_begins),
 
-    {ok, #{card_profiles:=CardsA, player_profile:=#{preset_card_id:=CardIdA}} = PlayerA} = dungeon_base_sup:query({get_player, {IdA}}),
-    {ok, #{card_profiles:=CardsB, player_profile:=#{preset_card_id:=CardIdB}} = PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
+
+    {ok, #{card_profiles:=CardsA, player_profile:=#{rating:=RateA, preset_card_id:=CardIdA}} = PlayerA} = dungeon_base_sup:query({get_player, {IdA}}),
+    {ok, #{card_profiles:=CardsB, player_profile:=#{rating:=RateB, preset_card_id:=CardIdB}} = PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
 
 
-    PlayerAWithCards = PlayerA#{card => hd([CardA || CardA <- CardsA, maps:get(id, CardA) =:= CardIdA ])},
+    PlayerAWithCards = PlayerA#{card => hd([CardA || CardA <- CardsA, maps:get(card_id, CardA) =:= CardIdA ])},
     PlayerAWithCardProfilesRemoved = maps:remove(card_profiles, PlayerAWithCards),
 
-    PlayerBWithCards = PlayerB#{card => hd([CardB || CardB <- CardsB, maps:get(id, CardB) =:= CardIdB ])},
+    PlayerBWithCards = PlayerB#{card => hd([CardB || CardB <- CardsB, maps:get(card_id, CardB) =:= CardIdB ])},
     PlayerBWithCardProfilesRemoved = maps:remove(card_profiles, PlayerBWithCards),
 
-    error_logger:info_report(PlayerAWithCardProfilesRemoved),
+    {ok, BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
+    {ok, BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
 
-    {ok, #{rate:=RateA}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
-    {ok, #{rate:=RateB}=BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
+    error_logger:info_report(BattleContextA),
 
     {log, #{winner:=Winner, loser:=Loser}=Log} = battle:start({BattleContextA, BattleContextB}),
 

@@ -21,7 +21,7 @@ set({attr, AttrType, Attr, Whose}, Val) ->
 	Whose#{AttrType:=AttrSet#{ Attr:=round(Val) }}.
 
 
-val({range, Low, High}) ->
+val({range, [Low, High]}) ->
     round(Low + rand:uniform() * (High - Low));
 
 val({single, SingleValue}) -> SingleValue;

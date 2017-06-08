@@ -23,7 +23,7 @@ parse(cast, {Index, SkillName}) ->
     lists:concat([parse(trans_list, {Index, Name, Group}) || Group <- Groups]);
 
 parse(list, {SkillList}) ->
-    lists:concat([parse(cast, {Index, Skill}) || {Skill, Index} <- lists:zip(SkillList, lists:seq(1, length(SkillList))), Skill /= none]).
+    lists:concat([parse(cast, {Index, Skill}) || {Skill, Index} <- lists:zip(SkillList, lists:seq(1, length(SkillList))), Skill /= <<"none">>]).
 
 
 % seq把在技能描述里关于“从放技能后的第几回合开始”和“持续几回合”，翻译成一场战斗中

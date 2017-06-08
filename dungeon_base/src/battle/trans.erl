@@ -160,7 +160,7 @@ trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, state, hp, P}=ToW
 
     CalculatedDamage = case Outcome of
         critical ->
-            CritMult = ref:val({attr, attr, critical_multiplier, P}),
+            CritMult = ref:val({attr, attr, critical_mult, P}),
             AbsorbedDamage * CritMult;
         attack ->
             AbsorbedDamage;
@@ -171,7 +171,7 @@ trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, state, hp, P}=ToW
         _ -> 0
     end,
 
-    FinalDamage = CalculatedDamage * ref:val({attr, attr, damage_multiplier, P}),
+    FinalDamage = CalculatedDamage * ref:val({attr, attr, damage_mult, P}),
     trans({set, ref:val(ToWhom) + FinalDamage, none, none}, ToWhom);
 
 trans({add, Inc, _, _Outcome}, ToWhom) ->
@@ -207,15 +207,6 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}, ReposeType}, O, D) ->
 
     repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, ReposeType).
 
-    % {PosedO, PosedD} = case AttackSpec of
-    %     {_, {attack, repose_no_blow}, _, _, _} ->
-    %         repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, false);
-    %     {_, {attack, _}, _, _, _} ->
-    %         repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, true);
-    %     _ ->
-    %         {TransO#{attr:=AttrO#{outcome:={single, Outcome}}, state:=StateO#{pos_move:={single, stand}}}, TransD#{state:=StateD#{pos_move:={single, stand}}}}
-    %     end,
-    % {PosedO, PosedD}.
 
 
 
@@ -227,8 +218,8 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}, ReposeType}, O, D) ->
 % Accepts cond description
 
 log_cast(S, SkillName, IsSuccessful,
-    #{id:=OID, profession:=ClassO, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}} = O,
-    #{id:=DID, profession:=ClassD, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
+    #{player_id:=OID, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{profession:={single, ClassO}}},
+    #{player_id:=DID, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}, attr:=#{profession:={single, ClassD}}}
 ) ->
 
     CastOutcome = case IsSuccessful of
@@ -271,8 +262,8 @@ cast(#{seq:=Seq}=S, #{state:=StateO}=O, #{state:=StateD}=D, Log, [{SeqIndex, Ski
 
 
 log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Type, Attr, Who}, _}},
-    #{id:=OID, profession:=ClassO, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}}} = O,
-    #{id:=DID, profession:=ClassD, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}} = D
+    #{player_id:=OID, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}, profession:={single, ClassO}}} = O,
+    #{player_id:=DID, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}, attr:=#{profession:={single, ClassD}}} = D
 ) ->
 
     InitOrFollow = case Stage of
@@ -304,7 +295,7 @@ effect(_S, #{state:=#{hp:={single, H1}}}=O, #{state:=#{hp:={single, H2}}}=D, Log
 effect(_S, O, D, Log, []) ->
     {O, D, Log};
 
-effect(#{seq:=Seq}=S, #{player_name:=PlayerName} = O, D, Log, [ {_Index, Name, Conds, Trans, _Success} | Remaining]) ->
+effect(S, O, D, Log, [ {_Index, Name, Conds, Trans, _Success} | Remaining]) ->
 
     {NewO, NewD, NewLog} = case conds:check(Conds, S, O, D) of
         true ->

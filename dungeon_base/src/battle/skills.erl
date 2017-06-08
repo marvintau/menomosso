@@ -31,11 +31,11 @@ magic_cast_spec() ->
     magic_cast_spec(non_resistable).
 
 plain_attack() ->
-    {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, blowable}}.
+    {{add_inc_mul, {{attr, attr, atk_range, off}, {single, -1}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, blowable}}.
 plain_attack_no_blow() ->
-    {{add, {{attr, attr, atk_range, off}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, non_blowable}}.
+    {{add_inc_mul, {{attr, attr, atk_range, off}, {single, -1}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, non_blowable}}.
 stand_plain_attack() ->
-    {{add, {{attr, attr, atk_range, off}}, physical_cast_spec()}, {attr, state, hp, def}, {stand, non_blowable}}.
+    {{add_inc_mul, {{attr, attr, atk_range, off}, {single, -1}}, physical_cast_spec()}, {attr, state, hp, def}, {stand, non_blowable}}.
 
 counter_attack(Times) ->
     {{add_inc_mul, {{attr, state, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, state, hp, def}, {stand, blowable}}.
@@ -78,41 +78,41 @@ create_skills() ->
     true = ets:delete_all_objects(skills),
 
     Skills = [
-        {single_attack, [{0, [
+        {<<"single_attack">>, [{0, [
             {seq(), [plain_attack()]}
         ]}]},
 
-        {double_attack, [{0, [
+        {<<"double_attack">>, [{0, [
             {seq(), [stand_plain_attack(), plain_attack()]}
         ]}]},
 
-        {triple_attack, [{0, [
+        {<<"triple_attack">>, [{0, [
             {seq(), [stand_plain_attack(), stand_plain_attack(), plain_attack_no_blow()]}
         ]}]},
 
-        {charm_of_foresight, [{0, [
+        {<<"charm_of_foresight">>, [{0, [
             {next_damage(), [buff(attr, dodge, 0.25), buff(attr, block, 0.25)]}
         ]}]},
-        {fortify_armor, [{0, [
+        {<<"fortify_armor">>, [{0, [
             {next_damage(), [buff(attr, dodge, 0.3)]}
         ]}]},
-        {increase_crit, [{0, [
+        {<<"increase_crit">>, [{0, [
             {next_damage(), [buff(attr, critical, 0.25)]}
         ]}]},
 
-        {counterattack, [{0, [
+        {<<"counterattack">>, [{0, [
             {next_damage(0, [opponent_critical()], counter), [counter_attack(3)]}
         ]}]},
 
-        {healing_potion, [{0, [
+        {<<"healing_potion">>, [{0, [
             {seq(), [{{add, {{range, 175, 225}}, magic_cast_spec()}, {attr, state, hp, off}, {back, non_blowable}}]}
         ]}]},
 
-        {pierce_armor, [{0, [
+        {<<"pierce_armor">>, [{0, [
             {seq(3),[{{add_mul, {{single, -0.5}}, magic_cast_spec()}, {attr, attr, armor, def}, {stand, non_blowable}}]}
         ]}]},
 
-        {poison_gas, [{0.5, [
+        {<<"poison_gas">>, [{0.5, [
             {seq(2), [
                 toggle(def, attr, is_stunned, 1),
                 toggle(def, attr, cast_disabled, 1),
@@ -130,27 +130,27 @@ create_skills() ->
             ]}
         ]}]},
 
-        {rune_of_the_void, [{0, [
+        {<<"rune_of_the_void">>, [{0, [
             {seq(), [{{set, {{single, 1}}, magic_cast_spec()}, {attr, attr, cast_disabled, def}, {stand, non_blowable}}]}
         ]}]},
 
-        {holy_hand_grenade, [{0, [
+        {<<"holy_hand_grenade">>, [{0, [
             {seq(), [{{add, {{range, -500, -1}}, magic_cast_spec(resistable)}, {attr, state, hp, def}, {back, non_blowable}}]}
         ]}]},
 
-        {talisman_of_shielding, [{0, [
+        {<<"talisman_of_shielding">>, [{0, [
             {next_damage(), [buff(attr, armor, 0.5)]}
         ]}]},
 
-        {talisman_of_death, [{0, [
+        {<<"talisman_of_death">>, [{0, [
             {seq(), [{{add_mul, {{single, -0.15}}, magic_cast_spec()}, {attr, state, hp, def}, {back, non_blowable}}]}
         ]}]},
 
-        {talisman_of_spellshrouding, [{0, [
+        {<<"talisman_of_spellshrouding">>, [{0, [
             {next_damage(), [buff(attr, resist, 1)]}
         ]}]},
 
-        {sure_hit, [{0, [
+        {<<"sure_hit">>, [{0, [
             {next_attack(), [
                 toggle(def, attr, resist, 0),
                 toggle(def, attr, block, 0),
@@ -160,24 +160,24 @@ create_skills() ->
             ]}
         ]}]},
 
-        {concussion, [{0, [
+        {<<"concussion">>, [{0, [
             {seq(0), [
                 {{add_inc_mul, {{attr, attr, critical, def}, {single, -0.5}}, magic_cast_spec()}, {attr, state, hp, def}, {stand, non_blowable}},
                 {{add_inc_mul, {{attr, attr, agility, def}, {single, -1}}, physical_attack_spec(absorbable)}, {attr, state, hp, def}, {stand, non_blowable}}
             ]}
         ]}]},
 
-        {double_swing, [{0, [
+        {<<"double_swing">>, [{0, [
             {seq(2, counter, []), [stand_plain_attack(), plain_attack()]}
         ]}]},
 
-        {first_aid, [{0, [
+        {<<"first_aid">>, [{0, [
             {seq(), [
                 {{add_inc_mul, {{attr, state, hp, off}, {single, 0.08}}, magic_cast_spec()}, {attr, state, hp, off}, {back, non_blowable}}
             ]}
         ]}]},
 
-        {shield_wall, [{0, [
+        {<<"shield_wall">>, [{0, [
             {next_damage(), [
                 toggle(off, attr, dodge, 0),
                 toggle(off, attr, block, 120),
@@ -186,13 +186,13 @@ create_skills() ->
             ]}
         ]}]},
 
-        {chain_lock, [{0, [
+        {<<"chain_lock">>, [{0, [
             {seq(), [
                 toggle(def, attr, cast_disabled, 1)
             ]}
         ]}]},
 
-        {critical_strike, [{0, [
+        {<<"critical_strike">>, [{0, [
             {next_attack(0), [
                 toggle(def, attr, dodge, 0),
                 toggle(def, attr, block, 0),
@@ -201,13 +201,13 @@ create_skills() ->
             ]}
         ]}]},
 
-        {deadly_strike, [{0, [
+        {<<"deadly_strike">>, [{0, [
             {seq(), [
                 {{add_inc_mul, {{attr, attr, atk_range, off}, {single, 2.5}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, blowable}}
             ]}
         ]}]},
 
-        {shield_breaker, [{0, [
+        {<<"shield_breaker">>, [{0, [
             {seq(4), [
             toggle(def, attr, block, 0)
             ]},
@@ -221,7 +221,7 @@ create_skills() ->
             ]}
         ]}]},
 
-        {unbalancing_strike, [{0, [
+        {<<"unbalancing_strike">>, [{0, [
             {seq(4), [
                 {{add, {{single, -7}}, magic_cast_spec()}, {attr, attr, dodge, def}, {stand, non_blowable}},
                 {{add, {{single, -7}}, magic_cast_spec()}, {attr, attr, block, def}, {stand, non_blowable}},
