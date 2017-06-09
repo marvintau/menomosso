@@ -18,8 +18,8 @@ get_cards_of_player(Conn, PlayerUUID) ->
 
     QueryCard = list_to_binary(["
     
-        select cards.*, frags, player_card_info.card_level, card_stars, frags_required, coins_required from (
-            select * from player_card_info, card_level_up
+        select cards.*, frags, .card_level, card_stars, frags_required, coins_required from (
+            select player_card_info.*, frags_required, coins_required from player_card_info, card_level_up
             where player_id = '", PlayerUUID, "' and player_card_info.card_level=card_level_up.card_level
         ) tem
         inner join cards on cards.card_id=tem.card_id;
