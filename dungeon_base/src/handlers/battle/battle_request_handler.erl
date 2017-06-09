@@ -58,8 +58,8 @@ handle_post(Req, State) ->
 
     error_logger:info_report(battle_begins),
 
-    {ok, #{rating:=RateA}} = dungeon_base_sup:query({get_player, {IdA}}),
-    {ok, #{rating:=RateB}} = dungeon_base_sup:query({get_player, {IdB}}),
+    {ok, #{player_profile:=#{rating:=RateA}}} = dungeon_base_sup:query({get_player, {IdA}}),
+    {ok, #{player_profile:=#{rating:=RateB}}} = dungeon_base_sup:query({get_player, {IdB}}),
 
     {ok, _} = dungeon_base_sup:query({update_selected_skills, {Skills, SelfCardID, IdA}}),
 
