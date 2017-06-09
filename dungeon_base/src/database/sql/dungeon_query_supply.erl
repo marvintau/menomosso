@@ -26,7 +26,7 @@ add_new_supply(Conn, PlayerUUID, SupplyID) ->
 		"insert into loot_list(loot_id, item_id, item_qty)
 		select '", LootID, "', item_id, qty from (
 		    select distinct on (item_group) item_id, round(random() * (max_qty - min_qty) + min_qty) as qty from (
-		        select *, generate_series(1, drop_rate) from supply_spec where supply_id=1
+		        select *, generate_series(1, drop_rate) from supply_spec where supply_id=", integer_to_binary(SupplyID),"
 		    ) as gene order by item_group, random()
 		) as tem"
 	]),
@@ -54,18 +54,6 @@ check_supply_remaining_time(Conn, PlayerUUID) ->
 	{ok, _, Res} = epgsql:squery(Conn, binary_to_list(Query)),
 	error_logger:info_report(Res),
 	{ok, Res}.
-
-get_supply_items(Conn, LootID, SupplyID) ->
-	
-	Query= list_to_binary(["insert into loot_list(loot_id, item_id, item_qty)
-		select '", LootID, "', item_id, qty from (
-			select distinct on (item_group) item_id, round(random() * (max_qty - min_qty) + min_qty) as qty from (
-				select *, generate_series(1, drop_rate) from supply_spec where supply_id=", SupplyID, "
-			) as gene order by item_group, random()
-	) as tem"]),
-
-	{ok, _} = epgsql:squery(Conn, binary_to_list(Query)),
-	{ok, LootID, SupplyID}.
 
 
 return_supply_items(Conn, LootID) ->
@@ -107,7 +95,6 @@ open_supply(Conn, LootID) ->
 		<<"t">> ->
 			supply_has_been_opened;
 		_ ->
-			get_supply_items(Conn, LootID, SupplyID),
 			{ok, Res} = return_supply_items(Conn, LootID),
 			[ fetch_supply_items(Conn, PlayerID, Item) || Item <- Res],
 			error_logger:info_report(Res),
