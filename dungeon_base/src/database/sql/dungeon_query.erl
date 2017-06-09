@@ -149,7 +149,7 @@ update_frag(Conn, {FragIncre, CardID, PlayerUUID}) ->
         false -> add_player_card(Conn, {CardID, PlayerUUID});
         _ ->
             erlang:display(FragIncre),
-            QueryAdd = list_to_binary(["update player_card_info set frags=frags+", binary_to_integer(FragIncre), " where player_id='", PlayerUUID, "' and card_id='", CardID, "';"]),
+            QueryAdd = list_to_binary(["update player_card_info set frags=frags+", FragIncre, " where player_id='", PlayerUUID, "' and card_id='", CardID, "';"]),
             {ok, _} = epgsql:squery(Conn, binary_to_list(QueryAdd))
     end.
 
