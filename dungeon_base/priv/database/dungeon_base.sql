@@ -80,8 +80,8 @@ create table player_card_info (
     card_id uuid,
     player_id uuid,
     frags int default 1,
-    level int,
-    stars int,
+    card_level int,
+    card_stars int,
 
     last_added TIMESTAMP,
     last_modified timestamp

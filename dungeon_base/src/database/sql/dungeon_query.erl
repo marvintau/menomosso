@@ -77,7 +77,7 @@ add_player_card(Conn, {CardUUID, PlayerUUID}) ->
 
 get_player_list(Conn, _) ->
     Query = list_to_binary(["
-        select distinct players.*, cards.*, level, stars from players, cards, player_card_info
+        select distinct players.*, cards.*, card_level, card_stars from players, cards, player_card_info
         where players.preset_card_id=player_card_info.card_id and players.preset_card_id=cards.card_id order by players.rating desc;
     "]),
 
@@ -212,7 +212,7 @@ update_card( Conn, {UpdatedProfile, CardUUID}) ->
     end.
 
 update_card_level(Conn, {PlayerUUID, CardUUID}) ->
-    QueryGetLevel = list_to_binary(["select level, frags, frags_required, coins_required from player_card_info where player_id='", PlayerUUID, "' and card_id='", CardUUID, "';"]),
+    QueryGetLevel = list_to_binary(["select card_level, frags, frags_required, coins_required from player_card_info where player_id='", PlayerUUID, "' and card_id='", CardUUID, "';"]),
     {ok, _, [{Level, CurrentFrags, FragsRequired, CoinsRequired}]} = epgsql:squery(Conn, binary_to_list(QueryGetLevel)),
     
     QueryGetCoin = list_to_binary(["select coins from players where player_id='", PlayerUUID,"';"]),
