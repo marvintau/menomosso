@@ -104,8 +104,8 @@ open_supply(Conn, LootID) ->
 	erlang:display({IsOpened, SupplyID}),
 
 	case IsOpened of
-		% <<"t">> ->
-		% 	supply_has_been_opened;
+		<<"t">> ->
+			supply_has_been_opened;
 		_ ->
 			get_supply_items(Conn, LootID, SupplyID),
 			{ok, Res} = return_supply_items(Conn, LootID),
