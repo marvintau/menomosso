@@ -20,7 +20,7 @@ get_cards_of_player(Conn, PlayerUUID) ->
     
         select cards.*, frags, level, stars, frags_required, coins_required from (
             select * from player_card_info, card_level_up
-            where player_id = '", PlayerUUID, "' and player_card_info.level=card_level_up.card_level
+            where player_id = '", PlayerUUID, "' and player_card_info.card_level=card_level_up.card_level
         ) tem
         inner join cards on cards.card_id=tem.card_id;
     
