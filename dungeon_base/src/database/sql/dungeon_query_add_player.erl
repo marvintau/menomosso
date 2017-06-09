@@ -86,7 +86,6 @@ add_player_card(Conn, CardUUID, PlayerUUID) ->
         _ -> {error, add_card_failed}
     end.
 
-
 add_player(Conn) ->
     Name = random_name(),
     {ok, ColumnNumber} = get_number_of_columns(Conn, Name),
