@@ -47,5 +47,5 @@ handle_post(Req, State) ->
 
     {ok, IDString} = dungeon_base_sup:query({add_new_player,{}}),
 
-    Res = cowboy_req:set_resp_body(list_to_binary(["{\"id\":\"",IDString, "\"}"]), NextReq),
+    Res = cowboy_req:set_resp_body(list_to_binary(["{\"player_id\":\"",IDString, "\"}"]), NextReq),
     {true, Res, State}.
