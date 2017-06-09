@@ -105,7 +105,7 @@ create_skills() ->
         ]}]},
 
         {<<"healing_potion">>, [{0, [
-            {seq(), [{{add, {{range, 175, 225}}, magic_cast_spec()}, {attr, state, hp, off}, {back, non_blowable}}]}
+            {seq(), [{{add, {{range, [175, 225]}}, magic_cast_spec()}, {attr, state, hp, off}, {back, non_blowable}}]}
         ]}]},
 
         {<<"pierce_armor">>, [{0, [
@@ -135,7 +135,7 @@ create_skills() ->
         ]}]},
 
         {<<"holy_hand_grenade">>, [{0, [
-            {seq(), [{{add, {{range, -500, -1}}, magic_cast_spec(resistable)}, {attr, state, hp, def}, {back, non_blowable}}]}
+            {seq(), [{{add, {{range, [-500, -1]}}, magic_cast_spec(resistable)}, {attr, state, hp, def}, {back, non_blowable}}]}
         ]}]},
 
         {<<"talisman_of_shielding">>, [{0, [
