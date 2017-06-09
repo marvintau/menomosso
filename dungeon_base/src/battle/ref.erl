@@ -26,7 +26,7 @@ val({range, [Low, High]}) ->
 
 val({single, SingleValue}) -> SingleValue;
 
-val({attr, AttrType, Attr, Whose} = Ref) ->
+val({attr, AttrType, Attr, Whose} = _Ref) ->
 	#{AttrType:=#{Attr:=Val}} = Whose,
 	val(Val).
 

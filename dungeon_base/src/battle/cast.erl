@@ -10,7 +10,7 @@
 % latter function is the actual entrance that takes cast name as argument, and
 % find the specification in database, and re-interpret it with battle context.
 
-parse(single_trans, {Index, Name, {Cond, TransList} = EffectSpec, IsSuccessful}) ->
+parse(single_trans, {Index, Name, {Cond, TransList} = _EffectSpec, IsSuccessful}) ->
     [{Index, Name, Cond, Trans, IsSuccessful} || Trans <- TransList];
 
 parse(trans_list, {Index, Name, {Prob, EffectSpecs}}) ->
