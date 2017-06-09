@@ -18,7 +18,7 @@ get_cards_of_player(Conn, PlayerUUID) ->
 
     QueryCard = list_to_binary(["
     
-        select cards.*, frags, tem.card_level, card_stars, frags_required, coins_required from (
+        select cards.*, frags, player_card_info.card_level, card_stars, frags_required, coins_required from (
             select * from player_card_info, card_level_up
             where player_id = '", PlayerUUID, "' and player_card_info.card_level=card_level_up.card_level
         ) tem
