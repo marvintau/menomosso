@@ -103,31 +103,31 @@ handle_post(Req, State) ->
 
     RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}, new_rank=>#{IdA=>binary_to_integer(RankA), IdB=>binary_to_integer(RankB)}},
 
-    % Supply = case IdA == Winner of
-    %     true ->
-    %         erlang:display("===================== WIN WIN WIN"),
-    %         case dungeon_base_sup:query({update_quick_battle_counter, {IdA}}) of
-    %             0 ->
-    %                 erlang:display(ok_to_get_supply),
-    %                 case dungeon_base_sup:query({add_supply, {IdA, round(rand:uniform(3))}}) of
-    %                     {ok, PlayerID, LootID, SupplyType} -> #{player_id => PlayerID, loot_id=>list_to_binary(LootID), supply_type=> SupplyType, error=> <<"none">>};
-    %                     {full, _} -> #{error => <<"full">>};
-    %                     Err -> #{error => Err}
-    %                 end;
-    %             A ->
-    %                 erlang:display({how_many, A}),
-    %                 #{error => <<"not_enough_win">>}
-    %         end;
-    %     _ ->
-    %         erlang:display(ooops_loose),
-    %         #{error => <<"lose">>}
-    % end,
-
-    Supply = case dungeon_base_sup:query({add_supply, {IdA, round(rand:uniform(3))}}) of
-        {ok, PlayerID, LootID, SupplyType} -> #{player_id => PlayerID, loot_id=>list_to_binary(LootID), supply_type=> SupplyType, error=> <<"none">>};
-        {full, _} -> #{error => <<"full">>};
-        Err -> #{error => Err}
+    Supply = case IdA == Winner of
+        true ->
+            erlang:display("===================== WIN WIN WIN"),
+            case dungeon_base_sup:query({update_quick_battle_counter, {IdA}}) of
+                0 ->
+                    erlang:display(ok_to_get_supply),
+                    case dungeon_base_sup:query({add_supply, {IdA, round(rand:uniform(3))}}) of
+                        {ok, PlayerID, LootID, SupplyType} -> #{player_id => PlayerID, loot_id=>list_to_binary(LootID), supply_type=> SupplyType, error=> <<"none">>};
+                        {full, _} -> #{error => <<"full">>};
+                        Err -> #{error => Err}
+                    end;
+                A ->
+                    erlang:display({how_many, A}),
+                    #{error => <<"not_enough_win">>}
+            end;
+        _ ->
+            erlang:display(ooops_loose),
+            #{error => <<"lose">>}
     end,
+
+    % Supply = case dungeon_base_sup:query({add_supply, {IdA, round(rand:uniform(3))}}) of
+    %     {ok, PlayerID, LootID, SupplyType} -> #{player_id => PlayerID, loot_id=>list_to_binary(LootID), supply_type=> SupplyType, error=> <<"none">>};
+    %     {full, _} -> #{error => <<"full">>};
+    %     Err -> #{error => Err}
+    % end,
 
     SuppliedLog = RatedLog#{supply=>Supply, player_self=>PlayerAWithCardProfilesRemoved, player_oppo=>PlayerBWithCardProfilesRemoved},
 

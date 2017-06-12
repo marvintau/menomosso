@@ -82,9 +82,26 @@ add_player_card(Conn, CardUUID, PlayerUUID) ->
     Query = list_to_binary(["insert into player_card_info values (uuid_generate_v4(), '", CardUUID, "', '", PlayerUUID, "', 1, 1, 0, now(), now());"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, 1} -> {ok, new_card_added};
-        _ -> {error, add_card_failed}
+        {ok, 1} ->
+            add_player_card_skill(Conn, CardUUID, PlayerUUID),
+            {ok, new_card_added};
+        _ ->
+            {error, add_card_failed}
     end.
+
+add_player_card_skill(Conn, CardUUID, PlayerUUID) ->
+    Query = list_to_binary(["
+        select player_id, player_card_info.card_id, skill_name, 1
+            from player_card_info cross join card_skills
+            where player_id = '", PlayerUUID, "' and player_card_info.card_id='", CardUUID, "' and 
+            card_skills.card_id in ('00000000-0000-0000-0000-000000000000', player_card_info.card_id);
+    "]),
+
+    case epgsql:squery(Conn, binary_to_list(Query)) of
+        {ok, _} -> {ok, new_card_skill_info_added};
+        _ -> {error, add_card_skill_info_failed}
+    end.
+
 
 add_player(Conn) ->
     Name = random_name(),
