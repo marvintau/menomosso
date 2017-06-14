@@ -58,47 +58,52 @@ handle_post(Req, State) ->
 
     error_logger:info_report(battle_begins),
 
-    {ok, #{player_profile:=#{rating:=RateA}}} = dungeon_base_sup:query({get_player, {IdA}}),
-    {ok, #{player_profile:=#{rating:=RateB}}} = dungeon_base_sup:query({get_player, {IdB}}),
+    % {ok, #{player_profile:=#{rating:=RateA}}} = dungeon_base_sup:query({get_player, {IdA}}),
+    % {ok, #{player_profile:=#{rating:=RateB}}} = dungeon_base_sup:query({get_player, {IdB}}),
 
     {ok, _} = dungeon_base_sup:query({update_selected_skills, {Skills, SelfCardID, IdA}}),
 
-    {ok, BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
-    {ok, BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
+    {ok, #{player_profile:=#{selected_skills:=SelectedSkillsA, preset_card_id:=SelectedCardA}}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
+    {ok, #{player_profile:=#{selected_skills:=SelectedSkillsB, preset_card_id:=SelectedCardB}}=BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
 
     {log, #{winner:=Winner, loser:=Loser}=Log} = battle:start({BattleContextA, BattleContextB}),
 
-    {ResA, ResB} = case Winner of
-        IdA -> {1, 0};
-        IdB -> {0, 1}
-    end,
+    EncodedLog = jiffy:encode(Log),
 
-    K = 16,
+    dungeon_base_sup:query({store_battle_record, {IdA, IdB, SelectedSkillsA, SelectedSkillsB, SelectedCardA, SelectedCardB, IdA=:=Winner, EncodedLog}}),
 
-    ExpectA = 1/(1+math:exp(RateB - RateA)),
-    ExpectB = 1/(1+math:exp(RateA - RateB)),
+    % {ResA, ResB} = case Winner of
+    %     IdA -> {1, 0};
+    %     IdB -> {0, 1}
+    % end,
 
-    NewRateA = round(RateA + K * (ResA - ExpectA)),
-    NewRateB = round(RateB + K * (ResB - ExpectB)),
+    % K = 16,
 
-    {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateA, IdA}}),
-    {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateB, IdB}}),
-    {ok, rank_updated} = dungeon_base_sup:query({update_rank, {}}),
+    % ExpectA = 1/(1+math:exp(RateB - RateA)),
+    % ExpectB = 1/(1+math:exp(RateA - RateB)),
 
-    {ok, {RankA}} = dungeon_base_sup:query({get_player_rank, {IdA}}),
-    {ok, {RankB}} = dungeon_base_sup:query({get_player_rank, {IdB}}),
+    % NewRateA = round(RateA + K * (ResA - ExpectA)),
+    % NewRateB = round(RateB + K * (ResB - ExpectB)),
 
-    RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}, new_rank=>#{IdA=>binary_to_integer(RankA), IdB=>binary_to_integer(RankB)}},
+    % {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateA, IdA}}),
+    % {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateB, IdB}}),
+    % {ok, rank_updated} = dungeon_base_sup:query({update_rank, {}}),
 
-    Supply = case dungeon_base_sup:query({add_supply, {IdA, round(rand:uniform(3))}}) of
-        {ok, PlayerID, LootID, SupplyType} -> #{player_id => PlayerID, loot_id=>list_to_binary(LootID), supply_type=> SupplyType, error=> <<"none">>};
-        {full, _} -> #{error => <<"full">>};
-        Err -> #{error => Err}
-    end,
+    % {ok, {RankA}} = dungeon_base_sup:query({get_player_rank, {IdA}}),
+    % {ok, {RankB}} = dungeon_base_sup:query({get_player_rank, {IdB}}),
 
-    SuppliedLog = RatedLog#{supply=>Supply},
+    % RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}, new_rank=>#{IdA=>binary_to_integer(RankA), IdB=>binary_to_integer(RankB)}},
 
-    Res = cowboy_req:set_resp_body(jiffy:encode(SuppliedLog), NextReq),
+    % Supply = case dungeon_base_sup:query({add_supply, {IdA, round(rand:uniform(3))}}) of
+    %     {ok, PlayerID, LootID, SupplyType} -> #{player_id => PlayerID, loot_id=>list_to_binary(LootID), supply_type=> SupplyType, error=> <<"none">>};
+    %     {full, _} -> #{error => <<"full">>};
+    %     Err -> #{error => Err}
+    % end,
+
+    % SuppliedLog = RatedLog#{supply=>Supply},
+
+
+    Res = cowboy_req:set_resp_body(EncodedLog, NextReq),
 
     Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
     Res2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type, origin, access-control-request-origin">>, Res1),

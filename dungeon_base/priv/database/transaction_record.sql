@@ -1,15 +1,15 @@
 drop table if exists player_supply_loot CASCADE;
 
 create table player_supply_loot(
-    loot_id uuid,
-    player_id uuid,
-    supply_id int,
-    acquire_time timestamp,
-    open_time timestamp,
-    is_opened boolean,
-    buff1 boolean,
-    buff2 boolean,
-    buff3 boolean,
+    loot_id         uuid        not null default uuid_generate_v4(),
+    player_id       uuid        not null,
+    supply_id       int         not null,
+    acquire_time    timestamp   not null default now(),
+    open_time       timestamp   not null default now(),
+    is_opened       boolean     not null default 'no',
+    buff1           boolean     not null default 'no',
+    buff2           boolean     not null default 'no',
+    buff3           boolean     not null default 'no',
     
     foreign key (player_id) references players(player_id),
     foreign key (supply_id) references supply_name(supply_id)

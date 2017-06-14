@@ -79,10 +79,10 @@ insert into item_description values
 
 drop table if exists char_chest cascade;
 create table char_chest(
-    char_id uuid,
-    last_opened_chest int,
-    last_opened_time TIMESTAMP,
-    is_today_done bool,
+    char_id             uuid        not null,
+    last_opened_chest   int         not null default 0,
+    last_opened_time    TIMESTAMP   not null default now(),
+    is_today_done       bool        not null default 'no',
 
     foreign key(char_id) references players(player_id),
     foreign key(last_opened_chest) references chest_spec(chest_id)

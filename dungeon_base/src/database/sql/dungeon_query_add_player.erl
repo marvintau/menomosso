@@ -41,13 +41,7 @@ random_name() ->
 %% NOTE: 不要单独export
 
 add_player_profile(Conn, PlayerUUID, PlayerName) ->
-    Query = list_to_binary(["insert into players values(
-    '", PlayerUUID, "', '", PlayerName,"', '", integer_to_binary(round(rand:uniform())) ,"', 'league', 500, 1, 100, 100,
-    '946ae77c-183b-4538-b439-ac9036024676',
-    '{\"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\",
-      \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\", \"single_attack\"}',
-    1000.5, 1, 0, now(), now()
-    );"]),
+    Query = list_to_binary(["insert into players(player_id, player_name) values('", PlayerUUID,"', '", PlayerName,"');"]),
 
     case epgsql:squery(Conn,binary_to_list(Query)) of
         {ok, 1} ->
@@ -66,7 +60,7 @@ add_player_profile(Conn, PlayerUUID, PlayerName) ->
 
 add_chest_record(Conn, PlayerUUID) ->
     Query = list_to_binary([
-        "insert into char_chest(char_id, last_opened_chest, last_opened_time, is_today_done) values ('", PlayerUUID, "', '0', now(), 'no')"
+        "insert into char_chest(char_id) values ('", PlayerUUID, "')"
     ]),
 
     case epgsql:squery(Conn,binary_to_list(Query)) of
@@ -79,7 +73,7 @@ add_chest_record(Conn, PlayerUUID) ->
 %% NOTE: 不要单独export
 
 add_player_card(Conn, CardUUID, PlayerUUID) ->
-    Query = list_to_binary(["insert into player_card_info values (uuid_generate_v4(), '", CardUUID, "', '", PlayerUUID, "', 1, 1, 0, now(), now());"]),
+    Query = list_to_binary(["insert into player_card_info(card_id, player_id) values ('", CardUUID, "', '", PlayerUUID, "');"]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} ->

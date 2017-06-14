@@ -23,6 +23,7 @@
     update_level/2,
     update_card/2,
     update_card_level/2,
+    update_card_skill_level/2,
 
     update_quick_battle_counter/2,
 
@@ -31,7 +32,11 @@
 
     add_supply/2,
     check_supply/2,
-    open_supply/2
+    open_supply/2,
+
+    store_battle_record/2,
+    fetch_battle_record_list/2,
+    fetch_battle_record/2
 ]).
 
 
@@ -212,7 +217,7 @@ update_card( Conn, {UpdatedProfile, CardUUID}) ->
             {error, update_card_failed}
     end.
 
-update_card_level(Conn, {PlayerUUID, CardUUID}) ->
+get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}) ->
     QueryGetLevel = list_to_binary(["select card_level, frags, frags_required, coins_required from player_card_info where player_id='", PlayerUUID, "' and card_id='", CardUUID, "';"]),
     {ok, _, [{Level, CurrentFrags, FragsRequired, CoinsRequired}]} = epgsql:squery(Conn, binary_to_list(QueryGetLevel)),
     
@@ -224,24 +229,64 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
     CoinsInteger = binary_to_integer(CurrentCoins),
     CoinsRequiredInteger = binary_to_integer(CoinsRequired),
 
+    {FragsInteger, FragsRequiredInteger, CoinsInteger, CoinsRequiredInteger}.
+
+
+actual_update_card_level(Conn, {Frags, FragsRequired, Coins, CoinsRequired}) ->
+    QuerySetLevel = list_to_binary(["update player_card_info set level=level+1, 
+                                    frags=", integer_to_binary(Frags-FragsRequired),";"]),
+    {ok, 1} = epqsql:squery(Conn, binary_to_list(QuerySetLevel)),
+
+    QuerySetCoins = list_to_binary(["update players set coins=", integer_to_binary(Coins - CoinsRequired)," "]) ,
+    {ok, 1} = epgsql:squery(Conn, binary_to_list(QuerySetCoins)),
+
+
+update_card_level(Conn, {PlayerUUID, CardUUID}) ->
+
+    {Frags, FragsRequired, Coins, CoinsRequired} = get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}),
 
     case (FragsInteger >= FragsRequiredInteger) and (CoinsInteger >= CoinsRequiredInteger) of
         false ->
             {error, insufficient_frags_or_coins};
         _ ->
-            QuerySetLevel = list_to_binary(["update player_card_info set level=level+1, 
-                                            frags=", integer_to_binary(FragsInteger-FragsRequiredInteger),";"]),
-            {ok, 1} = epqsql:squery(Conn, binary_to_list(QuerySetLevel)),
-
-            QuerySetCoins = list_to_binary(["update players set coins=", integer_to_binary(CoinsInteger - CoinsRequiredInteger)," "]) ,
-            {ok, 1} = epgsql:squery(Conn, binary_to_list(QuerySetCoins)),
-
+            actual_update_card_level(Conn, {Frags, FragsRequired, Coins, CoinsRequired}),
+            update_card_skill_points(Conn, {PlayerUUID, CardUUID, 5}),
             {ok, Level, CoinsInteger-CoinsRequiredInteger, FragsInteger-FragsRequiredInteger}
     end.
 
-update_card_skill(Conn, {PlayerUUID, CardUUID, SkillName}) ->
-    Query = list_to_binary(["update player_card_skill_info set skill_level=skill_level+1 where player_id='", PlayerUUID, "' and card_id='", CardUUID, "' and skill_name='", SkillName, "' "]),
-    {ok, 1} = epgsql:squery(Conn, binary_to_list(Query)).
+update_card_skill_points(Conn, {PlayerUUID, CardUUID, SkillPoints}) ->
+    QueryUpdate = list_to_binary(["update player_card_info set skill_points=skill_points+", integer_to_binary(SkillPoints), " where player_id='", PlayerUUID,"' and card_id='", CardUUID,"' ;"]),
+    {ok, 1} = epgsql:squery(Conn, binary_to_list(QueryUpdate) ),
+
+    QueryNew = list_to_binary(["select coins from players where player_id='", PlayerUUID,"';"]),
+    {ok, _, [{CoinNew}]} = epgsql:squery(Conn, binary_to_list(QueryNew) ),
+    erlang:display(CoinNew).
+
+
+update_card_skill_level(Conn, {PlayerUUID, CardUUID, SkillName}) ->
+
+    Query = list_to_binary(["select skill_point from player_card_info where player_id='", PlayerUUID, "' and card_id='", CardUUID, "'; "]),
+
+    case epgsql:squery(Conn, binary_to_list(Query)) of
+        {ok, _, [{Res}]} ->
+            case binary_to_integer(Res) > 0 of
+                true ->
+                    QuerySkillLevel = list_to_binary(["update player_card_skill_info set skill_level=skill_level+1 where player_id='", PlayerUUID, "' and card_id='", CardUUID, "' and skill_name='", SkillName, "' "]),
+                    {ok, 1} = epgsql:squery(Conn, binary_to_list(QuerySkillLevel)),
+                    QuerySkillPoint = list_to_binary(["update players_card_info set skill_points=skill_points-1 where player_id='", PlayerUUID, "' and card_id='", CardUUID, "'; "]),
+                    {ok, 1} = epgsql:squery(Conn, binary_to_list(QuerySkillPoint)),
+                    {ok, update_card_skill_level_updated};
+                _ ->
+                    {error, not_enough_skill_points}
+            end;
+
+        {error, Error} ->
+            error_logger:info_report(Error),
+            {error, Error}
+    end.
+
+    
+
 
 update_quick_battle_counter(Conn, {PlayerUUID}) ->
     QueryUpdate = list_to_binary(["update players set quick_battle_counter=(quick_battle_counter+1)%5 where player_id='", PlayerUUID,"';"]) ,
@@ -267,3 +312,13 @@ check_supply(Conn, {PlayerID}) ->
 
 open_supply(Conn, {LootID}) ->
     dungeon_query_supply:open_supply(Conn, LootID).
+
+
+store_battle_record(Conn, Content) ->
+    dungeon_query_battle_record:store(Conn, Content).
+
+fetch_battle_record_list(Conn, {SelfID, OppoID}) ->
+    dungeon_query_battle_record:fetch_list(Conn, SelfID, OppoID).
+
+fetch_battle_record(Conn, {BattleRecordID}) ->
+    dungeon_query_battle_record:fetch(Conn, BattleRecordID).
