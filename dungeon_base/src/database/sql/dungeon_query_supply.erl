@@ -19,7 +19,7 @@ add_new_supply(Conn, PlayerUUID, SupplyID) ->
 
     QueryAddLoot = list_to_binary([
     	"insert into player_supply_loot(loot_id, player_id, supply_id, acquire_time, open_time, is_opened, buff1, buff2, buff3) values
-		('", LootID, "', '", PlayerUUID,"', ", integer_to_binary(SupplyID),", now(), null, false, ", rand_true_false(),", ", rand_true_false(), ", ", rand_true_false(), ");"
+		('", LootID, "', '", PlayerUUID,"', ", integer_to_binary(SupplyID),", now(), now(), false, ", rand_true_false(),", ", rand_true_false(), ", ", rand_true_false(), ");"
     ]),
 
     QueryAddLootItems = list_to_binary([
@@ -88,16 +88,19 @@ open_supply(Conn, LootID) ->
 		select player_id, supply_id from player_supply_loot where loot_id='", LootID,"';"
 	]),
 
-	[{ok, _, [{IsOpened}]}, {ok, 1}, {ok, _, [{PlayerID, SupplyID}]}] = epgsql:squery(Conn, binary_to_list(Query)),
-	erlang:display({IsOpened, SupplyID}),
+        case epgsql:squery(Conn, binary_to_list(Query)) of 
+	    [{ok, _, [{IsOpened}]}, {ok, 1}, {ok, _, [{PlayerID, SupplyID}]}] ->
 
-	case IsOpened of
-		<<"t">> ->
-			supply_has_been_opened;
-		_ ->
-			{ok, Res} = return_supply_items(Conn, LootID),
-			[ fetch_supply_items(Conn, PlayerID, Item) || Item <- Res],
-			error_logger:info_report(Res),
-			{ok, Res}
-	end.
+                case IsOpened of
+                        <<"t">> ->
+                                supply_has_been_opened;
+                        _ ->
+                                {ok, Res} = return_supply_items(Conn, LootID),
+                                [ fetch_supply_items(Conn, PlayerID, Item) || Item <- Res],
+                                error_logger:info_report(Res),
+                                {ok, Res}
+                end;
+            Error ->
+                invalid_supply_id
+        end.
 

@@ -8,9 +8,9 @@ create table supply_name(
 );
 
 insert into supply_name(supply_id, supply_name, cooldown_time) values
-(1,   '小型补给箱',   300),
-(2,   '中型补给箱',   7200),
-(3,   '大型补给箱',   21600);
+(1,   '小型补给箱',   3),
+(2,   '中型补给箱',   3),
+(3,   '大型补给箱',   3);
 
 
 

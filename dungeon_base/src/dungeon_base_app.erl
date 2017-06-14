@@ -41,7 +41,8 @@ start(_StartType, _StartArgs) ->
                    {"/api/check_supply", check_supply_handler, []},
                    {"/api/open_supply", open_supply_handler, []},
 
-                   {"/api/update_card_level_handler", update_card_level_handler, []}
+                   {"/api/update_card_level", update_card_level_handler, []},
+                   {"/api/update_card_skill_level", update_card_skill_handler, []}
                   ]}
         ]),
 
