@@ -55,7 +55,7 @@ handle_post(Req, State) ->
 
     Result = case dungeon_base_sup:query({update_card_level, {PlayerID, CardID}}) of
         {ok, NewLevel, NewCoins, NewFrags} -> #{new_level=>NewLevel, new_coins=>NewCoins, new_frags=>NewFrags};
-        {error, _} -> #{error=>invalid_upgrade}
+        {error, Message} -> #{error=>Message}
     end,
 
     Res = cowboy_req:set_resp_body(jiffy:encode(Result), NextReq),

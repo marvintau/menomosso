@@ -248,10 +248,11 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
 
     {CurrLevel, Frags, FragsRequired, Coins, CoinsRequired} = get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}),
 
-    case (Frags >= FragsRequired) and (Coins >= CoinsRequired) of
-        false ->
-            {error, insufficient_frags_or_coins};
-        _ ->
+    if  Frags < FragsRequired ->
+            {error, insufficient_frags};
+        Coins < CoinsRequired ->
+            {error, insufficient_coins};
+        true ->
             actual_update_card_level(Conn, {Frags, FragsRequired, Coins, CoinsRequired, PlayerUUID, CardUUID}),
             update_card_skill_points(Conn, {PlayerUUID, CardUUID, 5}),
             {ok, CurrLevel, Coins-CoinsRequired, Frags-FragsRequired}
