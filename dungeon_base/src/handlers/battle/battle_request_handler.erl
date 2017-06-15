@@ -63,14 +63,17 @@ handle_post(Req, State) ->
 
     {ok, _} = dungeon_base_sup:query({update_selected_skills, {Skills, SelfCardID, IdA}}),
 
-    {ok, #{player_profile:=#{selected_skills:=SelectedSkillsA, preset_card_id:=SelectedCardA}}=BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
-    {ok, #{player_profile:=#{selected_skills:=SelectedSkillsB, preset_card_id:=SelectedCardB}}=BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
+    {ok, #{player_profile:=#{rating:=RateA, selected_skills:=SelectedSkillsA, preset_card_id:=CardIdA}} } = dungeon_base_sup:query({get_player, {IdA}}),
+    {ok, #{player_profile:=#{rating:=RateB, selected_skills:=SelectedSkillsB, preset_card_id:=CardIdB}} } = dungeon_base_sup:query({get_player, {IdB}}),
+
+    {ok, BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
+    {ok, BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
 
     {log, #{winner:=Winner, loser:=Loser}=Log} = battle:start({BattleContextA, BattleContextB}),
 
     EncodedLog = jiffy:encode(Log),
 
-    dungeon_base_sup:query({store_battle_record, {IdA, IdB, SelectedSkillsA, SelectedSkillsB, SelectedCardA, SelectedCardB, IdA=:=Winner, EncodedLog}}),
+    dungeon_base_sup:query({store_battle_record, {IdA, IdB, SelectedSkillsA, SelectedSkillsB, CardIdA, CardIdB, IdA=:=Winner, EncodedLog}}),
 
     % {ResA, ResB} = case Winner of
     %     IdA -> {1, 0};
