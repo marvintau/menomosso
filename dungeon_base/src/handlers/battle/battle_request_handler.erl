@@ -71,7 +71,6 @@ handle_post(Req, State) ->
 
     {log, #{winner:=Winner, loser:=Loser}=Log} = battle:start({BattleContextA, BattleContextB}),
 
-    EncodedLog = jiffy:encode(Log),
 
     dungeon_base_sup:query({store_battle_record, {IdA, IdB, CardIdA, CardIdB, SelectedSkillsA, SelectedSkillsB, IdA=:=Winner, EncodedLog}}),
 
@@ -106,7 +105,8 @@ handle_post(Req, State) ->
     % SuppliedLog = RatedLog#{supply=>Supply},
 
 
-    Res = cowboy_req:set_resp_body(RatedLog, NextReq),
+    EncodedLog = jiffy:encode(RatedLog),
+    Res = cowboy_req:set_resp_body(EncodedLog, NextReq),
 
     Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
     Res2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type, origin, access-control-request-origin">>, Res1),
