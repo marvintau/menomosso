@@ -72,7 +72,6 @@ handle_post(Req, State) ->
     {log, #{winner:=Winner, loser:=Loser}=Log} = battle:start({BattleContextA, BattleContextB}),
 
 
-    dungeon_base_sup:query({store_battle_record, {IdA, IdB, CardIdA, CardIdB, SelectedSkillsA, SelectedSkillsB, IdA=:=Winner, EncodedLog}}),
 
     {ResA, ResB} = case Winner of
         IdA -> {1, 0};
@@ -106,6 +105,7 @@ handle_post(Req, State) ->
 
 
     EncodedLog = jiffy:encode(RatedLog),
+    dungeon_base_sup:query({store_battle_record, {IdA, IdB, CardIdA, CardIdB, SelectedSkillsA, SelectedSkillsB, IdA=:=Winner, EncodedLog}}),
     Res = cowboy_req:set_resp_body(EncodedLog, NextReq),
 
     Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
