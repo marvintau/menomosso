@@ -73,7 +73,7 @@ handle_post(Req, State) ->
 
     EncodedLog = jiffy:encode(Log),
 
-    dungeon_base_sup:query({store_battle_record, {IdA, IdB, SelectedSkillsA, SelectedSkillsB, CardIdA, CardIdB, IdA=:=Winner, EncodedLog}}),
+    dungeon_base_sup:query({store_battle_record, {IdA, IdB, CardIdA, CardIdB, SelectedSkillsA, SelectedSkillsB, IdA=:=Winner, EncodedLog}}),
 
     % {ResA, ResB} = case Winner of
     %     IdA -> {1, 0};
