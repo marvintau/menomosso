@@ -1,7 +1,7 @@
 %% Feel free to use, reuse and abuse the code in this file.
 
 %% @doc Hello world handler.
--module(update_preset).
+-module(update_preset_handler).
 
 -export([init/2]).
 -export([content_types_provided/2, content_types_accepted/2]).

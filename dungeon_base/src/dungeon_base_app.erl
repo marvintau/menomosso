@@ -44,7 +44,7 @@ start(_StartType, _StartArgs) ->
                    {"/api/update_card_level", update_card_level_handler, []},
                    {"/api/update_card_skill_level", update_card_skill_handler, []},
 
-                   {"/api/update_preset", update_preset, []}
+                   {"/api/update_preset", update_preset_handler, []}
                   ]}
         ]),
 
