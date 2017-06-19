@@ -42,7 +42,9 @@ start(_StartType, _StartArgs) ->
                    {"/api/open_supply", open_supply_handler, []},
 
                    {"/api/update_card_level", update_card_level_handler, []},
-                   {"/api/update_card_skill_level", update_card_skill_handler, []}
+                   {"/api/update_card_skill_level", update_card_skill_handler, []},
+
+                   {"/api/update_preset", update_preset, []}
                   ]}
         ]),
 

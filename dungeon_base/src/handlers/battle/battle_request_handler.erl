@@ -54,14 +54,12 @@ handle_post(Req, State) ->
             {<<"Nah">>, Req}
     end,
 
-    {[{_, IdA}, {_, IdB}, {_, SelfCardID}, {_, Skills}]} = jiffy:decode(ReqBody),
+    {[{_, IdA}, {_, IdB}]} = jiffy:decode(ReqBody),
 
     error_logger:info_report(battle_begins),
 
     {ok, #{player_profile:=#{rating:=RateA}}} = dungeon_base_sup:query({get_player, {IdA}}),
     {ok, #{player_profile:=#{rating:=RateB}}} = dungeon_base_sup:query({get_player, {IdB}}),
-
-    {ok, _} = dungeon_base_sup:query({update_selected_skills, {Skills, SelfCardID, IdA}}),
 
     {ok, #{player_profile:=#{rating:=RateA, selected_skills:=SelectedSkillsA, preset_card_id:=CardIdA}} } = dungeon_base_sup:query({get_player, {IdA}}),
     {ok, #{player_profile:=#{rating:=RateB, selected_skills:=SelectedSkillsB, preset_card_id:=CardIdB}} } = dungeon_base_sup:query({get_player, {IdB}}),
@@ -69,7 +67,7 @@ handle_post(Req, State) ->
     {ok, BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
     {ok, BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
 
-    {log, #{winner:=Winner, loser:=Loser}=Log} = battle:start({BattleContextA, BattleContextB}),
+    {log, #{winner:=Winner, loser:=_Loser}=Log} = battle:start({BattleContextA, BattleContextB}),
 
 
 
