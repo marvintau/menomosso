@@ -57,6 +57,6 @@ get_battle_context(Conn, PlayerUUID) ->
 get_battle_context(Conn, PlayerUUID, CardID, SelectedSkills) ->
 
     PlayerRelated = get_player_related(Conn, PlayerUUID),
-    PlayerModified = PlayerRelated#{preset_card_id:=CardID, selected_skills:=util:array_to_list(SelectedSkills)},
+    PlayerModified = PlayerRelated#{preset_card_id:=CardID, selected_skills:=SelectedSkills},
     Context = get_card_related(Conn, CardID),
     {ok, maps:merge(Context, PlayerModified)}.
