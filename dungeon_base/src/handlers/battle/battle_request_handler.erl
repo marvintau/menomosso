@@ -61,7 +61,7 @@ handle_post(Req, State) ->
     {ok, #{player_profile:=#{rating:=RateA}}} = dungeon_base_sup:query({get_player, {IdA}}),
     {ok, #{player_profile:=#{rating:=RateB}}} = dungeon_base_sup:query({get_player, {IdB}}),
 
-    {ok, #{player_profile:=#{rating:=RateA, selected_skills:=SelectedSkillsA, preset_card_id:=CardIdA}} } = dungeon_base_sup:query({get_player, {IdA}}),
+    {ok, #{player_profile:=#{rating:=RateA}} } = dungeon_base_sup:query({get_player, {IdA}}),
     {ok, #{player_profile:=#{rating:=RateB, selected_skills:=SelectedSkillsB, preset_card_id:=CardIdB}} } = dungeon_base_sup:query({get_player, {IdB}}),
 
     {ok, BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA, CardIdA, SelectedSkillsA}}),
