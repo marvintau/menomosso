@@ -105,7 +105,9 @@ get_player(Conn, {PlayerUUID}) ->
 
 
 get_player_battle(Conn, {PlayerUUID}) ->
-    dungeon_query_get_battle_context:get_battle_context(Conn, PlayerUUID).
+    dungeon_query_get_battle_context:get_battle_context(Conn, PlayerUUID);
+get_player_battle(Conn, {PlayerUUID, CardID, SelectedSkills}) ->
+    dungeon_query_get_battle_context:get_battle_context(Conn, PlayerUUID, CardID, SelectedSkills).
 
 
 %% ------------------------------------------------------------------------

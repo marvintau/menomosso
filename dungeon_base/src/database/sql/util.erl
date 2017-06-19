@@ -1,6 +1,6 @@
 -module(util).
 
--export([get_mapped_records/2, get_mapped_records_context/2]).
+-export([array_to_list/1, get_mapped_records/2, get_mapped_records_context/2]).
 
 array_to_list(Array) ->
     Trimmed = list_to_binary(tl(lists:droplast(binary_to_list(Array)))),

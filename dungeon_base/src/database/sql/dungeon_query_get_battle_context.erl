@@ -1,10 +1,10 @@
 -module(dungeon_query_get_battle_context).
 
--export([get_battle_context/2]).
+-export([get_battle_context/2, get_battle_context/4]).
 
 get_merged_context_map(OriginalCardMap) ->
 
-	DefaultAttrs = #{
+    DefaultAttrs = #{
 
         diff 			=> {single, 0},
         attack_disabled => {single, 0},
@@ -37,7 +37,7 @@ get_merged_context_map(OriginalCardMap) ->
 
 
 get_player_related(Conn, PlayerUUID) ->
-	QueryProfile = list_to_binary(["select player_id, player_name, preset_card_id, selected_skills from players where player_id='", PlayerUUID,"';"]),
+    QueryProfile = list_to_binary(["select player_id, player_name, preset_card_id, selected_skills from players where player_id='", PlayerUUID,"';"]),
     {ok, PlayerColumnSpec, Player} = epgsql:squery(Conn,binary_to_list(QueryProfile)),
     hd(util:get_mapped_records(PlayerColumnSpec, Player)).
 
@@ -50,6 +50,13 @@ get_card_related(Conn, CardUUID) ->
 
 get_battle_context(Conn, PlayerUUID) ->
 
-	#{preset_card_id:=CardID} = PlayerRelated = get_player_related(Conn, PlayerUUID),
-	Context = get_card_related(Conn, CardID),
-	{ok, maps:merge(Context, PlayerRelated)}.
+    #{preset_card_id:=CardID} = PlayerRelated = get_player_related(Conn, PlayerUUID),
+    Context = get_card_related(Conn, CardID),
+    {ok, maps:merge(Context, PlayerRelated)}.
+
+get_battle_context(Conn, PlayerUUID, CardID, SelectedSkills) ->
+
+    PlayerRelated = get_player_related(Conn, PlayerUUID),
+    PlayerModified = PlayerRelated#{preset_card_id:=CardID, selected_skills:=util:array_to_list(SelectedSkills)},
+    Context = get_card_related(Conn, CardID),
+    {ok, maps:merge(Context, PlayerModified)}.
