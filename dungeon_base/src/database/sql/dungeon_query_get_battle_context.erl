@@ -6,18 +6,18 @@ get_merged_context_map(OriginalCardMap) ->
 
     DefaultAttrs = #{
 
-        diff 			=> {single, 0},
+        diff 		=> {single, 0},
         attack_disabled => {single, 0},
         cast_disabled 	=> {single, 0},
-        is_frozen 		=> {single, 0},
-        is_stunned 		=> {single, 0},
+        is_frozen 	=> {single, 0},
+        is_stunned 	=> {single, 0},
         is_disarmed 	=> {single, 0},
         damage_mult 	=> {single, 1},
         critical_mult 	=> {single, 2},
         damage_addon 	=> {single, 0},
         damage_taken 	=> {single, 0},
 
-        outcome 		=> {single, null}
+        outcome 	=> {single, null}
     },
 
     DefaultStates = #{
@@ -36,27 +36,15 @@ get_merged_context_map(OriginalCardMap) ->
     }.
 
 
-get_player_related(Conn, PlayerUUID) ->
-    QueryProfile = list_to_binary(["select player_id, player_name, preset_card_id, selected_skills from players where player_id='", PlayerUUID,"';"]),
-    {ok, PlayerColumnSpec, Player} = epgsql:squery(Conn,binary_to_list(QueryProfile)),
-    hd(util:get_mapped_records(PlayerColumnSpec, Player)).
-
-get_card_related(Conn, CardUUID) ->
-    QueryCard = list_to_binary(["select * from cards where card_id='",CardUUID , "';"]),
-    {ok, CardColumnSpec, Card} = epgsql:squery(Conn, binary_to_list(QueryCard)),
-    CardMapped = hd(util:get_mapped_records_context(CardColumnSpec, Card)),
-    get_merged_context_map(CardMapped).
-
-
 get_battle_context(Conn, PlayerUUID) ->
 
-    #{preset_card_id:=CardID} = PlayerRelated = get_player_related(Conn, PlayerUUID),
-    Context = get_card_related(Conn, CardID),
-    {ok, maps:merge(Context, PlayerRelated)}.
+    {ok, [#{preset_card_id:=CardID} =Player]} = player:get(Conn, PlayerUUID),
+    Context = get_merged_context_map(card_detail:get_context(Conn, PlayerUUID, CardID)),
+    {ok, maps:merge(Context, Player)}.
 
 get_battle_context(Conn, PlayerUUID, CardID, SelectedSkills) ->
 
-    PlayerRelated = get_player_related(Conn, PlayerUUID),
+    {ok, [PlayerRelated]} = player:get(Conn, PlayerUUID),
     PlayerModified = PlayerRelated#{preset_card_id:=CardID, selected_skills:=SelectedSkills},
-    Context = get_card_related(Conn, CardID),
+    Context = get_merged_context_map(card_detail:get_context(Conn, PlayerUUID, CardID)),
     {ok, maps:merge(Context, PlayerModified)}.

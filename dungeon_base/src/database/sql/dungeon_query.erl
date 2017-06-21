@@ -67,8 +67,42 @@ close(Conn) ->
 %% 添加完整的玩家档案，添加玩家档案条目，添加玩家开宝箱档案条目，并返回
 %% 玩家档案条目记录（来自players表）
 
+add_player_obtained_card(Conn, PlayerID, CardID) ->
+    {ok, [#{player_card_id:=PlayerCardID}]} = player_obtained_cards:add(Conn, PlayerID, CardID),
+
+    {ok, CardSkills} = card_skills:get(Conn),
+    SelectedCardSkills = [
+        #{skill_name          =>SkillName,
+          skill_multiple_time =>SkillMultipleTime,
+          skill_cost          =>SkillCost}
+        || #{skill_name:=SkillName,
+             skill_multiple_time:=SkillMultipleTime,
+             skill_cost:=SkillCost,
+             card_id:=ID} <- CardSkills, (ID =:= <<"00000000-0000-0000-0000-000000000000">>) or (ID =:= CardID)],
+
+    SkillsTobeInserted = [
+        Skills#{player_card_id:=PlayerCardID,
+                player_id:=PlayerID,
+                card_id:=CardID}
+        || Skills <- SelectedCardSkills],
+    
+    player_obtained_card_skills:add(Conn, SkillsTobeInserted).
+
+
 add_new_player(Conn, _) ->
-    dungeon_query_add_player:add_player(Conn).
+    quickrand:seed(),
+    NewID = list_to_binary(uuid:uuid_to_string(uuid:get_v4_urandom())),
+    erlang:display({new_id_tobe_inserted, NewID}),
+
+    {ok, added} = player:add(Conn, NewID),
+    {ok, Res} = player:get(Conn, NewID),
+    error_logger:info_report(Res),
+
+    add_player_obtained_card(Conn, NewID, <<"946ae77c-183b-4538-b439-ac9036024676">>),
+    add_player_obtained_card(Conn, NewID, <<"1b0cf5e0-2164-46fd-8424-2146fca99fb9">>),
+ 
+    {ok, NewID}.
+
 
 add_player_card(Conn, {CardUUID, PlayerUUID}) ->
     dungeon_query_add_player:add_player_card(Conn, CardUUID, PlayerUUID).
@@ -81,6 +115,7 @@ add_player_card(Conn, {CardUUID, PlayerUUID}) ->
 %% TODO: 未来将会加上更多限定条件，譬如排名等，来限制获取的玩家数目
 
 get_player_list(Conn, _) ->
+
     Query = list_to_binary(["
         select distinct players.*, cards.*, card_level, card_stars from players, cards, player_card_info
         where players.preset_card_id=player_card_info.card_id and players.preset_card_id=cards.card_id order by players.rating desc;
@@ -226,15 +261,15 @@ get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}) ->
     QueryGetCoin = list_to_binary(["select coins from players where player_id='", PlayerUUID,"';"]),
     {ok, _, [{CurrentCoins}]} = epgsql:squery(Conn, binary_to_list(QueryGetCoin)),
 
-    QueryGetRequired = list_to_binary(["select frags_required, coins_required from card_level_up where card_level=", CurrLevel,";" ]),
-    {ok, _, [{FragsRequired, CoinsRequired}]} = epgsql:squery(Conn, binary_to_list(QueryGetRequired)),
+    QueryGetRequired = list_to_binary(["select * from card_level_up_2 where card_level=", CurrLevel," and card_id='", CardUUID,"';" ]),
+    {ok, Columns, Result} = epgsql:squery(Conn, binary_to_list(QueryGetRequired)),
+
+    [NewLevelSpecs] = util:get_mapped_record(Columns, Result),
 
     FragsInteger = binary_to_integer(CurrentFrags),
-    FragsRequiredInteger = binary_to_integer(FragsRequired),
     CoinsInteger = binary_to_integer(CurrentCoins),
-    CoinsRequiredInteger = binary_to_integer(CoinsRequired),
 
-    {CurrLevel, FragsInteger, FragsRequiredInteger, CoinsInteger, CoinsRequiredInteger}.
+    {CurrLevel, FragsInteger, CoinsInteger, NewLevelSpecs}.
 
 
 actual_update_card_level(Conn, {Frags, FragsRequired, Coins, CoinsRequired, PlayerUUID, CardUUID}) ->

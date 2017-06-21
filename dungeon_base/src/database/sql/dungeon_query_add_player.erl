@@ -117,8 +117,6 @@ add_player(Conn) ->
 
     {ok, new_card_added} = add_player_card(Conn, "946ae77c-183b-4538-b439-ac9036024676", NewID),
     {ok, new_card_added} = add_player_card(Conn, "a0c1a883-2995-4526-856c-26870e5b3f74", NewID),
-    {ok, new_card_added} = add_player_card(Conn, "a009e5e9-2057-4353-9871-309d68752c1b", NewID),
-    {ok, new_card_added} = add_player_card(Conn, "1b0cf5e0-2164-46fd-8424-2146fca99fb9", NewID),
     
     {ok, new_chest_record_created} = add_chest_record(Conn, NewID),
 

@@ -60,6 +60,8 @@ handle_post(Req, State) ->
         {error, Reason} -> atom_to_binary(Reason, utf8)
     end,
 
+    error_logger:info_report(ResEJSON),
+
     Res = cowboy_req:set_resp_body(jiffy:encode(ResEJSON), NextReq),
     Res1 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>, <<"POST, OPTIONS">>, Res),
     Res2 = cowboy_req:set_resp_header(<<"access-control-allow-headers">>, <<"content-type, origin, access-control-request-origin">>, Res1),

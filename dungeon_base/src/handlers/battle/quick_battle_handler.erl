@@ -63,7 +63,7 @@ handle_post(Req, State) ->
 
     error_logger:info_report(battle_begins),
 
-
+    {ok, #{card_profiles:=Haha, player_profile:=Player}} = dungeon_base_sup:query({get_player, {IdA}}),
     {ok, #{card_profiles:=CardsA, player_profile:=#{rating:=RateA, selected_skills:=SelectedSkillsA, preset_card_id:=CardIdA}} = PlayerA} = dungeon_base_sup:query({get_player, {IdA}}),
     {ok, #{card_profiles:=CardsB, player_profile:=#{rating:=RateB, selected_skills:=SelectedSkillsB, preset_card_id:=CardIdB}} = PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
 
