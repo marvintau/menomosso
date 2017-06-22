@@ -262,7 +262,7 @@ update_card( Conn, {UpdatedProfile, CardUUID}) ->
     end.
 
 get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}) ->
-    QueryGetLevel = list_to_binary(["select card_level, frags from player_card_info where player_id='", PlayerUUID, "' and card_id='", CardUUID, "';"]),
+    QueryGetLevel = list_to_binary(["select card_level, frags from player_obtained_card where player_id='", PlayerUUID, "' and card_id='", CardUUID, "';"]),
     error_logger:info_report({PlayerUUID, CardUUID}),
     {ok, _, [{CurrLevel, CurrentFrags}]} = epgsql:squery(Conn, binary_to_list(QueryGetLevel)),
     
