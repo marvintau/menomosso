@@ -81,9 +81,9 @@ add_player_obtained_card(Conn, PlayerID, CardID) ->
              card_id:=ID} <- CardSkills, (ID =:= <<"00000000-0000-0000-0000-000000000000">>) or (ID =:= CardID)],
 
     SkillsTobeInserted = [
-        Skills#{player_card_id:=PlayerCardID,
-                player_id:=PlayerID,
-                card_id:=CardID}
+        Skills#{player_card_id=>PlayerCardID,
+                player_id=>PlayerID,
+                card_id=>CardID}
         || Skills <- SelectedCardSkills],
     
     player_obtained_card_skills:add(Conn, SkillsTobeInserted).
