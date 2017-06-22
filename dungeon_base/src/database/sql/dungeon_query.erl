@@ -217,8 +217,6 @@ update_rank(Conn, {}) ->
 
 get_player_rank(Conn, {PlayerUUID}) ->
 
-    Query = util:get_query(<<"players">>, #{player_id=>PlayerUUID}),
-
     Query = list_to_binary(["select ranking from players where player_id='",PlayerUUID,"';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query) ) of
