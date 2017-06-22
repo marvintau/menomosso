@@ -118,11 +118,9 @@ get_single_listed_player(Conn, PlayerID) ->
 
     {ok, #{preset_card_id:=PresetCardID}=PlayerResult} = player:get(Conn, PlayerID),
     
-    {ok, PlayerCardInfo} = player_obtained_cards:get(Conn, PlayerID, PresetCardID),
+    PlayerCardInfo = card_detail:get(Conn, PlayerID, PresetCardID),
 
-    {ok, CardType} = card_types:get(Conn, PresetCardID),
-
-    maps:remove(skills, maps:merge(maps:merge(PlayerResult, PlayerCardInfo), CardType)).
+    maps:remove(skills, maps:merge(PlayerResult, PlayerCardInfo)).
 
 get_player_list(Conn, _) ->
 
