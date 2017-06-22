@@ -168,8 +168,13 @@ update_selected_skills(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
 %% NOTE: 服务器完成，不提供webAPI
 
 update_rate(Conn, {Rate, PlayerUUID}) ->
-    Query = list_to_binary(["update players set
-        rating = ", integer_to_binary(Rate), ", last_modified=now() where player_id = '", PlayerUUID, "';"]),
+
+    Query = util:set_query(<<"players">>,
+        #{rating=>Rate,
+          last_modified=><<"now()">>
+         },
+        #{player_id=>PlayerUUID}
+    ),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, 1} -> {ok, rate_updated};
@@ -179,12 +184,12 @@ update_rate(Conn, {Rate, PlayerUUID}) ->
     end.
 
 update_coin(Conn, {CoinIncre, PlayerUUID}) ->
-    QueryUpdate = list_to_binary(["update players set coins=coins+", integer_to_binary(CoinIncre), " where player_id='", PlayerUUID,"';"]),
-    {ok, 1} = epgsql:squery(Conn, binary_to_list(QueryUpdate) ),
-
-    QueryNew = list_to_binary(["select coins from players where player_id='", PlayerUUID,"';"]),
-    {ok, _, [{CoinNew}]} = epgsql:squery(Conn, binary_to_list(QueryNew) ),
-    erlang:display(CoinNew).
+    
+    Query = list_to_binary([
+        util:set(<<"players">>, #{coins=> list_to_binary([<<"coins+">>, integer_to_binary(CoinIncre)])}, #{player_id=>PlayerUUID})
+    ]),
+    
+    epgsql:squery(Conn, Query).
 
 update_frag(Conn, {FragIncre, CardID, PlayerUUID}) ->
     Query = list_to_binary(["select player_id, card_id from player_card_info where player_id='", PlayerUUID, "';"]),
@@ -211,6 +216,9 @@ update_rank(Conn, {}) ->
     end.
 
 get_player_rank(Conn, {PlayerUUID}) ->
+
+    Query = util:get_query(<<"players">>, #{player_id=>PlayerUUID}),
+
     Query = list_to_binary(["select ranking from players where player_id='",PlayerUUID,"';"]),
 
     case epgsql:squery(Conn, binary_to_list(Query) ) of
@@ -295,7 +303,7 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
         true ->
             actual_update_card_level(Conn, {Frags, FragsRequired, Coins, CoinsRequired, PlayerUUID, CardUUID}),
             update_card_skill_points(Conn, {PlayerUUID, CardUUID, 5}),
-            {ok, CurrLevel, Coins-CoinsRequired, Frags-FragsRequired}
+            {ok, CurrLevel+1, Coins-CoinsRequired, Frags-FragsRequired}
     end.
 
 update_card_skill_points(Conn, {PlayerUUID, CardUUID, SkillPoints}) ->
