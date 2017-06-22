@@ -45,22 +45,19 @@ add(Conn, PlayerUUID) ->
     PlayerName = get_valid_name(Conn),
 
     Query = util:add_query(<<"players">>, #{player_name=>PlayerName, player_id=>PlayerUUID}),
-    error_logger:info_report(binary_to_list(Query)),
     {ok, 1} = epgsql:squery(Conn,binary_to_list(Query)),
     {ok, added}.
 
 get(Conn, PlayerUUID) ->
 
     Query = util:get_query(<<"players">>, #{player_id=>PlayerUUID}),
-    error_logger:info_report(binary_to_list(Query)),
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, binary_to_list(Query)),
-    Res = util:get_mapped_records(ColumnSpec, Result),
+    [Res] = util:get_mapped_records(ColumnSpec, Result),
 
     {ok, Res}.
 
 get(Conn) ->
     Query = util:get_query(<<"players">>),
-    error_logger:info_report(binary_to_list(Query)),
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, binary_to_list(Query)),
     Res = util:get_mapped_records(ColumnSpec, Result),
 

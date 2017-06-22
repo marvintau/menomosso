@@ -114,22 +114,25 @@ add_player_card(Conn, {CardUUID, PlayerUUID}) ->
 %% 得到玩家列表，仅提供players的信息
 %% TODO: 未来将会加上更多限定条件，譬如排名等，来限制获取的玩家数目
 
+get_single_listed_player(Conn, PlayerID) ->
+
+    {ok, #{preset_card_id:=PresetCardID}=PlayerResult} = player:get(Conn, PlayerID),
+    
+    {ok, PlayerCardInfo} = player_obtained_cards:get(Conn, PlayerID, PresetCardID),
+
+    {ok, CardType} = card_types:get(Conn, PresetCardID),
+
+    maps:remove(skills, maps:merge(maps:merge(PlayerResult, PlayerCardInfo), CardType)).
+
 get_player_list(Conn, _) ->
 
-    Query = list_to_binary(["
-        select distinct players.*, cards.*, card_level, card_stars from players, cards, player_card_info
-        where players.preset_card_id=player_card_info.card_id and players.preset_card_id=cards.card_id order by players.rating desc;
-    "]),
+    {ok, PlayersResult} = player:get(Conn),
+    SortedPlayerResult  = lists:sort(fun(#{rating:=RatingA}, #{rating:=RatingB}) -> RatingA < RatingB end, PlayersResult),
+    SortedPlayerID      = lists:map(fun(#{player_id:=PlayerID}) -> PlayerID end, SortedPlayerResult),
+    SortedPlayers       = lists:map(fun(PlayerID) -> get_single_listed_player(Conn, PlayerID) end, SortedPlayerID),
 
-    case epgsql:squery(Conn, binary_to_list(Query)) of
-        {ok, ColumnSpec, Players} -> 
-            error_logger:info_report(util:get_mapped_records(ColumnSpec, Players)),
-            {ok, util:get_mapped_records(ColumnSpec, Players)};
-        Error ->
-            error_logger:info_report(Error),
-            {error, get_player_list_failed}
-    end.
-
+    error_logger:info_report(SortedPlayers),
+    {ok, SortedPlayers}.
 
 %% ------------------------------------------------------------------------
 %% 得到玩家信息，包含玩家信息，和玩家所持的所有卡牌的具体信息
@@ -140,9 +143,9 @@ get_player(Conn, {PlayerUUID}) ->
 
 
 get_player_battle(Conn, {PlayerUUID}) ->
-    dungeon_query_get_battle_context:get_battle_context(Conn, PlayerUUID);
+    battle_context:get(Conn, PlayerUUID);
 get_player_battle(Conn, {PlayerUUID, CardID, SelectedSkills}) ->
-    dungeon_query_get_battle_context:get_battle_context(Conn, PlayerUUID, CardID, SelectedSkills).
+    battle_context:get(Conn, PlayerUUID, CardID, SelectedSkills).
 
 
 %% ------------------------------------------------------------------------

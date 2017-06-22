@@ -11,11 +11,9 @@ get_cards_of_player(Conn, PlayerUUID) ->
 
 get_player_info(Conn, PlayerUUID) ->
 
-    {ok, [Player]} = player:get(Conn, PlayerUUID),
-    error_logger:info_report(Player),
+    {ok, Player} = player:get(Conn, PlayerUUID),
 
     Cards = get_cards_of_player(Conn, PlayerUUID),
-    error_logger:info_report(Cards),
 
     {ok, #{player_profile=>Player, card_profiles=>Cards}}.
 
