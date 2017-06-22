@@ -268,10 +268,10 @@ get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}) ->
     QueryGetCoin = list_to_binary(["select coins from players where player_id='", PlayerUUID,"';"]),
     {ok, _, [{CurrentCoins}]} = epgsql:squery(Conn, binary_to_list(QueryGetCoin)),
 
-    QueryGetRequired = list_to_binary(["select * from card_level_up_2 where card_level=", CurrLevel," and card_id='", CardUUID,"';" ]),
+    QueryGetRequired = list_to_binary(["select * from card_level_spec where level=", CurrLevel," and card_id='", CardUUID,"';" ]),
     {ok, Columns, Result} = epgsql:squery(Conn, binary_to_list(QueryGetRequired)),
 
-    [NewLevelSpecs] = util:get_mapped_record(Columns, Result),
+    [NewLevelSpecs] = util:get_mapped_records(Columns, Result),
 
     FragsInteger = binary_to_integer(CurrentFrags),
     CoinsInteger = binary_to_integer(CurrentCoins),
@@ -290,7 +290,7 @@ actual_update_card_level(Conn, {Frags, FragsRequired, Coins, CoinsRequired, Play
 
 update_card_level(Conn, {PlayerUUID, CardUUID}) ->
 
-    {CurrLevel, Frags, FragsRequired, Coins, CoinsRequired} = get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}),
+    {CurrLevel, Frags, Coins, #{frags_required:=FragsRequired, coins_required:=CoinsRequired}} = get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}),
 
     if  Frags < FragsRequired ->
             {error, insufficient_frags};
@@ -299,7 +299,7 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
         true ->
             actual_update_card_level(Conn, {Frags, FragsRequired, Coins, CoinsRequired, PlayerUUID, CardUUID}),
             update_card_skill_points(Conn, {PlayerUUID, CardUUID, 5}),
-            {ok, CurrLevel+1, Coins-CoinsRequired, Frags-FragsRequired}
+            {ok, binary_to_integer(CurrLevel)+1, Coins-CoinsRequired, Frags-FragsRequired}
     end.
 
 update_card_skill_points(Conn, {PlayerUUID, CardUUID, SkillPoints}) ->
