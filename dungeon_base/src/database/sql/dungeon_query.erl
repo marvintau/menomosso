@@ -190,14 +190,14 @@ update_coin(Conn, {CoinIncre, PlayerUUID}) ->
     epgsql:squery(Conn, Query).
 
 update_frag(Conn, {FragIncre, CardID, PlayerUUID}) ->
-    Query = list_to_binary(["select player_id, card_id from player_card_info where player_id='", PlayerUUID, "';"]),
+    Query = list_to_binary(["select player_id, card_id from player_obtained_card where player_id='", PlayerUUID, "';"]),
     {ok, _, Cards} = epgsql:squery(Conn, binary_to_list(Query)),
 
     case lists:keymember(CardID, 2, Cards) of
         false -> add_player_card(Conn, {CardID, PlayerUUID});
         _ ->
             erlang:display(FragIncre),
-            QueryAdd = list_to_binary(["update player_card_info set frags=frags+", FragIncre, " where player_id='", PlayerUUID, "' and card_id='", CardID, "';"]),
+            QueryAdd = list_to_binary(["update player_obtained_card set frags=frags+", FragIncre, " where player_id='", PlayerUUID, "' and card_id='", CardID, "';"]),
             {ok, _} = epgsql:squery(Conn, binary_to_list(QueryAdd))
     end.
 
@@ -281,7 +281,7 @@ get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}) ->
 
 
 actual_update_card_level(Conn, {Frags, FragsRequired, Coins, CoinsRequired, PlayerUUID, CardUUID}) ->
-    QuerySetLevel = list_to_binary(["update player_card_info set card_level=card_level+1, 
+    QuerySetLevel = list_to_binary(["update player_obtained_card set card_level=card_level+1, 
                                     frags=", integer_to_binary(Frags-FragsRequired)," where player_id='", PlayerUUID, "' and card_id='", CardUUID, "';"]),
     {ok, 1} = epgsql:squery(Conn, binary_to_list(QuerySetLevel)),
 
@@ -304,7 +304,7 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
     end.
 
 update_card_skill_points(Conn, {PlayerUUID, CardUUID, SkillPoints}) ->
-    QueryUpdate = list_to_binary(["update player_card_info set skill_points=skill_points+", integer_to_binary(SkillPoints), " where player_id='", PlayerUUID,"' and card_id='", CardUUID,"' ;"]),
+    QueryUpdate = list_to_binary(["update player_obtained_card set skill_points=skill_points+", integer_to_binary(SkillPoints), " where player_id='", PlayerUUID,"' and card_id='", CardUUID,"' ;"]),
     {ok, 1} = epgsql:squery(Conn, binary_to_list(QueryUpdate) ),
 
     QueryNew = list_to_binary(["select coins from players where player_id='", PlayerUUID,"';"]),
@@ -314,13 +314,13 @@ update_card_skill_points(Conn, {PlayerUUID, CardUUID, SkillPoints}) ->
 
 update_card_skill_level(Conn, {PlayerUUID, CardUUID, SkillName}) ->
 
-    Query = list_to_binary(["select skill_points from player_card_info where player_id='", PlayerUUID, "' and card_id='", CardUUID, "'; "]),
+    Query = list_to_binary(["select skill_points from player_obtained_card where player_id='", PlayerUUID, "' and card_id='", CardUUID, "'; "]),
 
     case epgsql:squery(Conn, binary_to_list(Query)) of
         {ok, _, [{Res}]} ->
             case binary_to_integer(Res) > 0 of
                 true ->
-                    QueryGetCurrentSkillLevel = list_to_binary(["select skill_level from player_card_skill_info 
+                    QueryGetCurrentSkillLevel = list_to_binary(["select skill_level from player_obtained_card_skills
                                                        where player_id='", PlayerUUID, "' and card_id='", CardUUID, "' and skill_name='", SkillName, "'; "]),
 
                     {ok, _, [{SkillLevel}]} = epgsql:squery(Conn, binary_to_list(QueryGetCurrentSkillLevel)),
@@ -328,15 +328,15 @@ update_card_skill_level(Conn, {PlayerUUID, CardUUID, SkillName}) ->
                     case binary_to_integer(SkillLevel) < 3 of
                         true ->
 
-                            QuerySkillLevel = list_to_binary(["update player_card_skill_info set skill_level=skill_level+1 
+                            QuerySkillLevel = list_to_binary(["update player_obtained_card_skills set skill_level=skill_level+1 
                                                                where player_id='", PlayerUUID, "' and card_id='", CardUUID, "' and skill_name='", SkillName, "'; "]),
                             {ok, 1} = epgsql:squery(Conn, binary_to_list(QuerySkillLevel)),
 
-                            QuerySkillPoint = list_to_binary(["update player_card_info set skill_points=skill_points-", SkillLevel," where player_id='", PlayerUUID, "' and card_id='", CardUUID, "'; "]),
+                            QuerySkillPoint = list_to_binary(["update player_obtained_card set skill_points=skill_points-", SkillLevel," where player_id='", PlayerUUID, "' and card_id='", CardUUID, "'; "]),
                             {ok, 1} = epgsql:squery(Conn, binary_to_list(QuerySkillPoint)),
 
 
-                            QueryGetRemainingSkillPoint = list_to_binary(["select skill_points from player_card_info 
+                            QueryGetRemainingSkillPoint = list_to_binary(["select skill_points from player_obtained_card 
                                                                where player_id='", PlayerUUID, "' and card_id='", CardUUID, "'; "]),
                             {ok, _, [{RemainingSkillPoints}]} = epgsql:squery(Conn, binary_to_list(QueryGetRemainingSkillPoint)),
 
