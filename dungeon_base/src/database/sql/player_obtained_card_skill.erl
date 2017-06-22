@@ -1,10 +1,10 @@
--module(player_obtained_card_skills).
+-module(player_obtained_card_skill).
 
 -export([add/2, add/5, get/3, get/4, set/4, set/5]).
 
 add(Conn, Map) ->
 
-    Query = list_to_binary([util:add_query(<<"player_obtained_card_skills">>, Map), util:get_query(<<"player_obtained_card_skills">>)]),
+    Query = list_to_binary([util:add_query(<<"player_obtained_card_skill">>, Map), util:get_query(<<"player_obtained_card_skill">>)]),
     error_logger:info_report(Query),
     [{ok, _}, {ok, ColumnSpec, Result}] = epgsql:squery(Conn, Query),
     Res = util:get_mapped_records(ColumnSpec, Result),
@@ -13,7 +13,7 @@ add(Conn, Map) ->
 
 add(Conn, PlayerCardUUID, PlayerUUID, CardUUID, SkillName) ->
 
-    Query = util:add_query(<<"player_obtained_card_skills">>, #{
+    Query = util:add_query(<<"player_obtained_card_skill">>, #{
         skill_name => SkillName,
         player_card_id=>PlayerCardUUID,
         player_id=>PlayerUUID,
@@ -27,7 +27,7 @@ add(Conn, PlayerCardUUID, PlayerUUID, CardUUID, SkillName) ->
 
 get(Conn, PlayerID, CardID, SkillName) ->
 
-    Query = util:get_query(<<"player_obtained_card_skills">>, #{
+    Query = util:get_query(<<"player_obtained_card_skill">>, #{
         player_id => PlayerID,
         card_id   => CardID,
         skill_name=> SkillName
@@ -40,7 +40,7 @@ get(Conn, PlayerID, CardID, SkillName) ->
 
 get(Conn, PlayerID, CardID) ->
 
-    Query = util:get_query(<<"player_obtained_card_skills">>, #{
+    Query = util:get_query(<<"player_obtained_card_skill">>, #{
         player_id => PlayerID,
         card_id   => CardID
     }),
@@ -52,7 +52,7 @@ get(Conn, PlayerID, CardID) ->
 
 set(Conn, PlayerMap, PlayerCardUUID, SkillName) ->
 
-    Query = util:set_query(<<"player_obtained_card_skills">>, PlayerMap, #{
+    Query = util:set_query(<<"player_obtained_card_skill">>, PlayerMap, #{
 
         skill_name     => SkillName,
         player_card_id => PlayerCardUUID
@@ -62,7 +62,7 @@ set(Conn, PlayerMap, PlayerCardUUID, SkillName) ->
 
 set(Conn, PlayerMap, PlayerUUID, CardUUID, SkillName) ->
 
-    Query = util:set_query(<<"player_obtained_card_skills">>, PlayerMap, #{
+    Query = util:set_query(<<"player_obtained_card_skill">>, PlayerMap, #{
 
         skill_name => SkillName,
         player_id  => PlayerUUID,

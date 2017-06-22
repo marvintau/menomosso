@@ -1,4 +1,4 @@
--module(player_obtained_cards).
+-module(player_obtained_card).
 
 -export([add/3, get/2, get/3, get_context/3, set/3]).
 

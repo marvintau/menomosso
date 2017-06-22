@@ -84,7 +84,7 @@ create table char_chest(
     last_opened_time    TIMESTAMP   not null default now(),
     is_today_done       bool        not null default 'no',
 
-    foreign key(char_id) references players(player_id),
+    foreign key(char_id) references player(player_id),
     foreign key(last_opened_chest) references chest_spec(chest_id)
 );
 

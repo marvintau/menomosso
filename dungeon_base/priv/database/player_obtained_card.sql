@@ -19,7 +19,7 @@ create table player_obtained_card (
 );
 
 insert into player_obtained_card(card_id, player_id)
-select cards.card_id cards_id, players.player_id player_id from cards cross join players;
+select cards.card_id cards_id, player.player_id player_id from cards cross join player;
 
 select * from player_obtained_card;
 

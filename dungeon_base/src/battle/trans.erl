@@ -255,6 +255,8 @@ cast(#{seq:=Seq}=S, #{state:=StateO}=O, #{state:=StateD}=D, Log, [{SeqIndex, Ski
 
     NewLog = case Seq == SeqIndex of
         true ->
+            error_logger:info_report(StandO),
+
             [log_cast(S, SkillName, IsSuccessful, StandO, StandD) | Log];
         _ -> Log
     end,

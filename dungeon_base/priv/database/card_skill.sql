@@ -2,8 +2,8 @@
 -- 单张卡牌的技能信息
 -------------------------------------------------------------
 
-drop table if exists card_skills cascade;
-create table card_skills (
+drop table if exists card_skill cascade;
+create table card_skill (
 
     skill_name text, unique(skill_name),
     skill_multiple_time boolean,
@@ -11,7 +11,7 @@ create table card_skills (
     card_id uuid
 );
 
-insert into card_skills(skill_name, skill_multiple_time, skill_cost, card_id) values
+insert into card_skill(skill_name, skill_multiple_time, skill_cost, card_id) values
 ('single_attack',                  true,         2,      '00000000-0000-0000-0000-000000000000'),
 ('double_attack',                  true,         5,      '00000000-0000-0000-0000-000000000000'),
 ('triple_attack',                  true,         9,      '00000000-0000-0000-0000-000000000000'),
@@ -38,6 +38,6 @@ insert into card_skills(skill_name, skill_multiple_time, skill_cost, card_id) va
 ('shield_breaker',                 false,        5,      '946ae77c-183b-4538-b439-ac9036024676'),
 ('unbalancing_strike',             false,        2,      '946ae77c-183b-4538-b439-ac9036024676');
 
-select * from card_skills;
+select * from card_skill;
 
 

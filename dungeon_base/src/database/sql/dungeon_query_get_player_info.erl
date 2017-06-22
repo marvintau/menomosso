@@ -4,7 +4,7 @@
 
 get_cards_of_player(Conn, PlayerUUID) ->
 
-    {ok, Res} = player_obtained_cards:get(Conn, PlayerUUID),
+    {ok, Res} = player_obtained_card:get(Conn, PlayerUUID),
     [ card_detail:get(Conn, PlayerUUID, CardID) || #{card_id:=CardID} <- Res].
 
      

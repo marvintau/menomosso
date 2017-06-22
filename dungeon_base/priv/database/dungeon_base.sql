@@ -1,10 +1,10 @@
 CREATE EXTENSION if not exists "uuid-ossp";
 
-\ir players.sql
-\ir card_types.sql
+\ir player.sql
+\ir card_type.sql
 \ir card_level_spec.sql
 \ir card_skill.sql
-\ir player_obtained_cards.sql
+\ir player_obtained_card.sql
 \ir player_obtained_card_skill.sql
 \ir player_battle_record.sql
 \ir card_level_spec.sql
