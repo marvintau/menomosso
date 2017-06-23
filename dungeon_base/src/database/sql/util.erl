@@ -3,6 +3,8 @@
 -export([array_to_list/1, get_mapped_records/2, get_mapped_records_context/2, add_query/2, set_query/3]).
 -compile([export_all]).
 
+
+erl2psql_typeconv({e, Exp})                                    -> Exp;
 erl2psql_typeconv(Int) when is_integer(Int)                    -> integer_to_binary(Int);
 erl2psql_typeconv([A, B]) when is_integer(A) and is_integer(B) -> list_to_binary(["'[", integer_to_binary(A), ",", integer_to_binary(B), ")'"]);
 erl2psql_typeconv(List) when is_list(List)                     -> list_to_array(List);

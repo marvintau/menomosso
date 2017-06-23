@@ -1,6 +1,7 @@
 -module(player).
 
 -export([add/2, get/1, get/2]).
+-export([set_rate/2, set_coin/2, set_rank/2]).
 
 random_name() ->
     SurNames = [
@@ -53,14 +54,41 @@ get(Conn, PlayerUUID) ->
     Query = util:get_query(<<"player">>, #{player_id=>PlayerUUID}),
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, binary_to_list(Query)),
     [Res] = util:get_mapped_records(ColumnSpec, Result),
-
-    {ok, Res}.
+    Res.
 
 get(Conn) ->
     Query = util:get_query(<<"player">>),
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, binary_to_list(Query)),
     Res = util:get_mapped_records(ColumnSpec, Result),
+    Res.
 
-    {ok, Res}.
+set_rate(Conn, {Rate, PlayerUUID}) ->
+
+    Query = util:set_query(<<"player">>, #{rating=>Rate}, #{player_id=>PlayerUUID}),
+
+    case epgsql:squery(Conn, binary_to_list(Query)) of
+        {ok, 1} -> {ok, rate_updated};
+        Error       ->
+            error_logger:info_report(Error),
+            {error, update_rate_failed}
+    end.
+
+set_coin(Conn, {CoinIncre, PlayerUUID}) ->
+    
+    SetExp = #{coins=> {e, list_to_binary(["coins+", integer_to_binary(CoinIncre)])}},
+    Query  = util:set_query(<<"player">>, SetExp, #{player_id=>PlayerUUID}),
+    epgsql:squery(Conn, Query).
+
+set_rank(Conn, {}) ->
+    Query = "update player set ranking=row_number from 
+                (select player_id, rating, row_number() over (order by rating desc) from player)
+                temp where player.player_id=temp.player_id;",
+
+    case epgsql:squery(Conn, Query) of
+        {ok, _} -> {ok, rank_updated};
+        Error   ->
+            error_logger:info_report(Error),
+            {error, update_rank_failed}
+    end.
 
 

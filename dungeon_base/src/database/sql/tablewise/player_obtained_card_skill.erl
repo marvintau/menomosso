@@ -20,10 +20,7 @@ add(Conn, PlayerCardUUID, PlayerUUID, CardUUID, SkillName) ->
         card_id=>CardUUID
     }),
 
-    {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
-    [Res] = util:get_mapped_records(ColumnSpec, Result),
-
-    {ok, Res}.
+    {ok, _} = epgsql:squery(Conn, Query).
 
 get(Conn, PlayerID, CardID, SkillName) ->
 
@@ -36,7 +33,7 @@ get(Conn, PlayerID, CardID, SkillName) ->
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
     [Res] = util:get_mapped_records(ColumnSpec, Result),
 
-    {ok, Res}.
+    Res.
 
 get(Conn, PlayerID, CardID) ->
 
@@ -48,7 +45,7 @@ get(Conn, PlayerID, CardID) ->
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
     Res = util:get_mapped_records(ColumnSpec, Result),
 
-    {ok, Res}.
+    Res.
 
 set(Conn, PlayerMap, PlayerCardUUID, SkillName) ->
 

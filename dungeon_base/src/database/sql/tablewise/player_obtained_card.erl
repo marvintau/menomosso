@@ -2,6 +2,8 @@
 
 -export([add/3, get/2, get/3, get_context/3, set/3]).
 
+-export([set_frag/2, set_skill_point/2]).
+
 add(Conn, PlayerUUID, CardUUID) ->
 
     Query = list_to_binary([
@@ -16,7 +18,8 @@ add(Conn, PlayerUUID, CardUUID) ->
     ]),
 
     [{ok, _}, {ok, Columns, Result}] = epgsql:squery(Conn, Query),
-    {ok, util:get_mapped_records(Columns, Result)}.
+    [Res] = util:get_mapped_records(Columns, Result),
+    Res.
 
 get(Conn, PlayerID) ->
 
@@ -27,7 +30,7 @@ get(Conn, PlayerID) ->
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
     Res = util:get_mapped_records(ColumnSpec, Result),
 
-    {ok, Res}.
+    Res.
 
 get(Conn, PlayerID, CardID) ->
 
@@ -35,11 +38,14 @@ get(Conn, PlayerID, CardID) ->
         player_id => PlayerID,
         card_id   => CardID
     }),
-    
-    {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
-    [Res] = util:get_mapped_records(ColumnSpec, Result),
+   
 
-    {ok, Res}.
+    {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
+    Res = util:get_mapped_records(ColumnSpec, Result),
+
+    error_logger:info_report(Res),
+
+    Res.
 
 get_context(Conn, PlayerID, CardID) ->
 
@@ -51,7 +57,7 @@ get_context(Conn, PlayerID, CardID) ->
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
     [Res] = util:get_mapped_records_context(ColumnSpec, Result),
 
-    {ok, Res}.
+    Res.
 
 set(Conn, PlayerMap, {PlayerUUID, CardUUID}) ->
 
@@ -61,3 +67,25 @@ set(Conn, PlayerMap, {PlayerUUID, CardUUID}) ->
     }),
 
     {ok, _} = epgsql:squery(Conn, Query).
+
+set_frag(Conn, {FragIncre, CardID, PlayerUUID}) ->
+
+    {ok, Cards} = get(Conn, PlayerUUID),
+    CardList    = [ID || #{card_id:=ID} <-Cards],
+
+    case lists:member(CardID, CardList) of
+        false -> add(Conn, CardID, PlayerUUID);
+        _ ->
+            SetExp = #{frags=> {e, list_to_binary(["frags+", integer_to_binary(FragIncre)])}},
+            Cond   = #{player_id=>PlayerUUID, card_id=>CardID},
+            Query  = util:set_query(<<"player">>, SetExp, Cond),
+            epgsql:squery(Conn, Query)
+    end.
+
+set_skill_point(Conn, {PlayerUUID, CardUUID, SkillPoints}) ->
+    SetExp = #{skill_points=>{e, list_to_binary(["skill_points+", integer_to_binary(SkillPoints)])}},
+    Cond   = #{player_id=>PlayerUUID, card_id=>CardUUID},
+    Query  = util:set_query(<<"player_obtained_card">>, SetExp, Cond),
+    epgsql:squery(Conn, Query).
+
+
