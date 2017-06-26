@@ -12,13 +12,10 @@ create table mail(
     is_opened  boolean not null default false,
     is_deleted boolean not null default false,
 
-    content string not null,
+    content text not null,
     
     send_time timestamp not null default now(),
-    item_open_time not null default now(),
+    item_open_time timestamp not null default now(),
     last_reply_time timestamp not null default now(),
-    delete_time timestamp not null default now(),
-
-    foreign key (sender_id) reference player(player_id),
-    foreign key (receiver_id) reference player(player_id)
+    delete_time timestamp not null default now()
 );

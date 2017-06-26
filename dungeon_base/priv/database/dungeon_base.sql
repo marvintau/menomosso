@@ -10,3 +10,6 @@ CREATE EXTENSION if not exists "uuid-ossp";
 \ir card_level_spec.sql
 \ir dungeon_supply.sql
 \ir transaction_record.sql
+\ir mail.sql
+\ir mail_item.sql
+\ir mail_reply.sql

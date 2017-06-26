@@ -12,5 +12,11 @@ get(Conn, MailID) ->
     SortedRes.
 
 add(Conn, Insertion) ->
-    Query = util:add_query(<<"mail_reply">>, #{mail_id=>Insertion}),
-    {ok, _} = epgsql:squery(Conn, Query).
+    
+    quickrand:seed(),
+    ReplyID = uuid:generate_v4(),
+    
+    Query = util:add_query(<<"mail_reply">>, Insertion#{reply_id=>ReplyID}),
+    {ok, _} = epgsql:squery(Conn, Query),
+    
+    ReplyID.

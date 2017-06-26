@@ -57,7 +57,7 @@ get(Conn, PlayerUUID) ->
     
     case Res of
         [] -> #{error=><<"player not found">>};
-        [Res] -> Res
+        [Found] -> Found 
     end.
 
 get(Conn) ->

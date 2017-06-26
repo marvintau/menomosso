@@ -21,6 +21,12 @@ set(Conn, Setting, ReceiverID, MailID) ->
     {ok, _} = epgsql:squery(Conn, Query).
 
 add(Conn, Insertion) ->
-    Query = util:add_query(<<"mail">>, Insertion),
-    {ok, _} = epgsql:squery(Conn, Query).
+
+    quickrand:seed(),
+    MailID = list_to_binary(uuid:uuid_to_string(uuid:get_v4_urandom())),
+
+    Query = util:add_query(<<"mail">>, Insertion#{mail_id=>MailID}),
+    {ok, _} = epgsql:squery(Conn, Query),
+
+    MailID.
 

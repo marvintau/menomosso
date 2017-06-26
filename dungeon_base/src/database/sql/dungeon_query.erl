@@ -34,7 +34,13 @@
 
     store_battle_record/2,
     fetch_battle_record_list/2,
-    fetch_battle_record/2
+    fetch_battle_record/2,
+
+    send_mail/2,
+    send_mail_attached/2,
+    read_mail_list/2,
+    read_mail/2    
+        
 ]).
 
 
@@ -302,3 +308,15 @@ fetch_battle_record_list(Conn, {SelfID, OppoID}) ->
 
 fetch_battle_record(Conn, {BattleRecordID}) ->
     dungeon_query_battle_record:fetch(Conn, BattleRecordID).
+
+
+
+send_mail(Conn, {SenderID, ReceiverID, Content}) ->
+    mail_service:send_mail(Conn, SenderID, ReceiverID, Content, []).
+
+send_mail_attached(Conn, {SenderID, ReceiverID, Content, Attachments}) ->
+    mail_service:send_mail(Conn, SenderID, ReceiverID, Content, Attachments).
+
+read_mail_list(Conn, {}) -> ok.
+
+read_mail(Conn, {}) -> ok.
