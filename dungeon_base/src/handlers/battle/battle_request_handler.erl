@@ -47,6 +47,7 @@ handle_post(Req, State) ->
 
     {ReqBody, NextReq} = try cowboy_req:read_body(Req) of
         {ok, ReqBodyRaw, NewReq} ->
+            erlang:display(binary_to_list(ReqBodyRaw)),
             {ReqBodyRaw, NewReq}
     catch
         error:Error ->
@@ -88,10 +89,10 @@ handle_post(Req, State) ->
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateB, IdB}}),
     {ok, rank_updated} = dungeon_base_sup:query({update_rank, {}}),
 
-    {ok, #{ranking:=RankA}} = dungeon_base_sup:query({get_player, {IdA}}),
-    {ok, #{ranking:=RankB}} = dungeon_base_sup:query({get_player, {IdB}}),
+    {ok, #{player_profile:=#{ranking:=RankA}}} = dungeon_base_sup:query({get_player, {IdA}}),
+    {ok, #{player_profile:=#{ranking:=RankB}}} = dungeon_base_sup:query({get_player, {IdB}}),
 
-    RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}, new_rank=>#{IdA=>binary_to_integer(RankA), IdB=>binary_to_integer(RankB)}},
+    RatedLog = Log#{new_rate=>#{IdA=>NewRateA, IdB => NewRateB}, new_rank=>#{IdA=>RankA, IdB=>RankB}},
 
     % Supply = case dungeon_base_sup:query({add_supply, {IdA, round(rand:uniform(3))}}) of
     %     {ok, PlayerID, LootID, SupplyType} -> #{player_id => PlayerID, loot_id=>list_to_binary(LootID), supply_type=> SupplyType, error=> <<"none">>};

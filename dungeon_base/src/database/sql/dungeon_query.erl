@@ -189,7 +189,7 @@ update_frag(Conn, {FragIncre, CardID, PlayerUUID}) ->
     case lists:member(CardID, CardList) of
         false -> player_obtained_card:add(Conn, {CardID, PlayerUUID});
         _ ->
-            SetExp = #{frags=> {e, list_to_binary(["frags+", integer_to_binary(FragIncre)])}},
+            SetExp = #{frags=> {e, list_to_binary(["frags+", FragIncre])}},
             Cond   = #{player_id=>PlayerUUID, card_id=>CardID},
             Query  = util:set_query(<<"player">>, SetExp, Cond),
             epgsql:squery(Conn, Query)

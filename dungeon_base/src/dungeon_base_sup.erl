@@ -35,13 +35,17 @@ query({Op, Args}) ->
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
 
-    {ok, Pools} = application:get_env(dungeon_base, pools),
-    PoolSpecs = lists:map(fun({Name, SizeArgs, WorkerArgs}) ->
-        PoolArgs = [{name, {local, Name}}, {worker_module, dungeon_worker}] ++ SizeArgs,
-        erlang:display({Name, PoolArgs, WorkerArgs}),
-        poolboy:child_spec(Name, PoolArgs, WorkerArgs)
-    end, Pools),
-    {ok, {{one_for_one, 10, 10}, PoolSpecs}}.
+    PoolSpecs = [ poolboy:child_spec(
+                    dungeon_peon_pool,
+                    [
+                     {name, {local, dungeon_peon_pool}},
+                     {worker_module, dungeon_worker},
+                     {size, 20},
+                     {max_overflow, 50}
+                    ],
+                    [])
+                ],
+    {ok, {#{strategy=>one_for_one, intensity=>1, period=>3}, PoolSpecs}}.
 
 %%====================================================================
 %% Internal functions

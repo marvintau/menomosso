@@ -1,0 +1,2 @@
+#!/bin/bash
+curl -H "Content-Type: application/json" -X POST -d '{"player_id":"8673cc53-e2a8-4375-b6a3-007e2ebe6d5f"}' http://localhost:1337/api/get_player_list | python -m json.tool | grep player_id

@@ -38,6 +38,7 @@ handle_post(Req, State) ->
 
     {ReqBody, NextReq} = try cowboy_req:read_body(Req) of
         {ok, ReqBodyRaw, NewReq} ->
+            erlang:display(binary_to_list(ReqBodyRaw)),
             {ReqBodyRaw, NewReq}
     catch
         error:Error ->
