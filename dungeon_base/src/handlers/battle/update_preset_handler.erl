@@ -56,7 +56,7 @@ handle_post(Req, State) ->
 
     {[{_, IdA}, {_, SelfCardID}, {_, Skills}]} = jiffy:decode(ReqBody),
 
-    {ok, _} = dungeon_base_sup:query({update_selected_skills, {Skills, SelfCardID, IdA}}),
+    {ok, _} = dungeon_base_sup:query({update_preset, {Skills, SelfCardID, IdA}}),
 
     Res = cowboy_req:set_resp_body(<<"preset card and skill updated">>, NextReq),
 

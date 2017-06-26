@@ -53,8 +53,12 @@ get(Conn, PlayerUUID) ->
 
     Query = util:get_query(<<"player">>, #{player_id=>PlayerUUID}),
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, binary_to_list(Query)),
-    [Res] = util:get_mapped_records(ColumnSpec, Result),
-    Res.
+    Res = util:get_mapped_records(ColumnSpec, Result),
+    
+    case Res of
+        [] -> #{error=><<"player not found">>};
+        [Res] -> Res
+    end.
 
 get(Conn) ->
     Query = util:get_query(<<"player">>),
