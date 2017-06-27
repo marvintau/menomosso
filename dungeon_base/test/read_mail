@@ -1,0 +1,2 @@
+#!/bin/bash
+curl -H "Content-Type: application/json" -X POST -d '{"receiver_id":"68b19bbe-bc2a-400f-b4e7-6e632b3b908f", "mail_id":"'$1'"}' http://localhost:1337/api/receive_mail | python -m json.tool
