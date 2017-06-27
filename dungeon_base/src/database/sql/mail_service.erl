@@ -40,7 +40,7 @@ recv_mail_list(Conn, ReceiverUUID) ->
 
     ReceivedMails = mail:get(Conn, ReceiverUUID),
     
-    ReturnedMailList = [trunc_mail(Mail) || #{is_deleted:=IsDeleted}=Mail <- ReceivedMails, not IsDeleted],
+    ReturnedMailList = [trunc_mail(Mail) || #{is_deleted:=IsDeleted}=Mail <- ReceivedMails, IsDeleted /= <<"t">>],
 
     ReturnedMailList.
 
@@ -52,7 +52,7 @@ read_mail(Conn, ReceiverID, MailID) ->
     
     Replies = mail_reply:get(Conn, MailID),
     
-    Mail#{reply=>Replies}.
+    Mail#{replies=>Replies}.
 
 reply_mail(Conn, PlayerUUID, ReceiverUUID, MailID, Content) ->
 
@@ -70,7 +70,7 @@ reply_mail(Conn, PlayerUUID, ReceiverUUID, MailID, Content) ->
     case {Sender, Receiver} of
         {ok, ok} ->
 
-            List = mail_reply:get(Conn, #{mail_id=>MailID}),
+            List = mail_reply:get(Conn, MailID),
 
             mail_reply:add(Conn, #{sender_id=>PlayerUUID, mail_id=>MailID, reply_seq=>length(List), content=>Content});
 
@@ -79,9 +79,14 @@ reply_mail(Conn, PlayerUUID, ReceiverUUID, MailID, Content) ->
             {error, #{send=>OtherS, recv=>OtherR}}
     end.
 
-delete_mail(Conn, MailID, PlayerID) ->
+delete_mail(Conn, PlayerID, MailID) ->
 
-    mail:set(Conn, #{is_deleted=>true}, PlayerID, MailID).
+    error_logger:info_report({deleting, MailID, by, PlayerID}),
+
+    error_logger:info_report(mail:get(Conn, PlayerID)),
+
+    mail:set(Conn, #{is_deleted=><<"true">>}, PlayerID, MailID),
+    #{ok=>deleted}.
 
 
 fetch_attachment_items(Conn, PlayerID, ItemID, ItemQty) ->

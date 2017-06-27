@@ -38,9 +38,10 @@
 
     send_mail/2,
     send_mail_attached/2,
-    read_mail_list/2,
-    read_mail/2    
-        
+    receive_mail_list/2,
+    read_mail/2,   
+    reply_mail/2,
+    delete_mail/2
 ]).
 
 
@@ -317,6 +318,14 @@ send_mail(Conn, {SenderID, ReceiverID, Content}) ->
 send_mail_attached(Conn, {SenderID, ReceiverID, Content, Attachments}) ->
     mail_service:send_mail(Conn, SenderID, ReceiverID, Content, Attachments).
 
-read_mail_list(Conn, {}) -> ok.
+receive_mail_list(Conn, {ReceiverID}) -> 
+    mail_service:recv_mail_list(Conn, ReceiverID).
 
-read_mail(Conn, {}) -> ok.
+read_mail(Conn, {ReceiverID, MailID}) ->
+    mail_service:read_mail(Conn, ReceiverID, MailID).
+
+reply_mail(Conn, {PlayerID, ReceiverID, MailID, Content}) ->
+    mail_service:reply_mail(Conn, PlayerID, ReceiverID, MailID, Content).
+
+delete_mail(Conn, {PlayerID, MailID}) ->
+    mail_service:delete_mail(Conn, PlayerID, MailID).

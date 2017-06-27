@@ -7,7 +7,7 @@ get(Conn, ReceiverID) ->
      {ok, Columns, Mails} = epgsql:squery(Conn, Query),
 
      Res = util:get_mapped_records(Columns, Mails),
-
+    error_logger:info_report(Res),
      Res.
 
 get(Conn, ReceiverID, MailID) ->
