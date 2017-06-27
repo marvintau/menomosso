@@ -74,7 +74,9 @@ reply_mail(Conn, PlayerUUID, ReceiverUUID, MailID, Content) ->
 
             List = mail_reply:get(Conn, MailID),
 
-            mail_reply:add(Conn, #{sender_id=>PlayerUUID, mail_id=>MailID, reply_seq=>length(List), content=>Content});
+            Res = mail_reply:add(Conn, #{sender_id=>PlayerUUID, mail_id=>MailID, reply_seq=>length(List), content=>Content}),
+            
+            #{ok => Res};
 
         {OtherS, OtherR} ->
 

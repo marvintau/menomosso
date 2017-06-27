@@ -56,7 +56,7 @@ handle_post(Req, State) ->
 
     #{<<"sender_id">>:=SenderID, <<"receiver_id">>:=ReceiverID, <<"content">>:=Content } = jiffy:decode(ReqBody, [return_maps]),
     
-    Message = dungeon_base_sup:query({send_mail, {SenderID, ReceiverID, Content, []}}),
+    Message = dungeon_base_sup:query({send_mail, {SenderID, ReceiverID, Content}}),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(Message), NextReq),
 
