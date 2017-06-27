@@ -54,9 +54,9 @@ handle_post(Req, State) ->
             {<<"Nah">>, Req}
     end,
 
-    #{<<"sender_id">>:=SenderID, <<"receiver_id">>:=ReceiverID, <<"content">>:=Content, <<"attachment">>:=Attachments} = jiffy:decode(ReqBody, [return_maps]),
+    #{<<"sender_id">>:=SenderID, <<"receiver_id">>:=ReceiverID, <<"content">>:=Content } = jiffy:decode(ReqBody, [return_maps]),
     
-    Message = dungeon_base_sup:query({send_mail, {SenderID, ReceiverID, Content, Attachments}}),
+    Message = dungeon_base_sup:query({send_mail, {SenderID, ReceiverID, Content, []}}),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(Message), NextReq),
 
