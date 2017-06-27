@@ -41,7 +41,8 @@
     receive_mail_list/2,
     read_mail/2,   
     reply_mail/2,
-    delete_mail/2
+    delete_mail/2,
+    open_attachment/2
 ]).
 
 
@@ -101,7 +102,6 @@ add_new_player(Conn, _) ->
 
     {ok, added} = player:add(Conn, NewID),
     Res = player:get(Conn, NewID),
-    error_logger:info_report(Res),
 
     add_player_obtained_card(Conn, NewID, <<"946ae77c-183b-4538-b439-ac9036024676">>),
     add_player_obtained_card(Conn, NewID, <<"1b0cf5e0-2164-46fd-8424-2146fca99fb9">>),
@@ -131,7 +131,6 @@ get_player_list(Conn, _) ->
     SortedPlayerID      = lists:map(fun(#{player_id:=PlayerID}) -> PlayerID end, SortedPlayerResult),
     SortedPlayers       = lists:map(fun(PlayerID) -> get_single_listed_player(Conn, PlayerID) end, SortedPlayerID),
 
-    error_logger:info_report(SortedPlayers),
     {ok, SortedPlayers}.
 
 %% ------------------------------------------------------------------------
@@ -190,9 +189,11 @@ update_frag(Conn, {FragIncre, CardID, PlayerUUID}) ->
     case lists:member(CardID, CardList) of
         false -> player_obtained_card:add(Conn, {CardID, PlayerUUID});
         _ ->
+            error_logger:info_report(FragIncre),
             SetExp = #{frags=> {e, list_to_binary(["frags+", FragIncre])}},
             Cond   = #{player_id=>PlayerUUID, card_id=>CardID},
-            Query  = util:set_query(<<"player">>, SetExp, Cond),
+            Query  = util:set_query(<<"player_obtained_card">>, SetExp, Cond),
+            error_logger:info_report(binary_to_list(Query)),
             epgsql:squery(Conn, Query)
     end.
 
@@ -329,3 +330,6 @@ reply_mail(Conn, {PlayerID, ReceiverID, MailID, Content}) ->
 
 delete_mail(Conn, {PlayerID, MailID}) ->
     mail_service:delete_mail(Conn, PlayerID, MailID).
+
+open_attachment(Conn, {PlayerID, MailID}) ->
+    mail_service:open_attachment(Conn, PlayerID, MailID).

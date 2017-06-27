@@ -1,7 +1,7 @@
 %% Feel free to use, reuse and abuse the code in this file.
 
 %% @doc Hello world handler.
--module(send_mail_handler).
+-module(open_attachment_handler).
 
 -export([init/2]).
 -export([content_types_provided/2, content_types_accepted/2]).
@@ -54,9 +54,9 @@ handle_post(Req, State) ->
             {<<"Nah">>, Req}
     end,
 
-    #{<<"sender_id">>:=SenderID, <<"receiver_id">>:=ReceiverID, <<"content">>:=Content, <<"attachment">>:=Attachments} = jiffy:decode(ReqBody, [return_maps]),
+    #{<<"receiver_id">>:=ReceiverID, <<"mail_id">>:=MailID} = jiffy:decode(ReqBody, [return_maps]),
     
-    Message = dungeon_base_sup:query({send_mail, {SenderID, ReceiverID, Content, Attachments}}),
+    Message = dungeon_base_sup:query({open_attachment, {ReceiverID, MailID}}),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(Message), NextReq),
 

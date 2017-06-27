@@ -1,6 +1,6 @@
 -module(mail_service).
 
--export([send_mail/5, recv_mail_list/2, read_mail/3, reply_mail/5, delete_mail/3]).
+-export([send_mail/5, recv_mail_list/2, read_mail/3, reply_mail/5, delete_mail/3, open_attachment/3]).
 
 send_mail(Conn, PlayerUUID, ReceiverUUID, Content, Attachment) ->
 
@@ -21,8 +21,8 @@ send_mail(Conn, PlayerUUID, ReceiverUUID, Content, Attachment) ->
                     mail:add(Conn, #{sender_id=>PlayerUUID, receiver_id=>ReceiverUUID, content=>Content}),
                     #{ok=>mail_sent};
                 Attachs ->
-                    MailID = mail:add(Conn, #{sender_id=>PlayerUUID, receiver_id=>ReceiverUUID, content=>Content, has_items=>true}),
-                    [mail_item:add(Conn, MailID, ItemID, ItemQty) || {ItemID, ItemQty} <- Attachs],
+                    MailID = mail:add(Conn, #{sender_id=>PlayerUUID, receiver_id=>ReceiverUUID, content=>Content, has_item=>true}),
+                    [mail_item:add(Conn, MailID, ItemID, ItemQty) || #{<<"item_id">>:=ItemID, <<"item_qty">>:=ItemQty} <- Attachs],
                     #{ok=>mail_sent}
             end;
         {OtherS, OtherR} ->
@@ -51,8 +51,10 @@ read_mail(Conn, ReceiverID, MailID) ->
     Mail = mail:get(Conn, ReceiverID, MailID),
     
     Replies = mail_reply:get(Conn, MailID),
-    
-    Mail#{replies=>Replies}.
+
+    Attachments = mail_item:get(Conn, MailID),
+
+    Mail#{replies=>Replies, attachment=>Attachments}.
 
 reply_mail(Conn, PlayerUUID, ReceiverUUID, MailID, Content) ->
 
@@ -90,16 +92,28 @@ delete_mail(Conn, PlayerID, MailID) ->
 
 
 fetch_attachment_items(Conn, PlayerID, ItemID, ItemQty) ->
-    erlang:display("yay"),
     case ItemID of
-        <<"1">> ->
-                Res=dungeon_query:update_coin(Conn, {binary_to_integer(ItemQty), PlayerID}),
+        1 ->
+                Res=dungeon_query:update_coin(Conn, {ItemQty, PlayerID}),
                 erlang:display(Res);
-        <<"2">> ->dungeon_query:update_frag(Conn, {ItemQty, <<"946ae77c-183b-4538-b439-ac9036024676">>, PlayerID});
-        <<"3">> ->dungeon_query:update_frag(Conn, {ItemQty, <<"1b0cf5e0-2164-46fd-8424-2146fca99fb9">>, PlayerID});
-        <<"4">> ->dungeon_query:update_frag(Conn, {ItemQty, <<"a009e5e9-2057-4353-9871-309d68752c1b">>, PlayerID});
-        <<"5">> ->dungeon_query:update_frag(Conn, {ItemQty, <<"a0c1a883-2995-4526-856c-26870e5b3f74">>, PlayerID});
+        2 ->dungeon_query:update_frag(Conn, {integer_to_binary(ItemQty), <<"946ae77c-183b-4538-b439-ac9036024676">>, PlayerID});
+        3 ->dungeon_query:update_frag(Conn, {integer_to_binary(ItemQty), <<"1b0cf5e0-2164-46fd-8424-2146fca99fb9">>, PlayerID});
+        4 ->dungeon_query:update_frag(Conn, {integer_to_binary(ItemQty), <<"a009e5e9-2057-4353-9871-309d68752c1b">>, PlayerID});
+        5 ->dungeon_query:update_frag(Conn, {integer_to_binary(ItemQty), <<"a0c1a883-2995-4526-856c-26870e5b3f74">>, PlayerID});
         _ ->
                 not_implemented_yet
     end.
 
+open_attachment(Conn, PlayerID, MailID) ->
+    
+    #{has_item:=HasItem} = Mail = mail:get(Conn, PlayerID, MailID),
+
+    case HasItem of
+        <<"t">> ->
+            Attachments = mail_item:get(Conn, MailID),
+            error_logger:info_report(Attachments),
+            [fetch_attachment_items(Conn, PlayerID, ItemID, ItemQty) || #{item_id:=ItemID, item_qty:=ItemQty} <- Attachments],
+            #{ok => Attachments};
+        _ ->
+            #{error => mail_has_no_item}
+    end.

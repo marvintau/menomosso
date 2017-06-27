@@ -47,11 +47,13 @@ start(_StartType, _StartArgs) ->
                    {"/api/update_preset", update_preset_handler, []},
 
                    {"/api/send_mail", send_mail_handler, []},
-                   {"/api/send_mail_attached", send_mail_attached_handler, []},
+                   {"/api/send_mail_attachment", send_mail_attachment_handler, []},
                    {"/api/receive_mail_list", receive_mail_list_handler, []},
                    {"/api/receive_mail", receive_mail_handler, []},
                    {"/api/reply_mail", reply_mail_handler, []},
-                   {"/api/delete_mail", delete_mail_handler, []}
+                   {"/api/delete_mail", delete_mail_handler, []},
+                   {"/api/open_attachment", open_attachment_handler, []}
+
                   ]}
         ]),
 
