@@ -259,9 +259,9 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
     {CurrLevel, Frags, Coins, FragsRequired, CoinsRequired} = get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}),
 
     if  Frags < FragsRequired ->
-            {error, insufficient_frags};
+            #{error => insufficient_frags};
         Coins < CoinsRequired ->
-            {error, insufficient_coins};
+            #{error => insufficient_coins};
         true ->
 
             RemainingFrags = Frags - FragsRequired,
@@ -269,7 +269,7 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
 
             actual_update_card_level(Conn, {RemainingFrags, RemainingCoins, PlayerUUID, CardUUID}),
             update_card_skill_points(Conn, {PlayerUUID, CardUUID, 5}),
-            {ok, CurrLevel+1, RemainingCoins, RemainingFrags}
+            #{new_level=>CurrLevel+1, new_coins=>RemainingCoins, new_frags=>RemainingFrags}
     end.
 
 update_card_skill_points(Conn, {PlayerUUID, CardUUID, SkillPoints}) ->
@@ -284,10 +284,12 @@ update_card_skill_level(Conn, {PlayerUUID, CardUUID, SkillName}) ->
     
     #{skill_level:=SkillLevel}=player_obtained_card_skill:get(Conn, PlayerUUID, CardUUID, SkillName),
     
-    case {SkillPoints > SkillLevel, Coins > 1} of
+    case {SkillPoints > SkillLevel, Coins > 10} of
         {true, true} ->
             case SkillLevel < 3 of
                 true ->
+
+                    player:set(Conn, #{coins=>Coins - 10}, PlayerUUID),
 
                     player_obtained_card_skill:set(Conn, #{skill_level=>SkillLevel+1}, PlayerUUID, CardUUID, SkillName),
 
@@ -295,14 +297,14 @@ update_card_skill_level(Conn, {PlayerUUID, CardUUID, SkillName}) ->
 
                     #{skill_points:=RemainingSkillPoints} = player_obtained_card:get(Conn, PlayerUUID, CardUUID),
 
-                    {ok, SkillLevel+1, RemainingSkillPoints};
+                    #{skill_name=>SkillName, new_level=>SkillLevel+1, remaining_points=>RemainingSkillPoints, new_coins=>Coins - 10};
                 _ ->
-                    {error, highest_level_reached}
+                    #{error => highest_level_reached}
             end;
         {false, true} ->
-            {error, not_enough_skill_points};
+            #{error => not_enough_skill_points};
         {true, false} ->
-            {error, not_enough_coins}
+            #{error => not_enough_coins}
     end.
     
 
