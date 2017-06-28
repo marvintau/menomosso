@@ -237,13 +237,13 @@ update_rank(Conn, {}) ->
 
 get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}) ->
 
-    #{card_level:=CurrLevel, frags:=CurrentFrags} = player_obtained_card:get(Conn, PlayerUUID, CardUUID),
+    #{card_level:=CurrLevel, frags:=CurrentFrags, skill_points:=CurrentSkillPoints} = player_obtained_card:get(Conn, PlayerUUID, CardUUID),
 
     #{coins:=CurrentCoins} = player:get(Conn, PlayerUUID),
 
     #{frags_required:=FragsRequired, coins_required:=CoinsRequired} = card_level_spec:get(Conn, CardUUID, CurrLevel),
 
-    {CurrLevel, CurrentFrags, CurrentCoins, FragsRequired, CoinsRequired}.
+    {CurrLevel, CurrentFrags, CurrentCoins, CurrentSkillPoints, FragsRequired, CoinsRequired}.
 
 
 actual_update_card_level(Conn, {RemainingFrags, RemainingCoins, PlayerUUID, CardUUID}) ->
@@ -258,7 +258,7 @@ actual_update_card_level(Conn, {RemainingFrags, RemainingCoins, PlayerUUID, Card
 
 update_card_level(Conn, {PlayerUUID, CardUUID}) ->
 
-    {CurrLevel, Frags, Coins, FragsRequired, CoinsRequired} = get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}),
+    {CurrLevel, Frags, Coins, SkillPoints, FragsRequired, CoinsRequired} = get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}),
 
     if  Frags < FragsRequired ->
             #{error => insufficient_frags};
@@ -271,7 +271,7 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
 
             actual_update_card_level(Conn, {RemainingFrags, RemainingCoins, PlayerUUID, CardUUID}),
             update_card_skill_points(Conn, {PlayerUUID, CardUUID, 5}),
-            #{new_level=>CurrLevel+1, new_coins=>RemainingCoins, new_frags=>RemainingFrags}
+            #{new_level=>CurrLevel+1, new_coins=>RemainingCoins, new_frags=>RemainingFrags, new_skill_points=>SkillPoints+5}
     end.
 
 update_card_skill_points(Conn, {PlayerUUID, CardUUID, SkillPoints}) ->
