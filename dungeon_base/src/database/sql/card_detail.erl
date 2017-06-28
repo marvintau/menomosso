@@ -35,7 +35,7 @@ get(Conn, PlayerUUID, CardID) ->
 
     error_logger:info_report({PlayerUUID, CardID}),
 
-    [#{card_level:=CardLevel} = Card] = player_obtained_card:get(Conn, PlayerUUID, CardID),
+    #{card_level:=CardLevel} = Card = player_obtained_card:get(Conn, PlayerUUID, CardID),
 
     get_card_profile(Conn, Card, PlayerUUID, CardID, CardLevel).
 

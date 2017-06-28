@@ -41,9 +41,7 @@ get(Conn, PlayerID, CardID) ->
    
 
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
-    Res = util:get_mapped_records(ColumnSpec, Result),
-
-    error_logger:info_report(Res),
+    [Res] = util:get_mapped_records(ColumnSpec, Result),
 
     Res.
 

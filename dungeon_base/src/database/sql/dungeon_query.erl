@@ -235,7 +235,7 @@ update_rank(Conn, {}) ->
 
 get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}) ->
 
-    [#{card_level:=CurrLevel, frags:=CurrentFrags}] = player_obtained_card:get(Conn, PlayerUUID, CardUUID),
+    #{card_level:=CurrLevel, frags:=CurrentFrags} = player_obtained_card:get(Conn, PlayerUUID, CardUUID),
 
     #{coins:=CurrentCoins} = player:get(Conn, PlayerUUID),
 
@@ -266,7 +266,6 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
             RemainingFrags = Frags - FragsRequired,
             RemainingCoins = Coins - CoinsRequired,
 
-
             actual_update_card_level(Conn, {RemainingFrags, RemainingCoins, PlayerUUID, CardUUID}),
             update_card_skill_points(Conn, {PlayerUUID, CardUUID, 5}),
             {ok, CurrLevel+1, RemainingCoins, RemainingFrags}
@@ -278,13 +277,14 @@ update_card_skill_points(Conn, {PlayerUUID, CardUUID, SkillPoints}) ->
 
 update_card_skill_level(Conn, {PlayerUUID, CardUUID, SkillName}) ->
 
+    #{coins:=Coins} = player:get(Conn, PlayerUUID),
+
     #{skill_points:=SkillPoints} = player_obtained_card:get(Conn, PlayerUUID, CardUUID),
     
-    case binary_to_integer(SkillPoints) > 0 of
-        true ->
-
-            #{skill_level:=SkillLevel}=player_obtained_card_skill:get(Conn, PlayerUUID, CardUUID, SkillName),
-
+    #{skill_level:=SkillLevel}=player_obtained_card_skill:get(Conn, PlayerUUID, CardUUID, SkillName),
+    
+    case {SkillPoints > SkillLevel, Coins > 1} of
+        {true, true} ->
             case binary_to_integer(SkillLevel) < 3 of
                 true ->
 
@@ -298,8 +298,10 @@ update_card_skill_level(Conn, {PlayerUUID, CardUUID, SkillName}) ->
                 _ ->
                     {error, highest_level_reached}
             end;
-        _ ->
-            {error, not_enough_skill_points}
+        {false, true} ->
+            {error, not_enough_skill_points};
+        {true, false} ->
+            {error, not_enough_coins}
     end.
     
 
