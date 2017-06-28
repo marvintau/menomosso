@@ -11,7 +11,6 @@ create table player_supply_loot(
     buff2           boolean     not null default 'no',
     buff3           boolean     not null default 'no',
     
-    foreign key (player_id) references player(player_id),
     foreign key (supply_id) references supply_name(supply_id)
 );
 
