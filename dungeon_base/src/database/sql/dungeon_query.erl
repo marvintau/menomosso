@@ -101,7 +101,7 @@ login(Conn, {ID}) ->
     Query = util:get_query(<<"player">>, #{player_id=>ID}),
     {ok, Column, Res} = epgsql:squery(Conn, Query),
 
-    ActualRes = util:get_mapped_record(Column, Res),
+    ActualRes = util:get_mapped_records(Column, Res),
 
     case ActualRes of
         [] ->
