@@ -1,6 +1,6 @@
 -module(player).
 
--export([add/2, get/1, get/2]).
+-export([add/2, get/1, get/2, set/3]).
 -export([set_rate/2, set_coin/2, set_rank/2]).
 
 random_name() ->
@@ -65,6 +65,10 @@ get(Conn) ->
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, binary_to_list(Query)),
     Res = util:get_mapped_records(ColumnSpec, Result),
     Res.
+
+set (Conn, Setting, PlayerUUID) ->
+    Query = util:set_query(<<"player">>, Setting, #{player_id=>PlayerUUID}),
+    {ok, 1} = epgsql:squery(Conn, Query).
 
 set_rate(Conn, {Rate, PlayerUUID}) ->
 
