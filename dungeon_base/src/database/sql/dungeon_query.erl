@@ -250,7 +250,7 @@ actual_update_card_level(Conn, {RemainingFrags, RemainingCoins, PlayerUUID, Card
                                    #{player_id=>PlayerUUID, card_id=>CardUUID}),
     {ok, 1} = epgsql:squery(Conn, QuerySetLevel),
 
-    QuerySetCoins = util:set_query(<<"player">>, #{coins=>RemainingCoins}, #{player_id=>PlayerUUID})
+    QuerySetCoins = util:set_query(<<"player">>, #{coins=>RemainingCoins}, #{player_id=>PlayerUUID}),
     {ok, 1} = epgsql:squery(Conn, QuerySetCoins).
 
 
