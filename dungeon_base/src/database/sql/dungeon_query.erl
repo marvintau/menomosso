@@ -269,7 +269,7 @@ update_card_level(Conn, {PlayerUUID, CardUUID}) ->
 
             actual_update_card_level(Conn, {RemainingFrags, RemainingCoins, PlayerUUID, CardUUID}),
             update_card_skill_points(Conn, {PlayerUUID, CardUUID, 5}),
-            {ok, binary_to_integer(CurrLevel)+1, RemainingCoins, RemainingFrags}
+            {ok, CurrLevel+1, RemainingCoins, RemainingFrags}
     end.
 
 update_card_skill_points(Conn, {PlayerUUID, CardUUID, SkillPoints}) ->
