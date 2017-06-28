@@ -235,7 +235,7 @@ update_rank(Conn, {}) ->
 
 get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}) ->
 
-    #{card_level:=CurrLevel, frags:=CurrentFrags} = player_obtained_card:get(Conn, PlayerUUID, CardUUID),
+    [#{card_level:=CurrLevel, frags:=CurrentFrags}] = player_obtained_card:get(Conn, PlayerUUID, CardUUID),
 
     #{coins:=CurrentCoins} = player:get(Conn, PlayerUUID),
 

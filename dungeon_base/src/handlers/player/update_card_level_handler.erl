@@ -51,7 +51,7 @@ handle_post(Req, State) ->
             {<<"Nah">>, Req}
     end,
 
-    {[{_, PlayerID}, {_, CardID}]} = jiffy:decode(ReqBody),
+    #{<<"player_id">>:=PlayerID, <<"card_id">>:=CardID} = jiffy:decode(ReqBody, [return_maps]),
 
     Result = case dungeon_base_sup:query({update_card_level, {PlayerID, CardID}}) of
         {ok, NewLevel, NewCoins, NewFrags} -> #{new_level=>NewLevel, new_coins=>NewCoins, new_frags=>NewFrags};

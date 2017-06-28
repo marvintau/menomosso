@@ -12,7 +12,6 @@ init_table() ->
 
 update_skills(Data) ->
     Res = skills_to_erlang:skills(Data),
-    error_logger:info_report(Res),
     true = ets:delete_all_objects(skills),
     ets:insert(skills, Res),
     ok.

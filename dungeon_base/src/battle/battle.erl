@@ -38,13 +38,13 @@ apply_move_both(#{stage:=settling}=S, A, B, L) ->
     {Op2A, Op2B, Op2Log};
 
 apply_move_both(#{stage:=casting}=S, A, B, L) ->
-    {OpA, OpB, OpLog} = trans:cast(S, A, B, L),                                  % A出招
-    {OpEffA, OpEffB, OpEffLog} = trans:effect(S, OpA, OpB, OpLog),               % A技能效果
-    {OpEff2B, OpEff2A, OpEff2Log} = trans:effect(S#{stage:=counter}, OpEffB, OpEffA, OpEffLog),         % B的反应技能效果
-    {OpEff3A, OpEff3B, OpEff3Log} = trans:effect(S#{stage:=append}, OpEff2A, OpEff2B, OpEff2Log),       % A的追加技能效果
+    {OpA, OpB, OpLog}                = trans:cast(S, A, B, L),                                  % A出招
+    {OpEffA, OpEffB, OpEffLog}       = trans:effect(S, OpA, OpB, OpLog),               % A技能效果
+    {OpEff2B, OpEff2A, OpEff2Log}    = trans:effect(S#{stage:=counter}, OpEffB, OpEffA, OpEffLog),         % B的反应技能效果
+    {OpEff3A, OpEff3B, OpEff3Log}    = trans:effect(S#{stage:=append}, OpEff2A, OpEff2B, OpEff2Log),       % A的追加技能效果
 
-    {Op2B, Op2A, Op2Log} = trans:cast(S, OpEff3B, OpEff3A, OpEff3Log),           % B出招
-    {Op2EffB, Op2EffA, Op2EffLog} = trans:effect(S, Op2B, Op2A, Op2Log),         % B出招效果
+    {Op2B, Op2A, Op2Log}             = trans:cast(S, OpEff3B, OpEff3A, OpEff3Log),           % B出招
+    {Op2EffB, Op2EffA, Op2EffLog}    = trans:effect(S, Op2B, Op2A, Op2Log),         % B出招效果
     {Op2Eff2A, Op2Eff2B, Op2Eff2Log} = trans:effect(S#{stage:=counter}, Op2EffA, Op2EffB, Op2EffLog),   % A的反应出招效果
     {Op2Eff3B, Op2Eff3A, Op2Eff3Log} = trans:effect(S#{stage:=append}, Op2Eff2B, Op2Eff2A, Op2Eff2Log), % B的追加技能效果
 
@@ -103,8 +103,5 @@ start({#{selected_skills:=SelectedSkillsA} = A, #{selected_skills:=SelectedSkill
     {EffectsA, EffectsB} = cast:get_effects(SelectedSkillsA, SelectedSkillsB),
 
     {CastsA, CastsB} = cast:get_casts(EffectsA, EffectsB),
-
-    error_logger:info_report(EffectsA),
-    error_logger:info_report(EffectsB),
 
     loop(S, A#{effects=>EffectsA, casts=>CastsA}, B#{effects=>EffectsB, casts=>CastsB}, []).
