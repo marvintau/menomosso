@@ -103,6 +103,8 @@ login(Conn, {ID}) ->
 
     ActualRes = util:get_mapped_records(Column, Res),
 
+    erlang:display({actual_res, ActualRes}),
+
     case ActualRes of
         [] ->
             {ok, ID} = add_new_player(Conn, {ID}),
