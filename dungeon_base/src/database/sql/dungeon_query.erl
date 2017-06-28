@@ -291,7 +291,7 @@ update_card_skill_level(Conn, {PlayerUUID, CardUUID, SkillName}) ->
 
                     player_obtained_card_skill:set(Conn, #{skill_level=>SkillLevel+1}, PlayerUUID, CardUUID, SkillName),
 
-                    player_obtained_card:set(Conn, #{skillPoints=>SkillPoints - SkillLevel}, PlayerUUID, CardUUID),
+                    player_obtained_card:set(Conn, #{skill_points=>SkillPoints - SkillLevel}, PlayerUUID, CardUUID),
 
                     #{skill_points:=RemainingSkillPoints} = player_obtained_card:get(Conn, PlayerUUID, CardUUID),
 
