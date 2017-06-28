@@ -245,12 +245,13 @@ get_card_info_for_update_level(Conn, {PlayerUUID, CardUUID}) ->
 
 
 actual_update_card_level(Conn, {RemainingFrags, RemainingCoins, PlayerUUID, CardUUID}) ->
-    QuerySetLevel = list_to_binary(["update player_obtained_card set card_level=card_level+1, 
-                                    frags=", integer_to_binary(RemainingFrags)," where player_id='", PlayerUUID, "' and card_id='", CardUUID, "';"]),
-    {ok, 1} = epgsql:squery(Conn, binary_to_list(QuerySetLevel)),
+    QuerySetLevel = util:set_query(<<"player_obtained_card">>,
+                                   #{card_level=><<"card_level+1">>, frags=>RemainingFrags},
+                                   #{player_id=>PlayerUUID, card_id=>CardUUID}),
+    {ok, 1} = epgsql:squery(Conn, QuerySetLevel),
 
-    QuerySetCoins = list_to_binary(["update player set coins=", integer_to_binary(RemainingCoins)," where player_id='", PlayerUUID, "';"]) ,
-    {ok, 1} = epgsql:squery(Conn, binary_to_list(QuerySetCoins)).
+    QuerySetCoins = util:set_query(<<"player">>, #{coins=>RemainingCoins}, #{player_id=>PlayerUUID})
+    {ok, 1} = epgsql:squery(Conn, QuerySetCoins).
 
 
 update_card_level(Conn, {PlayerUUID, CardUUID}) ->
@@ -285,7 +286,7 @@ update_card_skill_level(Conn, {PlayerUUID, CardUUID, SkillName}) ->
     
     case {SkillPoints > SkillLevel, Coins > 1} of
         {true, true} ->
-            case binary_to_integer(SkillLevel) < 3 of
+            case SkillLevel < 3 of
                 true ->
 
                     player_obtained_card_skill:set(Conn, #{skill_level=>SkillLevel+1}, PlayerUUID, CardUUID, SkillName),
@@ -294,7 +295,7 @@ update_card_skill_level(Conn, {PlayerUUID, CardUUID, SkillName}) ->
 
                     #{skill_points:=RemainingSkillPoints} = player_obtained_card:get(Conn, PlayerUUID, CardUUID),
 
-                    {ok, binary_to_integer(SkillLevel)+1, binary_to_integer(RemainingSkillPoints)};
+                    {ok, SkillLevel+1, RemainingSkillPoints};
                 _ ->
                     {error, highest_level_reached}
             end;
@@ -314,7 +315,7 @@ update_quick_battle_counter(Conn, {PlayerUUID}) ->
 
     player:set(Conn, #{quick_battle_counter=>NewQuickBattleCounter}, #{player_id=>PlayerUUID}), 
 
-    binary_to_integer(NewQuickBattleCounter).
+    NewQuickBattleCounter.
 
 
 check_chest_update(Conn, {PlayerID}) ->
