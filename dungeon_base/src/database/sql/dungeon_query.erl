@@ -7,6 +7,7 @@
     connect/5,
     close/1,
 
+    login/2,
     add_new_player/2,
 
     get_player/2,
@@ -95,13 +96,41 @@ add_player_obtained_card(Conn, PlayerID, CardID) ->
     player_obtained_card_skill:add(Conn, SkillsTobeInserted).
 
 
-add_new_player(Conn, _) ->
+login(Conn, {ID}) ->
+
+    Query = util:get_query(<<"player">>, #{player_id=>ID}),
+    {ok, Column, Res} = epgsql:squery(Conn, Query),
+
+    ActualRes = util:get_mapped_record(Column, Res),
+
+    case ActualRes of
+        [] ->
+            {ok, ID} = add_new_player(Conn, {ID}),
+            #{created=>ID};
+        _ ->
+            #{logged => ok}
+    end.
+
+
+add_new_player(Conn, {NewID}) ->
+
+    erlang:display({new_id_tobe_inserted, NewID}),
+
+    {ok, added} = player:add(Conn, NewID),
+
+    add_player_obtained_card(Conn, NewID, <<"946ae77c-183b-4538-b439-ac9036024676">>),
+    add_player_obtained_card(Conn, NewID, <<"1b0cf5e0-2164-46fd-8424-2146fca99fb9">>),
+ 
+    {ok, NewID};
+
+    
+
+add_new_player(Conn, {}) ->
     quickrand:seed(),
     NewID = list_to_binary(uuid:uuid_to_string(uuid:get_v4_urandom())),
     erlang:display({new_id_tobe_inserted, NewID}),
 
     {ok, added} = player:add(Conn, NewID),
-    Res = player:get(Conn, NewID),
 
     add_player_obtained_card(Conn, NewID, <<"946ae77c-183b-4538-b439-ac9036024676">>),
     add_player_obtained_card(Conn, NewID, <<"1b0cf5e0-2164-46fd-8424-2146fca99fb9">>),
