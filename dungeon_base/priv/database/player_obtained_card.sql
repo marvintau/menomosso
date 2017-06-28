@@ -7,7 +7,7 @@ create table player_obtained_card (
     player_card_id uuid primary key not null default uuid_generate_v4(), unique(player_card_id),
     
     card_id     uuid not null,
-    player_id   uuid not null,
+    player_id   text not null,
     
     frags        int not null default 1,
     card_level   int not null default 1,
