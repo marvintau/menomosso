@@ -156,16 +156,17 @@ update_preset(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
 
     SkillBinList = [list_to_binary(["\"",SkillName,"\""]) || SkillName <- SkillList],
 
-    Set   = #{preset_card_id=>SelfCardID, selectedSkills=>util:list_to_array(SkillBinList)},
+    Set   = #{preset_card_id=>SelfCardID},
     Cond  = #{player_id=>PlayerUUID},
     Query = util:set_query(<<"player">>, Set, Cond), 
 
-    case epgsql:squery(Conn, Query) of
-        {ok, 1} -> {ok, selected_skills_updated};
-        Error       ->
-            erlang:display(Error),
-            {error, update_selected_skills_failed}
-    end.
+    {ok, 1} = epgsql:squery(Conn, Query),
+    
+    SetSkill  = #{preset_skill=>SkillBinList},
+    CondSkill = #{player_id=>PlayerUUID, card_id=>SelfCardID},
+    QuerySkill = util:set_query(<<"player_obtained_card">>, Set, Cond),
+
+    {ok, 1} = epgsql:squery(Conn, QuerySkill).
 
 %% ------------------------------------------------------------------------
 %% 更新玩家的积分

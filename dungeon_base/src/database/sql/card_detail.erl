@@ -5,7 +5,8 @@
 get_skills(Conn, PlayerUUID, CardID) ->
     Res = player_obtained_card_skill:get(Conn, PlayerUUID, CardID),
 
-    [#{skill_name=>SkillName, skill_cost=>SkillCost, skill_multiple_time=>SkillMultipleTime} || #{skill_name:=SkillName, skill_cost:=SkillCost, skill_multiple_time:=SkillMultipleTime} <- Res].
+    [#{skill_name=>SkillName, skill_cost=>SkillCost, skill_multiple_time=>SkillMultipleTime, skill_level=>SkillLevel} ||
+     #{skill_name:=SkillName, skill_cost:=SkillCost, skill_multiple_time:=SkillMultipleTime, skill_level:=SkillLevel} <- Res].
 
 
 merge_four_maps(Card, Type, Spec, Skills) ->

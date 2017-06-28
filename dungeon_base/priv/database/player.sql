@@ -15,7 +15,6 @@ create table player (
     diamonds        int not null default 500,
 
     preset_card_id  uuid not null default '946ae77c-183b-4538-b439-ac9036024676',
-    selected_skills text[10] not null default '{"single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack"}',
 
     rating  int not null default 9999,
     ranking int not null default 1000,

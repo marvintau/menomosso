@@ -13,6 +13,7 @@ create table player_obtained_card (
     card_level   int not null default 1,
     card_stars   int not null default 0,
     skill_points int not null default 0,
+    selected_skills text[10] not null default '{"single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack", "single_attack"}',
 
     last_added      TIMESTAMP not null default now(),
     last_modified   timestamp not null default now()
