@@ -4,7 +4,7 @@
 
 drop table if exists player CASCADE;
 create table player (
-    player_id   uuid        not null default uuid_generate_v4(), unique(player_id),
+    player_id   text        not null default 'default',
     player_name varchar(20) not null default 'NEW',
     image_name  varchar(20) not null default '1',
     association varchar(20) not null default '联盟',
