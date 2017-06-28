@@ -6,7 +6,7 @@ drop table if exists player_obtained_card_skill cascade;
 create table player_obtained_card_skill (
 
     player_card_id uuid,
-    player_id uuid,
+    player_id text,
     card_id uuid,
     skill_name text,
     skill_multiple_time boolean,
