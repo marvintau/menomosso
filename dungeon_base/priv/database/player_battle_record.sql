@@ -1,8 +1,8 @@
 drop table if exists player_battle_record cascade;
 create table player_battle_record (
     battle_record_id uuid,
-    self_id uuid,
-    oppo_id uuid,
+    self_id text,
+    oppo_id text,
     self_card_id uuid,
     oppo_card_id uuid,
     self_preset_skill text[10],
