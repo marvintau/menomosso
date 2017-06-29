@@ -15,7 +15,7 @@ create table player_obtained_card_skill (
     skill_level int default 1
 );
 
-insert into player_obtained_card_skill
+insert into player_obtained_card_skill(player_card_id, player_id, card_id, skill_name, skill_multiple_time, skill_cost, skill_level)
     select player_card_id, player_id, player_obtained_card.card_id, skill_name, skill_multiple_time, skill_cost, 1 as skill_level from card_skills cross join player_obtained_card;
 
 
