@@ -185,7 +185,8 @@ get_player_battle(Conn, {PlayerUUID, CardID, SelectedSkills}) ->
 %% 更新玩家的预设技能
 update_preset(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
 
-    SkillBinList = [list_to_binary(["\"",SkillName,"\","]) || SkillName <- SkillList],
+    SkillBinList = [list_to_binary(["\"",SkillName,"\""]) || SkillName <- SkillList],
+    SkillArray = util:list_to_array(util:list_to_delimited(SkillBinList, ",")),
 
     Set   = #{preset_card_id=>SelfCardID},
     Cond  = #{player_id=>PlayerUUID},
@@ -193,7 +194,7 @@ update_preset(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
 
     {ok, 1} = epgsql:squery(Conn, Query),
     
-    SetSkill  = #{preset_skill=>SkillBinList},
+    SetSkill  = #{preset_skill=>SkillArray},
     CondSkill = #{player_id=>PlayerUUID, card_id=>SelfCardID},
     QuerySkill = util:set_query(<<"player_obtained_card">>, SetSkill, CondSkill),
 
