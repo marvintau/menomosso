@@ -184,7 +184,7 @@ trans({add_inc_mul, {Inc, Mul}, AttackSpec, Outcome}, ToWhom) ->
     trans({add, Inc * Mul, AttackSpec, Outcome}, ToWhom).
 
 
-trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}, ReposeType}, O, D) ->
+trans({{Opcode, Oper, AttackSpec}, {attr, Attr, P}, ReposeType}, O, D) ->
 
     % 获得双方的操作数
     RefOperand = case Oper of
@@ -198,7 +198,7 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Type, Attr, P}, ReposeType}, O, D) ->
 
     % 将转盘结果加入玩家context，并按结果计算伤害／技能效果，把结果保存在TransPsn里面
     Psn = ref:who(P, O, D),
-    TheTransedOne = trans({Opcode, RefOperand, AttackSpec, Outcome}, {attr, Type, Attr, Psn}),
+    TheTransedOne = trans({Opcode, RefOperand, AttackSpec, Outcome}, {attr, Attr, Psn}),
 
     {#{attr:=AttrO} = TransO, TransD} = case P of
         off ->  {TheTransedOne, D};
@@ -261,7 +261,7 @@ cast(#{seq:=Seq}=S, #{state:=StateO}=O, #{state:=StateD}=D, Log, [{SeqIndex, Ski
     cast(S, StandO, StandD, NewLog, Remaining).
 
 
-log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Type, Attr, Who}, _}},
+log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Attr, Who}, _}},
     #{player_id:=OID, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}, profession:={single, ClassO}}} = O,
     #{player_id:=DID, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}, attr:=#{profession:={single, ClassD}}} = D
 ) ->
@@ -276,11 +276,11 @@ log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Type, Attr, Who}, _}},
         _ -> defender
     end,
 
-    erlang:display({{NameO, HPO}, {PosO, PosMoveO}, SkillName, Outcome, Attr, Dest, ref:val({attr, Type, diff, Who}, O, D), {NameD, HPD}, {PosD, PosMoveD}}),
+    erlang:display({{NameO, HPO}, {PosO, PosMoveO}, SkillName, Outcome, Attr, Dest, ref:val({attr, diff, Who}, O, D), {NameD, HPD}, {PosD, PosMoveD}}),
 
     #{
         state => maps:remove(offender, S),
-        effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, dest=>Dest, diff => ref:val({attr, Type, diff, Who}, O, D)},
+        effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, dest=>Dest, diff => ref:val({attr, diff, Who}, O, D)},
         OID => #{player_name=>NameO, profession=>ClassO, role=>offender, order=>InitOrFollow, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
         DID => #{player_name=>NameD, profession=>ClassD, role=>defender, order=>InitOrFollow, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
     }.

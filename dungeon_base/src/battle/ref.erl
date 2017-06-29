@@ -6,19 +6,40 @@
 who(off, O, _D) -> O;
 who(def, _O, D) -> D.
 
-get({attr, AttrType, Attr, Whose}) ->
-	#{AttrType:=#{Attr:=Val}} = Whose,
-	Val.
+get({attr, Attr, Whose}) ->
+
+    case Whose of
+        #{attr  :=#{Attr:=Val}} -> Val;
+        #{state :=#{Attr:=Val}} -> Val
+    end.
 
 
-set({attr, AttrType, Attr, Whose}=Ref, Val) when is_number(Val) ->
-	#{AttrType:=AttrSet} = Whose,
-	Res = Whose#{AttrType:=AttrSet#{ Attr:={single, round(Val)}, diff:={single, round(Val-val(Ref))} }},
-	Res;
+set({attr, Attr, Whose}=Ref, NewVal) when is_number(NewVal) ->
 
-set({attr, AttrType, Attr, Whose}, Val) ->
-	#{AttrType:=AttrSet} = Whose,
-	Whose#{AttrType:=AttrSet#{ Attr:=round(Val) }}.
+    case Whose of
+        #{state:=#{Attr:=_}=AttrSet} ->
+            Whose#{state:=AttrSet#{
+                            Attr:={single, round(NewVal)},
+                            diff:={single, round(NewVal-val(Ref))}
+                           }
+                  };
+        #{attr :=#{Attr:=_}=AttrSet} ->
+            Whose#{attr:=AttrSet#{
+                            Attr:={single, round(NewVal)},
+                            diff:={single, round(NewVal-val(Ref))}
+                           }
+                  }
+    end;
+
+set({attr, Attr, Whose}, Val) ->
+
+    case Whose of
+        #{attr :=#{Attr:=_} = AttrSet} ->
+            Whose#{attr  :=AttrSet#{Attr:=Val}};
+        #{state :=#{Attr:=_} = AttrSet} ->
+            Whose#{state :=AttrSet#{Attr:=Val}}
+    end.
+
 
 
 val({range, [Low, High]}) ->
@@ -26,21 +47,22 @@ val({range, [Low, High]}) ->
 
 val({single, SingleValue}) -> SingleValue;
 
-val({attr, AttrType, Attr, Whose} = _Ref) ->
-	#{AttrType:=#{Attr:=Val}} = Whose,
-	val(Val).
+val({attr, Attr, Whose} = _Ref) ->
+
+    case Whose of
+        #{attr  :=#{Attr:=Val}} -> val(Val);
+        #{state :=#{Attr:=Val}} -> val(Val)
+    end.
 
 
+get({attr, Attr, Whose}, O, D) ->
+    get({attr, Attr, who(Whose, O, D)}).
 
 
-get({attr, AttrType, Attr, Whose}, O, D) ->
-	get({attr, AttrType, Attr, who(Whose, O, D)}).
-
-
-val({attr, AttrType, Attr, Whose}, O, D) ->
-	val({attr, AttrType, Attr, who(Whose, O, D)});
+val({attr, Attr, Whose}, O, D) ->
+    val({attr, Attr, who(Whose, O, D)});
 val(Other, _O, _D) ->
-	val(Other).
+    val(Other).
 
-set({attr, AttrType, Attr, Whose}, O, D, Val) ->
-	set({attr, AttrType, Attr, who(Whose, O, D)}, Val).
+set({attr, Attr, Whose}, O, D, Val) ->
+    set({attr, Attr, who(Whose, O, D)}, Val).

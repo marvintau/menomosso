@@ -4,17 +4,10 @@
 
 -export([init_table/0, create_skills/0]).
 
--export([update_skills/1]).
 
 init_table() ->
     ets:new(skills, [set, public, named_table, {read_concurrency, true}]),
     create_skills().
-
-update_skills(Data) ->
-    Res = skills_to_erlang:skills(Data),
-    true = ets:delete_all_objects(skills),
-    ets:insert(skills, Res),
-    ok.
 
 physical_attack_spec(Absorbable) ->
     {physical, attack, Absorbable, non_resistable, 0}.
@@ -30,14 +23,14 @@ magic_cast_spec() ->
     magic_cast_spec(non_resistable).
 
 plain_attack() ->
-    {{add_inc_mul, {{attr, attr, atk_range, off}, {single, -1}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, blowable}}.
+    {{add_inc_mul, {{attr, atk_range, off}, {single, -1}}, physical_attack_spec()}, {attr, hp, def}, {chase, blowable}}.
 plain_attack_no_blow() ->
-    {{add_inc_mul, {{attr, attr, atk_range, off}, {single, -1}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, non_blowable}}.
+    {{add_inc_mul, {{attr, atk_range, off}, {single, -1}}, physical_attack_spec()}, {attr, hp, def}, {chase, non_blowable}}.
 stand_plain_attack() ->
-    {{add_inc_mul, {{attr, attr, atk_range, off}, {single, -1}}, physical_cast_spec()}, {attr, state, hp, def}, {stand, non_blowable}}.
+    {{add_inc_mul, {{attr, atk_range, off}, {single, -1}}, physical_cast_spec()}, {attr, hp, def}, {stand, non_blowable}}.
 
 counter_attack(Times) ->
-    {{add_inc_mul, {{attr, state, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, state, hp, def}, {stand, blowable}}.
+    {{add_inc_mul, {{attr, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, hp, def}, {stand, blowable}}.
 
 buff(AttrType, Attr, Buff) ->
     {{add_mul, {{single, 1+Buff}}, magic_cast_spec()}, {attr, AttrType, Attr, off}, {stand, non_blowable}}.
@@ -70,7 +63,7 @@ next_attack(LastFor) ->
 
 
 opponent_critical() ->
-    {critical, '==', {attr, attr, outcome, def}}.
+    {critical, '==', {attr, outcome, def}}.
 
 
 create_skills() ->
@@ -104,11 +97,11 @@ create_skills() ->
         ]}]},
 
         {<<"healing_potion">>, [{0, [
-            {seq(), [{{add, {{range, [175, 225]}}, magic_cast_spec()}, {attr, state, hp, off}, {back, non_blowable}}]}
+            {seq(), [{{add, {{range, [175, 225]}}, magic_cast_spec()}, {attr, hp, off}, {back, non_blowable}}]}
         ]}]},
 
         {<<"pierce_armor">>, [{0, [
-            {seq(3),[{{add_mul, {{single, -0.5}}, magic_cast_spec()}, {attr, attr, armor, def}, {stand, non_blowable}}]}
+            {seq(3),[{{add_mul, {{single, -0.5}}, magic_cast_spec()}, {attr, armor, def}, {stand, non_blowable}}]}
         ]}]},
 
         {<<"poison_gas">>, [{0.5, [
@@ -130,11 +123,11 @@ create_skills() ->
         ]}]},
 
         {<<"rune_of_the_void">>, [{0, [
-            {seq(), [{{set, {{single, 1}}, magic_cast_spec()}, {attr, attr, cast_disabled, def}, {stand, non_blowable}}]}
+            {seq(), [{{set, {{single, 1}}, magic_cast_spec()}, {attr, cast_disabled, def}, {stand, non_blowable}}]}
         ]}]},
 
         {<<"holy_hand_grenade">>, [{0, [
-            {seq(), [{{add, {{range, [-500, -1]}}, magic_cast_spec(resistable)}, {attr, state, hp, def}, {back, non_blowable}}]}
+            {seq(), [{{add, {{range, [-500, -1]}}, magic_cast_spec(resistable)}, {attr, hp, def}, {back, non_blowable}}]}
         ]}]},
 
         {<<"talisman_of_shielding">>, [{0, [
@@ -142,7 +135,7 @@ create_skills() ->
         ]}]},
 
         {<<"talisman_of_death">>, [{0, [
-            {seq(), [{{add_mul, {{single, -0.15}}, magic_cast_spec()}, {attr, state, hp, def}, {back, non_blowable}}]}
+            {seq(), [{{add_mul, {{single, -0.15}}, magic_cast_spec()}, {attr, hp, def}, {back, non_blowable}}]}
         ]}]},
 
         {<<"talisman_of_spellshrouding">>, [{0, [
@@ -161,8 +154,8 @@ create_skills() ->
 
         {<<"concussion">>, [{0, [
             {seq(0), [
-                {{add_inc_mul, {{attr, attr, critical, def}, {single, -0.5}}, magic_cast_spec()}, {attr, state, hp, def}, {stand, non_blowable}},
-                {{add_inc_mul, {{attr, attr, agility, def}, {single, -1}}, physical_attack_spec(absorbable)}, {attr, state, hp, def}, {stand, non_blowable}}
+                {{add_inc_mul, {{attr, critical, def}, {single, -0.5}}, magic_cast_spec()}, {attr, hp, def}, {stand, non_blowable}},
+                {{add_inc_mul, {{attr, agility, def}, {single, -1}}, physical_attack_spec(absorbable)}, {attr, hp, def}, {stand, non_blowable}}
             ]}
         ]}]},
 
@@ -172,7 +165,7 @@ create_skills() ->
 
         {<<"first_aid">>, [{0, [
             {seq(), [
-                {{add_inc_mul, {{attr, state, hp, off}, {single, 0.08}}, magic_cast_spec()}, {attr, state, hp, off}, {back, non_blowable}}
+                {{add_inc_mul, {{attr, hp, off}, {single, 0.08}}, magic_cast_spec()}, {attr, hp, off}, {back, non_blowable}}
             ]}
         ]}]},
 
@@ -202,7 +195,7 @@ create_skills() ->
 
         {<<"deadly_strike">>, [{0, [
             {seq(), [
-                {{add_inc_mul, {{attr, attr, atk_range, off}, {single, 2.5}}, physical_attack_spec()}, {attr, state, hp, def}, {chase, blowable}}
+                {{add_inc_mul, {{attr, atk_range, off}, {single, 2.5}}, physical_attack_spec()}, {attr, hp, def}, {chase, blowable}}
             ]}
         ]}]},
 
@@ -222,9 +215,9 @@ create_skills() ->
 
         {<<"unbalancing_strike">>, [{0, [
             {seq(4), [
-                {{add, {{single, -7}}, magic_cast_spec()}, {attr, attr, dodge, def}, {stand, non_blowable}},
-                {{add, {{single, -7}}, magic_cast_spec()}, {attr, attr, block, def}, {stand, non_blowable}},
-                {{add, {{single, -7}}, magic_cast_spec()}, {attr, attr, hit, def}, {stand, non_blowable}}
+                {{add, {{single, -7}}, magic_cast_spec()}, {attr, dodge, def}, {stand, non_blowable}},
+                {{add, {{single, -7}}, magic_cast_spec()}, {attr, block, def}, {stand, non_blowable}},
+                {{add, {{single, -7}}, magic_cast_spec()}, {attr, hit, def}, {stand, non_blowable}}
             ]}
         ]}]}
     ],
