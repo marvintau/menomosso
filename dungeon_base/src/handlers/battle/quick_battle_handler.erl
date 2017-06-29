@@ -70,10 +70,12 @@ handle_post(Req, State) ->
     PlayerAWithCards = PlayerA#{card => hd([CardA || CardA <- CardsA, maps:get(card_id, CardA) =:= CardIdA ])},
     #{card:=#{selected_skills:=SelectedSkillsA}} = PlayerAWithCards,
     PlayerAWithCardProfilesRemoved = maps:remove(card_profiles, PlayerAWithCards),
+    PlayerAFinal = PlayerAWithCardProfilesRemoved#{selected_skills=>SelectedSkillsA},
 
     PlayerBWithCards = PlayerB#{card => hd([CardB || CardB <- CardsB, maps:get(card_id, CardB) =:= CardIdB ])},
     #{card:=#{selected_skills:=SelectedSkillsB}} = PlayerBWithCards,
     PlayerBWithCardProfilesRemoved = maps:remove(card_profiles, PlayerBWithCards),
+    PlayerBFinal = PlayerBWithCardProfilesRemoved#{selected_skills=>SelectedSkillsB},
 
     {ok, BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
     {ok, BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
