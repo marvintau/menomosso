@@ -17,11 +17,13 @@ get({attr, Attr, Whose}) ->
 set({attr, Attr, Whose}=Ref, NewVal) when is_number(NewVal) ->
 
     case Whose of
-        #{state:=#{Attr:=_}=AttrSet} ->
+        #{state:=#{Attr:=_}=AttrSet, attr:=AttrTypeset} ->
             Whose#{state:=AttrSet#{
-                            Attr:={single, round(NewVal)},
+                            Attr:={single, round(NewVal)}
+                           },
+                   attr:=AttrTypeset#{
                             diff:={single, round(NewVal-val(Ref))}
-                           }
+                          }
                   };
         #{attr :=#{Attr:=_}=AttrSet} ->
             Whose#{attr:=AttrSet#{
