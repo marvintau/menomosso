@@ -59,11 +59,10 @@ handle_post(Req, State) ->
 
     error_logger:info_report(battle_begins),
 
-    {ok, #{player_profile:=#{rating:=RateA}}} = dungeon_base_sup:query({get_player, {IdA}}),
-    {ok, #{player_profile:=#{rating:=RateB}}} = dungeon_base_sup:query({get_player, {IdB}}),
-
     {ok, #{player_profile:=#{rating:=RateA}} } = dungeon_base_sup:query({get_player, {IdA}}),
-    {ok, #{player_profile:=#{rating:=RateB, selected_skills:=SelectedSkillsB, preset_card_id:=CardIdB}} } = dungeon_base_sup:query({get_player, {IdB}}),
+    {ok, #{card_profiles:=CardsB, player_profile:=#{rating:=RateB, preset_card_id:=CardIdB}} } = dungeon_base_sup:query({get_player, {IdB}}),
+
+    SelectedSkillsB = hd([SelectedSkills || #{selected_skills:=SelectedSkills, card_id:=ID} <- CardsB, ID=:=CardIdB]),
 
     {ok, BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA, CardIdA, SelectedSkillsA}}),
     {ok, BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
