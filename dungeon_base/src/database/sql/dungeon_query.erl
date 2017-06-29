@@ -185,7 +185,7 @@ get_player_battle(Conn, {PlayerUUID, CardID, SelectedSkills}) ->
 %% 更新玩家的预设技能
 update_preset(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
 
-    SkillBinList = [list_to_binary(["\"",SkillName,"\""]) || SkillName <- SkillList],
+    SkillBinList = [list_to_binary(["\"",SkillName,",\""]) || SkillName <- SkillList],
 
     Set   = #{preset_card_id=>SelfCardID},
     Cond  = #{player_id=>PlayerUUID},
