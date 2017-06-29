@@ -25,7 +25,7 @@ get(Conn, PlayerID) ->
 
     Query = util:get_query(<<"player_obtained_card">>, #{
         player_id=>PlayerID
-    }),
+    }, <<"card_id">>),
 
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
     Res = util:get_mapped_records(ColumnSpec, Result),
@@ -37,7 +37,7 @@ get(Conn, PlayerID, CardID) ->
     Query = util:get_query(<<"player_obtained_card">>, #{
         player_id => PlayerID,
         card_id   => CardID
-    }, <<"card_id">>),
+    }),
    
 
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
