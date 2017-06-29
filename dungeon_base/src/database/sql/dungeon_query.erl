@@ -197,7 +197,7 @@ update_preset(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
     CondSkill = #{player_id=>PlayerUUID, card_id=>SelfCardID},
     QuerySkill = util:set_query(<<"player_obtained_card">>, SetSkill, CondSkill),
 
-    error_logger:info_report(list_to_binary(QuerySkill)),
+    error_logger:info_report(binary_to_list(QuerySkill)),
 
     {ok, 1} = epgsql:squery(Conn, QuerySkill).
 
