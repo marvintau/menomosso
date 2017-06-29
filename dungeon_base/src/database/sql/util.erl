@@ -103,5 +103,7 @@ get_query(TableName) ->
     list_to_binary(["select * from ", TableName, ";" ]).
 get_query(TableName, CondMap) ->
     Conds       = list_to_delimited(get_assignments(maps:to_list(CondMap)), " and "),
-
     list_to_binary(["select * from ", TableName, " where ", Conds, ";" ]).
+get_query(TableName, CondMap, OrderBy) ->
+    Conds       = list_to_delimited(get_assignments(maps:to_list(CondMap)), " and "),
+    list_to_binary(["select * from ", TableName, " where ", Conds, " order by ", OrderBy, ";" ]).

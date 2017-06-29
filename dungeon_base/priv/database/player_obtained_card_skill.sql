@@ -5,6 +5,7 @@
 drop table if exists player_obtained_card_skill cascade;
 create table player_obtained_card_skill (
 
+    player_card_skill_id serial,
     player_card_id uuid,
     player_id text,
     card_id uuid,
