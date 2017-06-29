@@ -39,12 +39,17 @@ get_merged_context_map(OriginalCardMap) ->
 get(Conn, PlayerUUID) ->
 
     #{preset_card_id:=CardID} =Player = player:get(Conn, PlayerUUID),
+    #{selected_skills:=SelectedSkills} = player_obtained_card:get(Conn, PlayerUUID, CardID),
+    PlayerWithSkills = Player#{selected_skills=>SelectedSkills},
+
     Context = get_merged_context_map(card_detail:get_context(Conn, PlayerUUID, CardID)),
-    {ok, maps:merge(Context, Player)}.
+    {ok, maps:merge(Context, PlayerWithSkills)}.
 
 get(Conn, PlayerUUID, CardID, SelectedSkills) ->
 
     PlayerRelated = player:get(Conn, PlayerUUID),
-    PlayerModified = PlayerRelated#{preset_card_id:=CardID, selected_skills:=SelectedSkills},
+    PlayerModified = PlayerRelated#{preset_card_id:=CardID},
     Context = get_merged_context_map(card_detail:get_context(Conn, PlayerUUID, CardID)),
-    {ok, maps:merge(Context, PlayerModified)}.
+    MergedContext = maps:merge(Context, PlayerModified),
+    MergedWithSkills = MergedContext#{selected_skills=>SelectedSkills},
+    {ok, MergedWithSkills}.

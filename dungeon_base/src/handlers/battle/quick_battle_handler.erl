@@ -63,15 +63,16 @@ handle_post(Req, State) ->
 
     error_logger:info_report(battle_begins),
 
-    {ok, #{card_profiles:=Haha, player_profile:=Player}} = dungeon_base_sup:query({get_player, {IdA}}),
-    {ok, #{card_profiles:=CardsA, player_profile:=#{rating:=RateA, selected_skills:=SelectedSkillsA, preset_card_id:=CardIdA}} = PlayerA} = dungeon_base_sup:query({get_player, {IdA}}),
-    {ok, #{card_profiles:=CardsB, player_profile:=#{rating:=RateB, selected_skills:=SelectedSkillsB, preset_card_id:=CardIdB}} = PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
+    {ok, #{card_profiles:=CardsA, player_profile:=#{rating:=RateA, preset_card_id:=CardIdA}} = PlayerA} = dungeon_base_sup:query({get_player, {IdA}}),
+    {ok, #{card_profiles:=CardsB, player_profile:=#{rating:=RateB, preset_card_id:=CardIdB}} = PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
 
 
     PlayerAWithCards = PlayerA#{card => hd([CardA || CardA <- CardsA, maps:get(card_id, CardA) =:= CardIdA ])},
+    #{card:=#{selected_skills:=SelectedSkillsA}} = PlayerAWithCards,
     PlayerAWithCardProfilesRemoved = maps:remove(card_profiles, PlayerAWithCards),
 
     PlayerBWithCards = PlayerB#{card => hd([CardB || CardB <- CardsB, maps:get(card_id, CardB) =:= CardIdB ])},
+    #{card:=#{selected_skills:=SelectedSkillsB}} = PlayerBWithCards,
     PlayerBWithCardProfilesRemoved = maps:remove(card_profiles, PlayerBWithCards),
 
     {ok, BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
