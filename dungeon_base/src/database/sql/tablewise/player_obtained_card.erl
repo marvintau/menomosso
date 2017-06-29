@@ -37,7 +37,7 @@ get(Conn, PlayerID, CardID) ->
     Query = util:get_query(<<"player_obtained_card">>, #{
         player_id => PlayerID,
         card_id   => CardID
-    }),
+    }, <<"card_id">>),
    
 
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
