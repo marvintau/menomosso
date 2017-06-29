@@ -22,6 +22,8 @@ add_new_supply(Conn, PlayerUUID, SupplyID) ->
 		('", LootID, "', '", PlayerUUID,"', ", integer_to_binary(SupplyID),", now(), now(), false, ", rand_true_false(),", ", rand_true_false(), ", ", rand_true_false(), ");"
     ]),
 
+    error_logger:info_report(QueryAddLoot),
+
     QueryAddLootItems = list_to_binary([
 		"insert into loot_list(loot_id, item_id, item_qty)
 		select '", LootID, "', item_id, qty from (
@@ -41,9 +43,9 @@ add_new_supply(Conn, PlayerUUID, SupplyID) ->
 	    			error_logger:info_report({add_loot_item, Error}),
 	    			{error, Error}
 	    		end;
-			Error ->
-				error_logger:info_report({add_loot, Error}),
-				{error, Error}
+                Error ->
+                        error_logger:info_report({add_loot, Error}),
+                        {error, Error}
 	    end
 	end.
 
