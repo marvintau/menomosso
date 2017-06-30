@@ -2,8 +2,8 @@ drop table if exists mail cascade;
 
 create table mail(
     mail_id uuid not null, unique(mail_id),
-    sender_id uuid not null,
-    receiver_id uuid not null,
+    sender_id text not null,
+    receiver_id text not null,
     has_item boolean not null default false,
     repliable boolean not null default false,
     

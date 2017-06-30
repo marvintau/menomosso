@@ -5,6 +5,6 @@ create table mail_reply(
     mail_id uuid not null,
     reply_seq int not null,
     reply_time timestamp not null default now(),
-    sender_id uuid not null,
+    sender_id text not null,
     content text not null
 );

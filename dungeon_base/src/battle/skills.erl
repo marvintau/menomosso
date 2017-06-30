@@ -66,6 +66,21 @@ opponent_critical() ->
     {critical, '==', {attr, outcome, def}}.
 
 
+modify_skill([{prob_group, WhichGroup} | Rem], ProbGroups) ->
+    setelement(WhichGroup, modify_skill(Rem, element(WhichGroup, ProbGroups)), ProbGroups);
+modify_skill([all_prob_group | Rem], ProbGroups) ->
+    ProbGroupsList = tuple_to_list(ProbGroups),
+    [modify_skill(Rem, ProbGroup) || ProbGroup <- ProbGroups];
+
+modify_skill([{prob, NewProb}], ProbGroup) ->
+    setelement(1, NewProb, ProbGroup);
+
+modify_skill([{cond_group, WhichGroup} | Rem], ProbGroup) ->
+    setelement(WhichGroup, modify_skill(Rem, element(WhichGroup, ProbGroup)), ProbGroup);
+
+modify_skill([all_cond_group | Rem], ProbGroup) ->
+    
+
 create_skills() ->
     true = ets:delete_all_objects(skills),
 
