@@ -222,7 +222,7 @@ update_frag(Conn, {FragIncre, CardID, PlayerUUID}) ->
     CardList    = [ID || #{card_id:=ID} <-Cards],
 
     case lists:member(CardID, CardList) of
-        false -> player_obtained_card:add(Conn, {CardID, PlayerUUID});
+        false -> player_obtained_card:add(Conn, CardID, PlayerUUID);
         _ ->
             error_logger:info_report(FragIncre),
             SetExp = #{frags=> {e, list_to_binary(["frags+", FragIncre])}},

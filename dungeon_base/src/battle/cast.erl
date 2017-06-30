@@ -10,16 +10,19 @@
 % latter function is the actual entrance that takes cast name as argument, and
 % find the specification in database, and re-interpret it with battle context.
 
-parse(single_trans, {Index, Name, {Cond, TransList} = _EffectSpec, IsSuccessful}) ->
+parse(single_trans, {Index, Name, {Cond, TransTuple} = _EffectSpec, IsSuccessful}) ->
+    TransList = tuple_to_list(TransTuple),
     [{Index, Name, Cond, Trans, IsSuccessful} || Trans <- TransList];
 
-parse(trans_list, {Index, Name, {Prob, EffectSpecs}}) ->
+parse(trans_list, {Index, Name, {Prob, EffectSpecTuple}}) ->
     IsSuccessful = rand:uniform() > Prob,
+    EffectSpecs = tuple_to_list(EffectSpecTuple),
     lists:concat([parse(single_trans, {Index, Name, EffectSpec, IsSuccessful}) || EffectSpec <- EffectSpecs]);
 
 parse(cast, {Index, SkillName}) ->
     erlang:display({skill_to_be_find, SkillName}),
-    {Name, Groups} = hd(ets:lookup(skills, SkillName)),
+    {Name, GroupTuples} = hd(ets:lookup(skills, SkillName)),
+    Groups = tuple_to_list(GroupTuples),
     lists:concat([parse(trans_list, {Index, Name, Group}) || Group <- Groups]);
 
 parse(list, {SkillList}) ->

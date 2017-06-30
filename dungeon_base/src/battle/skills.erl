@@ -32,11 +32,11 @@ stand_plain_attack() ->
 counter_attack(Times) ->
     {{add_inc_mul, {{attr, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, hp, def}, {stand, blowable}}.
 
-buff(AttrType, Attr, Buff) ->
-    {{add_mul, {{single, 1+Buff}}, magic_cast_spec()}, {attr, AttrType, Attr, off}, {stand, non_blowable}}.
+buff(Attr, Buff) ->
+    {{add_mul, {{single, 1+Buff}}, magic_cast_spec()}, {attr, Attr, off}, {stand, non_blowable}}.
 
-toggle(Who, AttrType, Attr, Switch) ->
-    {{set, {{single, Switch}}, magic_cast_spec()}, {attr, AttrType, Attr, Who}, {stand, non_blowable}}.
+toggle(Who, Attr, Switch) ->
+    {{set, {{single, Switch}}, magic_cast_spec()}, {attr, Attr, Who}, {stand, non_blowable}}.
 
 seq() ->
     seq(0).
@@ -70,156 +70,156 @@ create_skills() ->
     true = ets:delete_all_objects(skills),
 
     Skills = [
-        {<<"single_attack">>, [{0, [
-            {seq(), [plain_attack()]}
-        ]}]},
+        {<<"single_attack">>, {{0, {
+            {seq(), {plain_attack()}}
+        }}}},
 
-        {<<"double_attack">>, [{0, [
-            {seq(), [stand_plain_attack(), plain_attack()]}
-        ]}]},
+        {<<"double_attack">>, {{0, {
+            {seq(), {stand_plain_attack(), plain_attack()}}
+        }}}},
 
-        {<<"triple_attack">>, [{0, [
-            {seq(), [stand_plain_attack(), stand_plain_attack(), plain_attack_no_blow()]}
-        ]}]},
+        {<<"triple_attack">>, {{0, {
+            {seq(), {stand_plain_attack(), stand_plain_attack(), plain_attack_no_blow()}}
+        }}}},
 
-        {<<"charm_of_foresight">>, [{0, [
-            {next_damage(), [buff(attr, dodge, 0.25), buff(attr, block, 0.25)]}
-        ]}]},
-        {<<"fortify_armor">>, [{0, [
-            {next_damage(), [buff(attr, dodge, 0.3)]}
-        ]}]},
-        {<<"increase_crit">>, [{0, [
-            {next_damage(), [buff(attr, critical, 0.25)]}
-        ]}]},
+        {<<"charm_of_foresight">>, {{0, {
+            {next_damage(), {buff(dodge, 0.25), buff(block, 0.25)}}
+        }}}},
+        {<<"fortify_armor">>, {{0, {
+            {next_damage(), {buff(dodge, 0.3)}}
+        }}}},
+        {<<"increase_crit">>, {{0, {
+            {next_damage(), {buff(critical, 0.25)}}
+        }}}},
 
-        {<<"counterattack">>, [{0, [
-            {next_damage(0, [opponent_critical()], counter), [counter_attack(3)]}
-        ]}]},
+        {<<"counterattack">>, {{0, {
+            {next_damage(0, {opponent_critical()}, counter), {counter_attack(3)}}
+        }}}},
 
-        {<<"healing_potion">>, [{0, [
-            {seq(), [{{add, {{range, [175, 225]}}, magic_cast_spec()}, {attr, hp, off}, {back, non_blowable}}]}
-        ]}]},
+        {<<"healing_potion">>, {{0, {
+            {seq(), {{{add, {{range, [175, 225]}}, magic_cast_spec()}, {attr, hp, off}, {back, non_blowable}}}}
+        }}}},
 
-        {<<"pierce_armor">>, [{0, [
-            {seq(3),[{{add_mul, {{single, -0.5}}, magic_cast_spec()}, {attr, armor, def}, {stand, non_blowable}}]}
-        ]}]},
+        {<<"pierce_armor">>, {{0, [
+            {seq(3), {{{add_mul, {{single, -0.5}}, magic_cast_spec()}, {attr, armor, def}, {stand, non_blowable}}}}
+        ]}}},
 
-        {<<"poison_gas">>, [{0.5, [
-            {seq(2), [
-                toggle(def, attr, is_stunned, 1),
-                toggle(def, attr, cast_disabled, 1),
-                toggle(def, attr, block, 0),
-                toggle(def, attr, dodge, 0),
-                toggle(def, attr, resist, 0)
-            ]}
-        ]},{0.5,[
-            {seq(2), [
-                toggle(off, attr, is_stunned, 1),
-                toggle(off, attr, cast_disabled, 1),
-                toggle(off, attr, block, 0),
-                toggle(off, attr, dodge, 0),
-                toggle(off, attr, resist, 0)
-            ]}
-        ]}]},
+        {<<"poison_gas">>, {{0.5, {
+            {seq(2), {
+                toggle(def, is_stunned, 1),
+                toggle(def, cast_disabled, 1),
+                toggle(def, block, 0),
+                toggle(def, dodge, 0),
+                toggle(def, resist, 0)
+            }}
+        }},{0.5,{
+            {seq(2), {
+                toggle(off, is_stunned, 1),
+                toggle(off, cast_disabled, 1),
+                toggle(off, block, 0),
+                toggle(off, dodge, 0),
+                toggle(off, resist, 0)
+            }}
+        }}}},
 
-        {<<"rune_of_the_void">>, [{0, [
-            {seq(), [{{set, {{single, 1}}, magic_cast_spec()}, {attr, cast_disabled, def}, {stand, non_blowable}}]}
-        ]}]},
+        {<<"rune_of_the_void">>, {{0, {
+            {seq(), {{{set, {{single, 1}}, magic_cast_spec()}, {attr, cast_disabled, def}, {stand, non_blowable}}}}
+        }}}},
 
-        {<<"holy_hand_grenade">>, [{0, [
-            {seq(), [{{add, {{range, [-500, -1]}}, magic_cast_spec(resistable)}, {attr, hp, def}, {back, non_blowable}}]}
-        ]}]},
+        {<<"holy_hand_grenade">>, {{0, {
+            {seq(), {{{add, {{range, [-500, -1]}}, magic_cast_spec(resistable)}, {attr, hp, def}, {back, non_blowable}}}}
+        }}}},
 
-        {<<"talisman_of_shielding">>, [{0, [
-            {next_damage(), [buff(attr, armor, 0.5)]}
-        ]}]},
+        {<<"talisman_of_shielding">>, {{0, {
+            {next_damage(), {buff(armor, 0.5)}}
+        }}}},
 
-        {<<"talisman_of_death">>, [{0, [
-            {seq(), [{{add_mul, {{single, -0.15}}, magic_cast_spec()}, {attr, hp, def}, {back, non_blowable}}]}
-        ]}]},
+        {<<"talisman_of_death">>, {{0, {
+            {seq(), {{{add_mul, {{single, -0.15}}, magic_cast_spec()}, {attr, hp, def}, {back, non_blowable}}}}
+        }}}},
 
-        {<<"talisman_of_spellshrouding">>, [{0, [
-            {next_damage(), [buff(attr, resist, 1)]}
-        ]}]},
+        {<<"talisman_of_spellshrouding">>, {{0, {
+            {next_damage(), {buff(resist, 1)}}
+        }}}},
 
-        {<<"sure_hit">>, [{0, [
-            {next_attack(), [
-                toggle(def, attr, resist, 0),
-                toggle(def, attr, block, 0),
-                toggle(def, attr, dodge, 0),
-                toggle(def, attr, critical, 0),
-                toggle(def, attr, hit, 0)
-            ]}
-        ]}]},
+        {<<"sure_hit">>, {{0, {
+            {next_attack(), {
+                toggle(def, resist, 0),
+                toggle(def, block, 0),
+                toggle(def, dodge, 0),
+                toggle(def, critical, 0),
+                toggle(def, hit, 0)
+            }}
+        }}}},
 
-        {<<"concussion">>, [{0, [
-            {seq(0), [
+        {<<"concussion">>, {{0, {
+            {seq(0), {
                 {{add_inc_mul, {{attr, critical, def}, {single, -0.5}}, magic_cast_spec()}, {attr, hp, def}, {stand, non_blowable}},
                 {{add_inc_mul, {{attr, agility, def}, {single, -1}}, physical_attack_spec(absorbable)}, {attr, hp, def}, {stand, non_blowable}}
-            ]}
-        ]}]},
+            }}
+        }}}},
 
-        {<<"double_swing">>, [{0, [
-            {seq(2, counter, []), [stand_plain_attack(), plain_attack()]}
-        ]}]},
+        {<<"double_swing">>, {{0, {
+            {seq(2, counter, []), {stand_plain_attack(), plain_attack()}}
+        }}}},
 
-        {<<"first_aid">>, [{0, [
+        {<<"first_aid">>, {{0, {
             {seq(), [
                 {{add_inc_mul, {{attr, hp, off}, {single, 0.08}}, magic_cast_spec()}, {attr, hp, off}, {back, non_blowable}}
             ]}
-        ]}]},
+        }}}},
 
-        {<<"shield_wall">>, [{0, [
-            {next_damage(), [
-                toggle(off, attr, dodge, 0),
-                toggle(off, attr, block, 120),
-                toggle(def, attr, hit, 0),
-                toggle(def, attr, critical, 0)
-            ]}
-        ]}]},
+        {<<"shield_wall">>, {{0, {
+            {next_damage(), {
+                toggle(off, dodge, 0),
+                toggle(off, block, 120),
+                toggle(def, hit, 0),
+                toggle(def, critical, 0)
+            }}
+        }}}},
 
-        {<<"chain_lock">>, [{0, [
-            {seq(), [
-                toggle(def, attr, cast_disabled, 1)
-            ]}
-        ]}]},
+        {<<"chain_lock">>, {{0, {
+            {seq(), {
+                toggle(def, cast_disabled, 1)
+            }}
+        }}}},
 
-        {<<"critical_strike">>, [{0, [
-            {next_attack(0), [
-                toggle(def, attr, dodge, 0),
-                toggle(def, attr, block, 0),
-                toggle(off, attr, critical, 120),
-                toggle(off, attr, hit, 0)
-            ]}
-        ]}]},
+        {<<"critical_strike">>, {{0, {
+            {next_attack(0), {
+                toggle(def, dodge, 0),
+                toggle(def, block, 0),
+                toggle(off, critical, 120),
+                toggle(off, hit, 0)
+            }}
+        }}}},
 
-        {<<"deadly_strike">>, [{0, [
-            {seq(), [
+        {<<"deadly_strike">>, {{0, {
+            {seq(), {
                 {{add_inc_mul, {{attr, atk_range, off}, {single, 2.5}}, physical_attack_spec()}, {attr, hp, def}, {chase, blowable}}
-            ]}
-        ]}]},
+            }}
+        }}}},
 
-        {<<"shield_breaker">>, [{0, [
-            {seq(4), [
-            toggle(def, attr, block, 0)
-            ]},
-            {next_damage(), [
-                toggle(off, attr, is_stunned, 1),
-                toggle(off, attr, cast_disabled, 1),
-                toggle(off, attr, dodge, 0),
-                toggle(off, attr, block, 0),
-                toggle(off, attr, critical, 0),
-                toggle(off, attr, hit, 0)
-            ]}
-        ]}]},
+        {<<"shield_breaker">>, {{0, {
+            {seq(4), {
+                toggle(def, block, 0)
+            }},
+            {next_damage(), {
+                toggle(off, is_stunned, 1),
+                toggle(off, cast_disabled, 1),
+                toggle(off, dodge, 0),
+                toggle(off, block, 0),
+                toggle(off, critical, 0),
+                toggle(off, hit, 0)
+            }}
+        }}}},
 
-        {<<"unbalancing_strike">>, [{0, [
-            {seq(4), [
+        {<<"unbalancing_strike">>, {{0, {
+            {seq(4), {
                 {{add, {{single, -7}}, magic_cast_spec()}, {attr, dodge, def}, {stand, non_blowable}},
                 {{add, {{single, -7}}, magic_cast_spec()}, {attr, block, def}, {stand, non_blowable}},
                 {{add, {{single, -7}}, magic_cast_spec()}, {attr, hit, def}, {stand, non_blowable}}
-            ]}
-        ]}]}
+            }}
+        }}}}
     ],
 
     ets:insert(skills, Skills),
