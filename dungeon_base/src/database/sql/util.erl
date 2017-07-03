@@ -107,3 +107,7 @@ get_query(TableName, CondMap) ->
 get_query(TableName, CondMap, OrderBy) ->
     Conds       = list_to_delimited(get_assignments(maps:to_list(CondMap)), " and "),
     list_to_binary(["select * from ", TableName, " where ", Conds, " order by ", OrderBy, ";" ]).
+
+get_query(TableName, CondMap, {order_by, OrderBy}, {limit, Limit, offset, Offset}) ->
+    Conds       = list_to_delimited(get_assignments(maps:to_list(CondMap)), " and "),
+    list_to_binary(["select * from ", TableName, " where ", Conds, " order by ", OrderBy, " limit ", Limit, " offset ", Offset, ";" ]).

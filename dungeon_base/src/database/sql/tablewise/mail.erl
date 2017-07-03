@@ -1,9 +1,18 @@
 -module(mail).
 
--export([get/2, get/3, set/4, add/2]).
+-export([get/2, get_offset/3, get/3, set/4, add/2]).
 
 get(Conn, ReceiverID) ->
      Query = util:get_query(<<"mail">>, #{receiver_id=>ReceiverID}),
+     {ok, Columns, Mails} = epgsql:squery(Conn, Query),
+
+     Res = util:get_mapped_records(Columns, Mails),
+    error_logger:info_report(Res),
+     Res.
+
+get_offset(Conn, ReceiverID, Offset) ->
+     Query = util:get_query(<<"mail">>, #{receiver_id=>ReceiverID}, {order_by, <<"send_time">>}, {limit, <<"20">>, offset, Offset}),
+    error_logger:info_report(binary_to_list(Query)),
      {ok, Columns, Mails} = epgsql:squery(Conn, Query),
 
      Res = util:get_mapped_records(Columns, Mails),

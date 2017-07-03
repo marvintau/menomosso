@@ -67,31 +67,31 @@ opponent_critical() ->
 
 
 modify_skill([{prob_group, WhichGroup} | Rem], ProbGroups) ->
-    setelement(WhichGroup, modify_skill(Rem, element(WhichGroup, ProbGroups)), ProbGroups);
+    setelement(WhichGroup, ProbGroups, modify_skill(Rem, element(WhichGroup, ProbGroups)));
 modify_skill([all_prob_group | Rem], ProbGroups) ->
     ProbGroupsList = tuple_to_list(ProbGroups),
     Applied = [modify_skill(Rem, ProbGroup) || ProbGroup <- ProbGroupsList],
     list_to_tuple(Applied);
 
 modify_skill([{prob, NewProb}], ProbGroup) ->
-    setelement(1, NewProb, ProbGroup);
+    setelement(1, ProbGroup, NewProb);
 modify_skill([cond_groups | Rem], ProbGroup) ->
-    setelement(2, modify_skill(Rem, element(2, ProbGroup)), ProbGroup);
+    setelement(2, ProbGroup, modify_skill(Rem, element(2, ProbGroup)));
 
 modify_skill([{cond_group, WhichGroup} | Rem], CondGroups) ->
-    setelement(WhichGroup, modify_skill(Rem, element(WhichGroup, CondGroups)), CondGroups);
+    setelement(WhichGroup, CondGroups, modify_skill(Rem, element(WhichGroup, CondGroups)));
 modify_skill([all_cond_group | Rem], CondGroups) ->
     CondGroupsList = tuple_to_list(CondGroups),
     Applied = [modify_skill(Rem, CondGroup) || CondGroup <- CondGroupsList],
     list_to_tuple(Applied);
 
 modify_skill([{cond_, Cond}], CondGroup) ->
-    setelement(1, Cond, CondGroup);
+    setelement(1, CondGroup, Cond);
 modify_skill([trans | Rem], CondGroup) ->
-    setelement(2, modify_skill(Rem, element(2, CondGroup)), CondGroup);
+    setelement(2, CondGroup, modify_skill(Rem, element(2, CondGroup)));
 
 modify_skill([{trans_group, WhichGroup} | Rem], Trans) ->
-    setelement(WhichGroup, modify_skill(Rem, element(WhichGroup, Trans)), Trans);
+    setelement(WhichGroup, Trans, modify_skill(Rem, element(WhichGroup, Trans)));
 modify_skill([all_trans_group | Rem], Trans) ->
     TransGroupsList = tuple_to_list(Trans),
     Applied = [modify_skill(Rem, TransGroup) || TransGroup <- TransGroupsList],

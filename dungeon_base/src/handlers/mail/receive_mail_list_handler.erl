@@ -52,9 +52,9 @@ handle_post(Req, State) ->
             {<<"Nah">>, Req}
     end,
 
-    #{<<"receiver_id">>:=ReceiverID} = jiffy:decode(ReqBody, [return_maps]),
+    #{<<"receiver_id">>:=ReceiverID, <<"offset">>:=Offset} = jiffy:decode(ReqBody, [return_maps]),
     
-    Message = dungeon_base_sup:query({receive_mail_list, {ReceiverID}}),
+    Message = dungeon_base_sup:query({receive_mail_list, {ReceiverID, Offset}}),
 
     Res = cowboy_req:set_resp_body(jiffy:encode(Message), NextReq),
 

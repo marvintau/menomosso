@@ -1,6 +1,6 @@
 -module(mail_service).
 
--export([send_mail/5, recv_mail_list/2, read_mail/3, reply_mail/5, delete_mail/3, open_attachment/3]).
+-export([send_mail/5, recv_mail_list/3, read_mail/3, reply_mail/5, delete_mail/3, open_attachment/3]).
 
 send_mail(Conn, PlayerUUID, ReceiverUUID, Content, Attachment) ->
 
@@ -18,10 +18,10 @@ send_mail(Conn, PlayerUUID, ReceiverUUID, Content, Attachment) ->
         {ok, ok} ->
             case Attachment of 
                 [] ->
-                    mail:add(Conn, #{sender_id=>PlayerUUID, receiver_id=>ReceiverUUID, content=>Content}),
+                    mail:add(Conn, #{sender_id=>PlayerUUID, receiver_id=>ReceiverUUID, content=>Content, repliable=>true}),
                     #{ok=>mail_sent};
                 Attachs ->
-                    MailID = mail:add(Conn, #{sender_id=>PlayerUUID, receiver_id=>ReceiverUUID, content=>Content, has_item=>true}),
+                    MailID = mail:add(Conn, #{sender_id=>PlayerUUID, receiver_id=>ReceiverUUID, content=>Content, has_item=>true, repliable=>true}),
                     [mail_item:add(Conn, MailID, ItemID, ItemQty) || #{<<"item_id">>:=ItemID, <<"item_qty">>:=ItemQty} <- Attachs],
                     #{ok=>mail_sent}
             end;
@@ -33,14 +33,23 @@ send_mail(Conn, PlayerUUID, ReceiverUUID, Content, Attachment) ->
 trunc_title(<<Title:20, _>>) -> Title;
 trunc_title(Title) -> Title.
 
-trunc_mail(#{content:=Content}=Mail) ->
-    Mail#{content:=trunc_title(Content)}.
-
-recv_mail_list(Conn, ReceiverUUID) ->
-
-    ReceivedMails = mail:get(Conn, ReceiverUUID),
+process_mail(Conn, Mail) ->
     
-    ReturnedMailList = [trunc_mail(Mail) || #{is_deleted:=IsDeleted}=Mail <- ReceivedMails, IsDeleted /= <<"t">>],
+    #{content:=Content, mail_id:=MailID} = Mail,
+
+    Replies = mail_reply:get(Conn, MailID),
+
+   
+    Attachments = mail_item:get(Conn, MailID),
+    PeeledAttachments = [maps:remove(mail_id, Att) || Att <- Attachments],
+
+    Mail#{content=>trunc_title(Content), replies=>Replies, attachment=>PeeledAttachments}.
+
+recv_mail_list(Conn, ReceiverUUID, Offset) ->
+
+    ReceivedMails = mail:get_offset(Conn, ReceiverUUID, Offset),
+    
+    ReturnedMailList = [process_mail(Conn, Mail) || #{is_deleted:=IsDeleted}=Mail <- ReceivedMails, IsDeleted /= <<"t">>],
 
     ReturnedMailList.
 
@@ -48,13 +57,8 @@ read_mail(Conn, ReceiverID, MailID) ->
 
     mail:set(Conn, #{is_read=>true}, ReceiverID, MailID),
 
-    Mail = mail:get(Conn, ReceiverID, MailID),
+    mail:get(Conn, ReceiverID, MailID).
     
-    Replies = mail_reply:get(Conn, MailID),
-
-    Attachments = mail_item:get(Conn, MailID),
-
-    Mail#{replies=>Replies, attachment=>Attachments}.
 
 reply_mail(Conn, PlayerUUID, ReceiverUUID, MailID, Content) ->
 

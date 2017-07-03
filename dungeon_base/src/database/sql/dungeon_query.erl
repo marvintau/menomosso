@@ -359,8 +359,8 @@ send_mail(Conn, {SenderID, ReceiverID, Content}) ->
 send_mail_attached(Conn, {SenderID, ReceiverID, Content, Attachments}) ->
     mail_service:send_mail(Conn, SenderID, ReceiverID, Content, Attachments).
 
-receive_mail_list(Conn, {ReceiverID}) -> 
-    mail_service:recv_mail_list(Conn, ReceiverID).
+receive_mail_list(Conn, {ReceiverID, Offset}) -> 
+    mail_service:recv_mail_list(Conn, ReceiverID, Offset).
 
 read_mail(Conn, {ReceiverID, MailID}) ->
     mail_service:read_mail(Conn, ReceiverID, MailID).
