@@ -54,10 +54,4 @@ modify_skill([{match_affected_attr, AffectedAttr, RefValue} ], Trans) ->
 
 test() ->
 
-    Trans = {{add_inc_mul, {{attr, atk_range, off}, {single, -1}}, {physical, attack, absorbable, non_resistable, 0}}, {attr, hp, def}, {chase, blowable}},
-
-    Skill = {<<"single_attack">>, {{0, {
-            {{seq_norm, 0, 0, }, {Trans}}
-        }}}},
-
-    modify_skill([all_prob_group, {prob, 2}], Skill). 
+    Trans = {{add_inc_mul, {{attr, atk_range, off}, {single, -1}}, {physical, attack, absorbable, non_resistable, 0}}, {attr, hp, def}, {chase, blowable}}.
