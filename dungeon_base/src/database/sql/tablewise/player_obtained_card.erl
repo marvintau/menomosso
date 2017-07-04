@@ -68,7 +68,7 @@ set(Conn, PlayerMap, PlayerUUID, CardUUID) ->
 
 set_frag(Conn, {FragIncre, CardID, PlayerUUID}) ->
 
-    {ok, Cards} = get(Conn, PlayerUUID),
+    Cards = get(Conn, PlayerUUID),
     CardList    = [ID || #{card_id:=ID} <-Cards],
 
     case lists:member(CardID, CardList) of

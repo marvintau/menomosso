@@ -2,12 +2,10 @@
 
 -export([seq/3, check/4]).
 
-rand() -> element(3, erlang:timestamp())/1000000.
-
 % seq把在技能描述里关于“从放技能后的第几回合开始”和“持续几回合”，翻译成一场战斗中
 % 实际的回合序号列表。在检查的时候只看当前回合序号是否存在于回合序号列表内
 seq({{seq_rand, Start, {Last1, Last2}, Phase}, Others}, CurrSeq, _Skills) ->
-    {{lists:seq(CurrSeq + Start, rand() * (Last2 - Last1) + Last1), Phase}, Others};
+    {{lists:seq(CurrSeq + Start, rand:uniform(Last2 - Last1) + Last1), Phase}, Others};
 
 seq({{seq_ever, Start, null, Phase}, Others}, CurrSeq, _Skills) ->
     {{lists:seq(CurrSeq + Start, 20), Phase}, Others};
@@ -43,8 +41,8 @@ comp({Val, '<', TAP}, O, D) ->
 
 
 
-comps(CondList, O, D) ->
-	comps(CondList, O, D, true).
+comps(CondTuple, O, D) ->
+	comps(tuple_to_list(CondTuple), O, D, true).
 
 comps([Cond | RemConds], O, D, TrueValue) ->
     comps(RemConds, O, D, TrueValue and comp(Cond, O, D));

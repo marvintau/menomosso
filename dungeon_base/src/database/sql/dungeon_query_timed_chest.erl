@@ -121,7 +121,7 @@ check_chest_and_update(Conn, PlayerID) ->
     {ok, CheckResult, IsSameDay} = check_chest(Conn, PlayerID),
 
     case IsSameDay of
-        <<"f">> ->
+        {false, _} ->
             {ok, next_day_reset} = next_day_reset(Conn, PlayerID),
             {ok, NewCheckResult, _IsSameDay} = check_chest(Conn, PlayerID),
             {ok, NewCheckResult};

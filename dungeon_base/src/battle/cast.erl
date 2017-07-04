@@ -20,7 +20,7 @@ parse(trans_list, {Index, Name, {Prob, EffectSpecTuple}}) ->
     lists:concat([parse(single_trans, {Index, Name, EffectSpec, IsSuccessful}) || EffectSpec <- EffectSpecs]);
 
 parse(cast, {Index, SkillName}) ->
-    erlang:display({skill_to_be_find, SkillName}),
+    %erlang:display({skill_to_be_find, SkillName}),
     {Name, GroupTuples} = hd(ets:lookup(skills, SkillName)),
     Groups = tuple_to_list(GroupTuples),
     lists:concat([parse(trans_list, {Index, Name, Group}) || Group <- Groups]);
@@ -34,7 +34,7 @@ parse(list, {SkillList}) ->
 % 实际的回合序号列表。在检查的时候只看当前回合序号是否存在于回合序号列表内
 
 seq({{seq_rand, Start, {Last1, Last2}, Phase}, Others}, CurrSeq, _Effects, _EffectsOther) ->
-    {{lists:seq(CurrSeq + Start, rand:uniform() * (Last2 - Last1) + Last1), Phase}, Others};
+    {{lists:seq(CurrSeq + Start, rand:uniform(Last2 - Last1) + Last1), Phase}, Others};
 
 seq({{seq_ever, Start, null, Phase}, Others}, CurrSeq, _Effects, _EffectsOther) ->
     {{lists:seq(CurrSeq + Start, 20), Phase}, Others};
@@ -51,7 +51,7 @@ seq({{next_offense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq,
     CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff, _} <-Effects],
     FilteredIndex = [ I || {I, T} <- CheckedIndex, T == true, CurrSeq < I, CurrSeq + Last + 1 >= I],
 
-    erlang:display(CheckedIndex),
+    %erlang:display(CheckedIndex),
 
     {{FilteredIndex, Phase}, Others};
 
@@ -62,7 +62,7 @@ seq({{next_defense_norm, Last, {Attr, Move, Abs, Res}, Phase}, Others}, CurrSeq,
         ((AttrG == Attr) or (Attr == none)) and ((MoveG == Move) or (Move == none)) and
         ((AbsG == Abs) or (Abs == none)) and ((ResG == Res) or (Res == none)) end,
 
-    erlang:display(Effects),
+    %erlang:display(Effects),
 
     CheckedIndex = [ {Index, CheckPatternMatch(Eff)} || {Index, _, _, Eff, _} <-Effects],
     FilteredIndex = [ I || {I, T} <- CheckedIndex, T == true, CurrSeq < I, CurrSeq + Last + 1 >= I],

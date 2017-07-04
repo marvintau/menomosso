@@ -346,7 +346,7 @@ store_battle_record(Conn, Content) ->
     dungeon_query_battle_record:store(Conn, Content).
 
 fetch_battle_record_list(Conn, {SelfID, OppoID}) ->
-    dungeon_query_battle_record:fetch_list(Conn, SelfID, OppoID).
+    dungeon_query_battle_record:fetch_list(Conn, {SelfID, OppoID}).
 
 fetch_battle_record(Conn, {BattleRecordID}) ->
     dungeon_query_battle_record:fetch(Conn, BattleRecordID).

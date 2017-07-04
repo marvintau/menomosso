@@ -13,3 +13,4 @@ CREATE EXTENSION if not exists "uuid-ossp";
 \ir mail.sql
 \ir mail_item.sql
 \ir mail_reply.sql
+\ir friend.sql

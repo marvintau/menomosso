@@ -24,11 +24,11 @@ refresh_attributes(#{orig_attr := OrigA} = PlayerA, #{orig_attr := OrigB} = Play
 
 next_state(#{stage:=casting, seq:=Seq}=S, A, B) ->
     Offender = toss(A, B),
-    erlang:display({"=============", begin_settling, Seq+1, Offender, first}),
+    %erlang:display({"=============", begin_settling, Seq+1, Offender, first}),
     S#{stage:=settling, seq:=Seq+1, offender=>Offender};
 
 next_state(#{stage:=settling, seq:=Seq}=S, _, _) ->
-    erlang:display({"=============", begin_casting, Seq}),
+    %erlang:display({"=============", begin_casting, Seq}),
     S#{stage:=casting}.
 
 
@@ -72,8 +72,8 @@ loop(_, #{selected_skills:=SelectedA, state:=#{hp:={single, HA}}, player_id:=I1}
         true -> {I2, I1}
     end,
 
-    erlang:display({SelectedA, SelectedB}),
-    erlang:display({ended, someone_died}),
+    %erlang:display({SelectedA, SelectedB}),
+    %erlang:display({ended, someone_died}),
     {log, #{records=>lists:reverse(Log), winner=>Winner, loser=>Loser}};
 
 loop(#{seq:=Seq}, #{selected_skills:=SelectedA, state:=#{hp:={single, HA}}=_A, player_id:=I1}, #{selected_skills:=SelectedB, state:=#{hp:={single, HB}}=_B, player_id:=I2}, Log) when Seq > 22->
@@ -83,8 +83,8 @@ loop(#{seq:=Seq}, #{selected_skills:=SelectedA, state:=#{hp:={single, HA}}=_A, p
         true -> {I2, I1}
     end,
 
-    erlang:display({SelectedA, SelectedB}),
-    erlang:display({ended, no_more_skills}),
+    %erlang:display({SelectedA, SelectedB}),
+    %erlang:display({ended, no_more_skills}),
     {log, #{records=>lists:reverse(Log), winner=>Winner, loser=>Loser}};
 
 loop(State, A, B, L) ->
@@ -96,7 +96,7 @@ loop(State, A, B, L) ->
 
 start({#{selected_skills:=SelectedSkillsA} = A, #{selected_skills:=SelectedSkillsB} = B}) ->
 
-    erlang:display(battle_begins),
+    %erlang:display(battle_begins),
 
     S = next_state(#{seq=>0, stage=>casting}, A, B),
 

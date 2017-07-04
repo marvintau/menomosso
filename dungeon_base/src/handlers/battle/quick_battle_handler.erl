@@ -103,7 +103,7 @@ handle_post(Req, State) ->
 
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateA, IdA}}),
     {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateB, IdB}}),
-    {ok, rank_updated} = dungeon_base_sup:query({update_rank, {}}),
+    %{ok, rank_updated} = dungeon_base_sup:query({update_rank, {}}),
 
     {ok, RankA} = dungeon_base_sup:query({get_player_rank, {IdA}}),
     {ok, RankB} = dungeon_base_sup:query({get_player_rank, {IdB}}),

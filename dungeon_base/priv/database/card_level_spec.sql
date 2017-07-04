@@ -3,7 +3,7 @@ drop table if exists card_level_spec cascade;
 create table card_level_spec(
 	card_id 		uuid 	  not null,
 	level 			int  	  not null,
-	hp 				int  	  not null,
+	hp 			int  	  not null,
 	hit 			int  	  not null,
 	critical 		int  	  not null,
 	dodge 			int  	  not null,

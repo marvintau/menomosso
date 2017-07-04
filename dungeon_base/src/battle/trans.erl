@@ -86,12 +86,12 @@ repose(#{state:=#{pos:={single, PosO}}=StateO, attr:=#{outcome:={single, Outcome
 
         % 只有当PosO + PosD == 5 的时候才是格斗距离，比这个小说明远了
         chase when (PosO + PosD) < 5 ->
-            erlang:display(haha),
+            %erlang:display(haha),
             {5 - PosD, PosD, chase, not_assigned_yet};
 
         % 如果不是，则说明正是格斗距离，不动
         chase ->
-            erlang:display(hehe),
+            %erlang:display(hehe),
             {PosO, PosD, stand, not_assigned_yet};
 
         % 只有当 4 >= PosO + PosD >= 3的时候才是远战格斗距离，比这个再远需要追上
@@ -143,13 +143,13 @@ trans({set, Imm, _, _}, Ref) ->
 	ref:set(Ref, Imm);
 
 %% 当Inc < 0，且作用的属性是HP时，即是造成伤害，进入伤害处理程序
-trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, state, hp, P}=ToWhom) when Damage < 0 ->
+trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, hp, P}=ToWhom) when Damage < 0 ->
 
     %% 处理护甲减免
     AbsorbedDamage = case Absorbable of
         absorbable ->
-            erlang:display(ref:val({attr, attr, armor, P})),
-            ArmorRatio = 1 - ref:val({attr, attr, armor, P}) * 0.0001,
+            %erlang:display(ref:val({attr, armor, P})),
+            ArmorRatio = 1 - ref:val({attr, armor, P}) * 0.0001,
             Damage * ArmorRatio;
         _ ->
             Damage
@@ -160,7 +160,7 @@ trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, state, hp, P}=ToW
 
     CalculatedDamage = case Outcome of
         critical ->
-            CritMult = ref:val({attr, attr, critical_mult, P}),
+            CritMult = ref:val({attr, critical_mult, P}),
             AbsorbedDamage * CritMult;
         attack ->
             AbsorbedDamage;
@@ -171,7 +171,7 @@ trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, state, hp, P}=ToW
         _ -> 0
     end,
 
-    FinalDamage = CalculatedDamage * ref:val({attr, attr, damage_mult, P}),
+    FinalDamage = CalculatedDamage * ref:val({attr, damage_mult, P}),
     trans({set, ref:val(ToWhom) + FinalDamage, none, none}, ToWhom);
 
 trans({add, Inc, _, _Outcome}, ToWhom) ->
@@ -227,7 +227,7 @@ log_cast(S, SkillName, IsSuccessful,
         _ -> failed
     end,
 
-    erlang:display({NameO, {PosO, PosMoveO}, SkillName, CastOutcome, NameD, {PosD, PosMoveD}}),
+    %erlang:display({NameO, {PosO, PosMoveO}, SkillName, CastOutcome, NameD, {PosD, PosMoveD}}),
 
     #{
         state => maps:remove(offender, S),
@@ -276,7 +276,7 @@ log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Attr, Who}, _}},
         _ -> defender
     end,
 
-    erlang:display({{NameO, HPO}, {PosO, PosMoveO}, SkillName, Outcome, Attr, Dest, ref:val({attr, diff, Who}, O, D), {NameD, HPD}, {PosD, PosMoveD}}),
+    %erlang:display({{NameO, HPO}, {PosO, PosMoveO}, SkillName, Outcome, Attr, Dest, ref:val({attr, diff, Who}, O, D), {NameD, HPD}, {PosD, PosMoveD}}),
 
     #{
         state => maps:remove(offender, S),
