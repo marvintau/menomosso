@@ -11,7 +11,7 @@ get(Conn, ReceiverID) ->
      Res.
 
 get_offset(Conn, ReceiverID, Offset) ->
-     Query =list_to_binary(["select * from mail where receiver_id='", ReceiverID,"' or sender_id='",ReceiverID," order by time limit 20 offset ", Offset, ";"]),
+     Query =list_to_binary(["select * from mail where receiver_id='", ReceiverID,"' or sender_id='",ReceiverID,"' order by time limit 20 offset ", Offset, ";"]),
      error_logger:info_report(binary_to_list(Query)),
      {ok, Columns, Mails} = epgsql:squery(Conn, Query),
 
