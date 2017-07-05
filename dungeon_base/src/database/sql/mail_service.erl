@@ -35,15 +35,18 @@ trunc_title(Title) -> Title.
 
 process_mail(Conn, Mail) ->
     
-    #{content:=Content, mail_id:=MailID} = Mail,
+    #{content:=Content, mail_id:=MailID, sender_id:=SenderID, receiver_id:=ReceiverID} = Mail,
 
     Replies = mail_reply:get(Conn, MailID),
 
-   
+    #{player_name:=SenderName} = player:get(Conn, SenderID),
+    
+    #{player_name:=ReceiverName} = player:get(Conn, ReceiverID),
+
     Attachments = mail_item:get(Conn, MailID),
     PeeledAttachments = [maps:remove(mail_id, Att) || Att <- Attachments],
 
-    Mail#{content=>trunc_title(Content), replies=>Replies, attachment=>PeeledAttachments}.
+    Mail#{content=>trunc_title(Content), replies=>Replies, attachment=>PeeledAttachments, sender_name=>SenderName, receiver_name=>ReceiverName}.
 
 recv_mail_list(Conn, ReceiverUUID, Offset) ->
 
