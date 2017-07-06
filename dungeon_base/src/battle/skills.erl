@@ -43,7 +43,7 @@ seq() ->
 seq(LastFor) ->
     seq(LastFor, casting).
 seq(LastFor, Stage) ->
-    seq(LastFor, Stage, []).
+    seq(LastFor, Stage, {}).
 seq(LastFor, Stage, Conds) ->
     {{seq_norm, 0, LastFor, Stage}, Conds}.
 
@@ -151,9 +151,9 @@ create_skills() ->
             {seq(), {{{add, {{range, [175, 225]}}, magic_cast_spec()}, {attr, hp, off}, {back, non_blowable}}}}
         }}}},
 
-        {<<"pierce_armor">>, {{0, [
+        {<<"pierce_armor">>, {{0, {
             {seq(3), {{{add_mul, {{single, -0.5}}, magic_cast_spec()}, {attr, armor, def}, {stand, non_blowable}}}}
-        ]}}},
+        }}}},
 
         {<<"poison_gas">>, {{0.5, {
             {seq(2), {

@@ -42,7 +42,7 @@ comp({Val, '<', TAP}, O, D) ->
 
 
 comps(CondTuple, O, D) ->
-	comps(tuple_to_list(CondTuple), O, D, true).
+    comps(tuple_to_list(CondTuple), O, D, true).
 
 comps([Cond | RemConds], O, D, TrueValue) ->
     comps(RemConds, O, D, TrueValue and comp(Cond, O, D));
