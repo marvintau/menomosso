@@ -50,7 +50,7 @@ seq(LastFor, Stage, Conds) ->
 next_damage() ->
     next_damage(0).
 next_damage(LastFor) ->
-    next_damage(LastFor, []).
+    next_damage(LastFor, {}).
 next_damage(LastFor, Conds) ->
     next_damage(LastFor, Conds, settling).
 next_damage(LastFor, Conds, Stage) ->
@@ -59,7 +59,7 @@ next_damage(LastFor, Conds, Stage) ->
 next_attack() ->
     next_attack(1).
 next_attack(LastFor) ->
-    {{next_offense_norm, LastFor, {physical, attack, none, none}, settling}, []}.
+    {{next_offense_norm, LastFor, {physical, attack, none, none}, settling}, {}}.
 
 
 opponent_critical() ->
