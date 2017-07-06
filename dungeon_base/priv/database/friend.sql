@@ -19,6 +19,7 @@ drop table if exists circle cascade;
 create table circle (
     circle_id serial,
     sender_id text not null,
+    receiver_id text not null,
     time timestamp not null default now(),
     content text not null,
     is_deleted boolean not null default false

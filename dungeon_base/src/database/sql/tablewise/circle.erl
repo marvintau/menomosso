@@ -1,19 +1,29 @@
 -module(circle).
 
--export([get/2, add/3, delete/3]).
+-export([get/3, add/3, delete/3]).
 
-get(Conn, PlayerID) ->
-    Query1 = util:get_query(<<"circle">>, #{player_id=>PlayerID}),
-    {ok, Columns, Res1} = epgsql:squery(Conn, Query1),
-    Result1 = util:get_mapped_records(Columns, Res1),
+get(Conn, PlayerID, Offset) ->
 
-    Result1.
+    Query =list_to_binary(["select * from circle where receiver_id='", PlayerID,"' order by last_reply_time limit 20 offset ", Offset, ";"]),
+    {ok, Columns, Res} = epgsql:squery(Conn, Query),
+    Result = util:get_mapped_records(Columns, Res),
+
+    Result.
+
+select(PlayerID, PlayerID, ID) -> ID;
+select(PlayerID, ID, PlayerID) -> ID.
 
 add(Conn, PlayerID, Content) ->
-    Query = util:add_query(<<"circle">>, #{player_id=>PlayerID, content=>Content}),
+
+    FriendList = friend:get(Conn, PlayerID),
+    FriendIDList = [select(PlayerID, IDA, IDB) || #{friend_a:=IDA, friend_b:=IDB} <- FriendList],
+
+    CircleList = [#{sender_id=>PlayerID, receiver_id=>FriendID, content=>Content} || FriendID <- FriendIDList],
+
+    Query = util:add_query(<<"circle">>, CircleList),
     {ok, 1} = epgsql:squery(Conn, Query),
 
-    {ok, added}.
+    #{ok => added}.
 
 delete(Conn, CircleID, PlayerID) ->
 
@@ -24,7 +34,9 @@ delete(Conn, CircleID, PlayerID) ->
     case PlayerID == PostBy of
         true -> 
             QuerySet = util:set_query(<<"circle_up">>, #{is_deleted=>true}, #{circle_id=>CircleID}),
-            epgsql:squery(Conn, QuerySet);
+            epgsql:squery(Conn, QuerySet),
+
+            #{ok=>cancelled};
         _ ->
             #{error=>"cancelling not upped by you"}
     end.

@@ -43,7 +43,20 @@
     read_mail/2,   
     reply_mail/2,
     delete_mail/2,
-    open_attachment/2
+    open_attachment/2,
+
+    get_friend_list/2,
+    get_circle/2,
+    post_circle/2,
+    reply_circle/2,
+    delete_circle/2,
+    delete_circle_reply/2,
+    up_circle/2,
+    cancel_up_circle/2,
+
+    send_friend_request/2,
+    accept_friend_request/2,
+    reject_friend_request/2
 ]).
 
 
@@ -373,3 +386,37 @@ delete_mail(Conn, {PlayerID, MailID}) ->
 
 open_attachment(Conn, {PlayerID, MailID}) ->
     mail_service:open_attachment(Conn, PlayerID, MailID).
+
+
+get_friend_list(Conn, {PlayerID}) ->
+    friend:get(Conn, PlayerID).
+
+send_friend_request(Conn, {SenderID, ReceiverID}) ->
+    friend_request:add(Conn, SenderID, ReceiverID).
+
+accept_friend_request(Conn, {RequestID, ReceiverID}) ->
+    friend_request:accept(Conn, RequestID, ReceiverID).
+
+reject_friend_request(Conn, {RequestID, ReceiverID}) ->
+    friend_request:reject(Conn, RequestID, ReceiverID).
+
+post_circle(Conn, {PlayerID, Content}) ->
+    circle:add(Conn, PlayerID, Content).
+
+delete_circle(Conn, {CircleID, PlayerID}) ->
+    circle:delete(Conn, CircleID, PlayerID).
+
+reply_circle(Conn, {PlayerID, CircleID, Content}) ->
+    circle_reply:add(Conn, PlayerID, CircleID, Content).
+
+delete_circle_reply(Conn, {PlayerID, CircleID, CircleReplyID}) ->
+    circle_reply:delete(Conn, PlayerID, CircleID, CircleReplyID).
+
+get_circle(Conn, {PlayerID, Offset}) ->
+    circle:get(Conn, PlayerID, Offset).
+
+up_circle(Conn, {CircleID, PlayerID}) ->
+    circle_up:add(Conn, CircleID, PlayerID).
+
+cancel_up_circle(Conn, {CircleID, CircleUpID, PlayerID}) ->
+    circle_up:cancel(Conn, CircleID, CircleUpID, PlayerID).

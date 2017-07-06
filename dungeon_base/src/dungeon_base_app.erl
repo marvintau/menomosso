@@ -53,7 +53,19 @@ start(_StartType, _StartArgs) ->
                    {"/api/receive_mail", receive_mail_handler, []},
                    {"/api/reply_mail", reply_mail_handler, []},
                    {"/api/delete_mail", delete_mail_handler, []},
-                   {"/api/open_attachment", open_attachment_handler, []}
+                   {"/api/open_attachment", open_attachment_handler, []},
+
+                   {"/api/send_friend_request", send_friend_request_handler, []},
+                   {"/api/accept_friend_request", accept_friend_request_handler,[]},
+                   {"/api/reject_friend_request", reject_friend_request_handler,[]},
+                   {"/api/get_friend_list", get_friend_list_handler, []},
+                   {"/api/get_circle", get_circle_handler, []},
+                   {"/api/post_circle", post_circle_handler, []},
+                   {"/api/reply_circle", reply_circle_handler, []},
+                   {"/api/delete_circle", delete_circle_handler, []},
+                   {"/api/delete_circle_reply", delete_circle_reply_handler, []},
+                   {"/api/up_circle", up_circle_handler, []},
+                   {"/api/cancel_up_circle", cancel_up_circle_handler, []}
 
                   ]}
         ]),
