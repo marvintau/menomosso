@@ -56,12 +56,7 @@ handle_post(Req, State) ->
     {[{_, IdA}]} = jiffy:decode(ReqBody),
 
     {ok, List} = dungeon_base_sup:query({get_player_list, {}}),
-    erlang:display({show_id, IdA}),
     IdB = lists:nth(rand:uniform(length(List)-1), lists:delete(IdA, [maps:get(player_id, Player) || Player <- List])),
-    erlang:display({show_id, IdB}),
-
-
-    error_logger:info_report(battle_begins),
 
     {ok, #{card_profiles:=CardsA, player_profile:=#{rating:=RateA, preset_card_id:=CardIdA}=PlayerProfileA} = PlayerA} = dungeon_base_sup:query({get_player, {IdA}}),
     {ok, #{card_profiles:=CardsB, player_profile:=#{rating:=RateB, preset_card_id:=CardIdB}=PlayerProfileB} = PlayerB} = dungeon_base_sup:query({get_player, {IdB}}),
@@ -80,9 +75,8 @@ handle_post(Req, State) ->
     {ok, BattleContextA} = dungeon_base_sup:query({get_player_battle, {IdA}}),
     {ok, BattleContextB} = dungeon_base_sup:query({get_player_battle, {IdB}}),
 
-    error_logger:info_report(BattleContextA),
 
-    {log, #{winner:=Winner, loser:=Loser}=Log} = battle:start({BattleContextA, BattleContextB}),
+    {log, #{winner:=Winner}=Log} = battle:start({BattleContextA, BattleContextB}),
 
     EncodedLog = jiffy:encode(Log),
 

@@ -16,8 +16,6 @@ add(Conn, Insertion) ->
     quickrand:seed(),
     ReplyID = list_to_binary(uuid:uuid_to_string(uuid:get_v4_urandom())),
 
-    erlang:display(ReplyID),
-
     Query = util:add_query(<<"mail_reply">>, Insertion#{reply_id=>ReplyID}),
     {ok, _} = epgsql:squery(Conn, Query),
     

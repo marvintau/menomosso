@@ -4,7 +4,6 @@
 
 get(Conn, CardUUID, CardLevel) ->
     Query = list_to_binary(["select * from card_level_spec where card_id='", CardUUID, "' and level=", integer_to_binary(CardLevel), ";"]),
-    error_logger:info_report(binary_to_list(Query)),
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
     [CardLevelRes] = util:get_mapped_records(ColumnSpec, Result),
 
@@ -12,7 +11,6 @@ get(Conn, CardUUID, CardLevel) ->
 
 get_context(Conn, CardUUID, CardLevel) ->
     Query = list_to_binary(["select * from card_level_spec where card_id='", CardUUID, "' and level=", integer_to_binary(CardLevel), ";"]),
-    error_logger:info_report(binary_to_list(Query)),
     {ok, ColumnSpec, Result} = epgsql:squery(Conn, Query),
     [CardLevelRes] = util:get_mapped_records_context(ColumnSpec, Result),
 

@@ -69,24 +69,14 @@ handle_post(Req, State) ->
 
     {log, #{winner:=Winner, loser:=_Loser}=Log} = battle:start({BattleContextA, BattleContextB}),
 
-
-
     {ResA, ResB} = case Winner of
         IdA -> {1, 0};
         IdB -> {0, 1}
     end,
 
-    K = 16,
+    {ok, rate_updated, {NewRateA, NewRateB}} = dungeon_base_sup:query({update_rate_both}, {{IdA, RateA, ResA}, {IdB, RateB, ResB}}),
 
-    ExpectA = 1/(1+math:exp(RateB - RateA)),
-    ExpectB = 1/(1+math:exp(RateA - RateB)),
-
-    NewRateA = round(RateA + K * (ResA - ExpectA)),
-    NewRateB = round(RateB + K * (ResB - ExpectB)),
-
-    {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateA, IdA}}),
-    {ok, rate_updated} = dungeon_base_sup:query({update_rate, {NewRateB, IdB}}),
-    %{ok, rank_updated} = dungeon_base_sup:query({update_rank, {}}),
+   %{ok, rank_updated} = dungeon_base_sup:query({update_rank, {}}),
 
     {ok, #{player_profile:=#{ranking:=RankA}}} = dungeon_base_sup:query({get_player, {IdA}}),
     {ok, #{player_profile:=#{ranking:=RankB}}} = dungeon_base_sup:query({get_player, {IdB}}),

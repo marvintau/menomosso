@@ -21,9 +21,7 @@ get_merged_context_map(OriginalCardMap) ->
     },
 
     DefaultStates = #{
-        pos 			=> {single, 2},
-        pos_move 		=> {single, stand},
-        diff			=> {single, 0}
+        diff		=> {single, 0}
     },
 
     NewAttrs = maps:merge(DefaultAttrs, maps:remove(hp, OriginalCardMap)),

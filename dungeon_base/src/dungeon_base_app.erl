@@ -37,6 +37,7 @@ start(_StartType, _StartArgs) ->
                    {"/api/check_chest", check_chest_handler, []},
 
                    {"/api/battle_request", battle_request_handler, []},
+                   {"/api/test", battle2_request_handler, []},
                    {"/api/quick_battle", quick_battle_handler, []},
 
                    {"/api/check_supply", check_supply_handler, []},

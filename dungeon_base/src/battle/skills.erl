@@ -22,21 +22,21 @@ magic_cast_spec(Resis) ->
 magic_cast_spec() ->
     magic_cast_spec(non_resistable).
 
+
+test_attack() ->
+    {{add_inc_mul, {{single, 200}, {single, -1}}, physical_attack_spec()}, {attr, hp, def}}.
+
 plain_attack() ->
-    {{add_inc_mul, {{attr, atk_range, off}, {single, -1}}, physical_attack_spec()}, {attr, hp, def}, {chase, blowable}}.
-plain_attack_no_blow() ->
-    {{add_inc_mul, {{attr, atk_range, off}, {single, -1}}, physical_attack_spec()}, {attr, hp, def}, {chase, non_blowable}}.
-stand_plain_attack() ->
-    {{add_inc_mul, {{attr, atk_range, off}, {single, -1}}, physical_cast_spec()}, {attr, hp, def}, {stand, non_blowable}}.
+    {{add_inc_mul, {{attr, atk_range, off}, {single, -1}}, physical_attack_spec()}, {attr, hp, def}}.
 
 counter_attack(Times) ->
-    {{add_inc_mul, {{attr, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, hp, def}, {stand, blowable}}.
+    {{add_inc_mul, {{attr, diff, off}, {single, Times}}, physical_attack_spec()}, {attr, hp, def}}.
 
 buff(Attr, Buff) ->
-    {{add_mul, {{single, 1+Buff}}, magic_cast_spec()}, {attr, Attr, off}, {stand, non_blowable}}.
+    {{add_mul, {{single, 1+Buff}}, magic_cast_spec()}, {attr, Attr, off}}.
 
 toggle(Who, Attr, Switch) ->
-    {{set, {{single, Switch}}, magic_cast_spec()}, {attr, Attr, Who}, {stand, non_blowable}}.
+    {{set, {{single, Switch}}, magic_cast_spec()}, {attr, Attr, Who}}.
 
 seq() ->
     seq(0).
@@ -121,16 +121,25 @@ create_skills() ->
     true = ets:delete_all_objects(skills),
 
     Skills = [
+
+        {<<"test_attack">>, {{0, {
+            {seq(), {test_attack()}}
+        }}}},
+
+        {<<"test_seq2_attack">>, {{0, {
+            {seq(2), {test_attack()}}
+        }}}},
+      
         {<<"single_attack">>, {{0, {
             {seq(), {plain_attack()}}
         }}}},
 
         {<<"double_attack">>, {{0, {
-            {seq(), {stand_plain_attack(), plain_attack()}}
+            {seq(), {plain_attack(), plain_attack()}}
         }}}},
 
         {<<"triple_attack">>, {{0, {
-            {seq(), {stand_plain_attack(), stand_plain_attack(), plain_attack_no_blow()}}
+            {seq(), {plain_attack(), plain_attack(), plain_attack()}}
         }}}},
 
         {<<"charm_of_foresight">>, {{0, {
@@ -148,11 +157,11 @@ create_skills() ->
         }}}},
 
         {<<"healing_potion">>, {{0, {
-            {seq(), {{{add, {{range, [175, 225]}}, magic_cast_spec()}, {attr, hp, off}, {back, non_blowable}}}}
+            {seq(), {{{add, {{range, [175, 225]}}, magic_cast_spec()}, {attr, hp, off}}}}
         }}}},
 
         {<<"pierce_armor">>, {{0, {
-            {seq(3), {{{add_mul, {{single, -0.5}}, magic_cast_spec()}, {attr, armor, def}, {stand, non_blowable}}}}
+            {seq(3), {{{add_mul, {{single, -0.5}}, magic_cast_spec()}, {attr, armor, def}}}}
         }}}},
 
         {<<"poison_gas">>, {{0.5, {
@@ -174,11 +183,11 @@ create_skills() ->
         }}}},
 
         {<<"rune_of_the_void">>, {{0, {
-            {seq(), {{{set, {{single, 1}}, magic_cast_spec()}, {attr, cast_disabled, def}, {stand, non_blowable}}}}
+            {seq(), {{{set, {{single, 1}}, magic_cast_spec()}, {attr, cast_disabled, def}}}}
         }}}},
 
         {<<"holy_hand_grenade">>, {{0, {
-            {seq(), {{{add, {{range, [-500, -1]}}, magic_cast_spec(resistable)}, {attr, hp, def}, {back, non_blowable}}}}
+            {seq(), {{{add, {{range, [-500, -1]}}, magic_cast_spec(resistable)}, {attr, hp, def}}}}
         }}}},
 
         {<<"talisman_of_shielding">>, {{0, {
@@ -186,7 +195,7 @@ create_skills() ->
         }}}},
 
         {<<"talisman_of_death">>, {{0, {
-            {seq(), {{{add_mul, {{single, -0.15}}, magic_cast_spec()}, {attr, hp, def}, {back, non_blowable}}}}
+            {seq(), {{{add_mul, {{single, -0.15}}, magic_cast_spec()}, {attr, hp, def}}}}
         }}}},
 
         {<<"talisman_of_spellshrouding">>, {{0, {
@@ -205,18 +214,18 @@ create_skills() ->
 
         {<<"concussion">>, {{0, {
             {seq(0), {
-                {{add_inc_mul, {{attr, critical, def}, {single, -0.5}}, magic_cast_spec()}, {attr, hp, def}, {stand, non_blowable}},
-                {{add_inc_mul, {{attr, agility, def}, {single, -1}}, physical_attack_spec(absorbable)}, {attr, hp, def}, {stand, non_blowable}}
+                {{add_inc_mul, {{attr, critical, def}, {single, -0.5}}, magic_cast_spec()}, {attr, hp, def}},
+                {{add_inc_mul, {{attr, agility, def}, {single, -1}}, physical_attack_spec(absorbable)}, {attr, hp, def}}
             }}
         }}}},
 
         {<<"double_swing">>, {{0, {
-            {seq(2, counter, []), {stand_plain_attack(), plain_attack()}}
+            {seq(2, counter, []), {plain_attack(), plain_attack()}}
         }}}},
 
         {<<"first_aid">>, {{0, {
             {seq(), [
-                {{add_inc_mul, {{attr, hp, off}, {single, 0.08}}, magic_cast_spec()}, {attr, hp, off}, {back, non_blowable}}
+                {{add_inc_mul, {{attr, hp, off}, {single, 0.08}}, magic_cast_spec()}, {attr, hp, off}}
             ]}
         }}}},
 
@@ -246,7 +255,7 @@ create_skills() ->
 
         {<<"deadly_strike">>, {{0, {
             {seq(), {
-                {{add_inc_mul, {{attr, atk_range, off}, {single, 2.5}}, physical_attack_spec()}, {attr, hp, def}, {chase, blowable}}
+                {{add_inc_mul, {{attr, atk_range, off}, {single, 2.5}}, physical_attack_spec()}, {attr, hp, def}}
             }}
         }}}},
 
@@ -266,9 +275,9 @@ create_skills() ->
 
         {<<"unbalancing_strike">>, {{0, {
             {seq(4), {
-                {{add, {{single, -7}}, magic_cast_spec()}, {attr, dodge, def}, {stand, non_blowable}},
-                {{add, {{single, -7}}, magic_cast_spec()}, {attr, block, def}, {stand, non_blowable}},
-                {{add, {{single, -7}}, magic_cast_spec()}, {attr, hit, def}, {stand, non_blowable}}
+                {{add, {{single, -7}}, magic_cast_spec()}, {attr, dodge, def}},
+                {{add, {{single, -7}}, magic_cast_spec()}, {attr, block, def}},
+                {{add, {{single, -7}}, magic_cast_spec()}, {attr, hit, def}}
             }}
         }}}}
     ],

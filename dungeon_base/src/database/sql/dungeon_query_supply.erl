@@ -12,7 +12,7 @@ rand_true_false() ->
 
 add_new_supply(Conn, PlayerUUID, SupplyID) ->
 
-	quickrand:seed(),
+    quickrand:seed(),
     LootID = uuid:uuid_to_string(uuid:get_v4_urandom()),
 
     {ok, RemainingSupplies} = check_supply_remaining_time(Conn, PlayerUUID),
@@ -21,8 +21,6 @@ add_new_supply(Conn, PlayerUUID, SupplyID) ->
     	"insert into player_supply_loot(loot_id, player_id, supply_id, acquire_time, open_time, is_opened, buff1, buff2, buff3) values
 		('", LootID, "', '", PlayerUUID,"', ", integer_to_binary(SupplyID),", now(), now(), false, ", rand_true_false(),", ", rand_true_false(), ", ", rand_true_false(), ");"
     ]),
-
-    error_logger:info_report(QueryAddLoot),
 
     QueryAddLootItems = list_to_binary([
 		"insert into loot_list(loot_id, item_id, item_qty)
@@ -54,7 +52,6 @@ check_supply_remaining_time(Conn, PlayerUUID) ->
 		from supply_name join (select loot_id, acquire_time, supply_id, buff1, buff2, buff3 from player_supply_loot where player_id='", PlayerUUID, "' and is_opened='f') as tem on tem.supply_id=supply_name.supply_id;"]),
 
 	{ok, _, Res} = epgsql:squery(Conn, binary_to_list(Query)),
-	error_logger:info_report(Res),
 	{ok, Res}.
 
 
@@ -69,7 +66,6 @@ return_supply_items(Conn, LootID) ->
 
 
 fetch_supply_items(Conn, PlayerID, {_, ItemID, ItemQty, _, _}) ->
-	erlang:display("yay"),
 	case ItemID of
 		<<"1">> ->
 			Res=dungeon_query:update_coin(Conn, {binary_to_integer(ItemQty), PlayerID}),

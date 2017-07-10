@@ -18,8 +18,8 @@ roulette(AttackSpec,
         #{attr:=#{hit:={single, Hit}, critical:={single, Crit}}},
         #{attr:=#{resist:={single, Res}, block:={single, Blo}, dodge:={single, Dod}}} )->
 
-    % 获得攻击属性（魔法／物理），放招类型（普攻／技能），是否可以抵抗，是否护甲减免（不考虑），技能失败概率
-    % erlang:display(AttackSpec),
+    % 获得攻击属性（魔法／物理），放招类型（普攻／技能），是否可以抵抗，
+    % 是否护甲减免（不考虑），技能失败概率
     {AttrType, MoveType, Resistable, _Absorbable, FL}  = AttackSpec,
 
     % 实际的抗性：如果技能不可抵抗，那么实际的魔抗值为0
@@ -73,91 +73,27 @@ roulette(AttackSpec,
     Result.
 
 
-repose(#{state:=StateO}=O, #{state:=StateD}=D, {stand, _}) ->
-    {O#{state:=StateO#{pos_move:={single, stand}}}, D#{state:=StateD#{pos_move:={single, stand}}}};
-
-repose(#{state:=#{pos:={single, PosO}}=StateO, attr:=#{outcome:={single, Outcome}}} = O,
-       #{state:=#{pos:={single, PosD}, hp:={single, HPD}}=StateD,
-         attr:=#{is_frozen:={single, IsFrozen}, is_disarmed:={single, IsDisarmed}, is_stunned:={single, IsStunned}}} = D,
-      {ReposeType, IsBlownOutEnabled}) ->
-
-    % 根据近战远战类型决定追逃动作
-    {NewPosO, NewPosD, NewPosMoveO, NewPosMoveD} = case ReposeType of
-
-        % 只有当PosO + PosD == 5 的时候才是格斗距离，比这个小说明远了
-        chase when (PosO + PosD) < 5 ->
-            %erlang:display(haha),
-            {5 - PosD, PosD, chase, not_assigned_yet};
-
-        % 如果不是，则说明正是格斗距离，不动
-        chase ->
-            %erlang:display(hehe),
-            {PosO, PosD, stand, not_assigned_yet};
-
-        % 只有当 4 >= PosO + PosD >= 3的时候才是远战格斗距离，比这个再远需要追上
-        back when (PosO + PosD) < 3 ->
-            {PosO + 1, PosD, chase, not_assigned_yet};
-
-        % 如果是近战的距离需要跳开
-        back when PosO + PosD == 5 ->
-            {PosO - 1, PosD, back_jump, not_assigned_yet};
-
-        back ->
-            {PosO, PosD, stand, not_assigned_yet}
-
-    end,
-
-    % 决定击飞动作
-    BlownRand = rand:uniform(),
-
-    % 如果抽中随机数，且被攻击者不在版边，并且被攻击者不处在冰冻/眩晕/缴械状态，并且被攻击者的反应不是
-    {NewPosD2, NewPosMoveD2} = case {NewPosD, NewPosMoveD} of
-        % {1, not_assigned_yet} -> {1, stand};
-        {_, not_assigned_yet} when
-            IsBlownOutEnabled and (BlownRand > 0.9) and (IsFrozen == 0) and (IsDisarmed == 0) and (IsStunned == 0)
-            and (Outcome /= dodge) and (Outcome /=block) and (Outcome /= resist) or (HPD =< 0) ->
-            {NewPosD - 1, blown_out};
-        {_, not_assigned_yet} -> {NewPosD, stand};
-        _ -> {NewPosD, NewPosMoveD}
-    end,
-
-    % {NewPosO, NewPosD2, NewPosMoveO, NewPosMoveD2},
-    {O#{state:=StateO#{pos:={single, NewPosO}, pos_move:={single, NewPosMoveO}}},
-     D#{state:=StateD#{pos:={single, NewPosD2}, pos_move:={single, NewPosMoveD2}}}}.
-
-
-
 % ========================= TRANSFER INSTRUCTIONS ==============================
-% Apply transfer operations over specific attributes of player context. The type
-% could be varying state (hp, remaining moves) or attribute (hit, dodge, block,
-% etc.) that resets for every round. The supported operations include get, set,
-% add, add & multiply original value, or the value referring to other attributes.
-%
-% trans cares if the damage will be absorbed by the armor of defender.
-%
-% expecting {Opcode, Value, React} where opcode of set/add/add_mul/add_inc_mul,
-% and Value of number, interval or {type, attribute, off/def} triple.
 
 
 trans({set, Imm, _, _}, Ref) ->
 	ref:set(Ref, Imm);
 
 %% 当Inc < 0，且作用的属性是HP时，即是造成伤害，进入伤害处理程序
-trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, hp, P}=ToWhom) when Damage < 0 ->
+trans({add, Damage, AtkSpec, Outcome}, {attr, hp, P}=ToWhom) when Damage < 0 ->
 
-    %% 处理护甲减免
+    {_, _, _, Absorbable, _} = AtkSpec,
+
+    %% 处理护甲减免:1-护甲值*0.0001
     AbsorbedDamage = case Absorbable of
         absorbable ->
-            %erlang:display(ref:val({attr, armor, P})),
             ArmorRatio = 1 - ref:val({attr, armor, P}) * 0.0001,
             Damage * ArmorRatio;
         _ ->
             Damage
         end,
 
-    % erlang:display({absorbed, Absorbable, AbsorbedDamage}),
     %% 处理转盘结果
-
     CalculatedDamage = case Outcome of
         critical ->
             CritMult = ref:val({attr, critical_mult, P}),
@@ -171,6 +107,7 @@ trans({add, Damage, {_, _, _, Absorbable, _}, Outcome}, {attr, hp, P}=ToWhom) wh
         _ -> 0
     end,
 
+    % 上述伤害值再乘以伤害倍数，即得到最终的伤害值
     FinalDamage = CalculatedDamage * ref:val({attr, damage_mult, P}),
     trans({set, ref:val(ToWhom) + FinalDamage, none, none}, ToWhom);
 
@@ -184,7 +121,7 @@ trans({add_inc_mul, {Inc, Mul}, AttackSpec, Outcome}, ToWhom) ->
     trans({add, Inc * Mul, AttackSpec, Outcome}, ToWhom).
 
 
-trans({{Opcode, Oper, AttackSpec}, {attr, Attr, P}, ReposeType}, O, D) ->
+trans({{Opcode, Oper, AttackSpec}, {attr, Attr, P}}, O, D) ->
 
     % 获得双方的操作数
     RefOperand = case Oper of
@@ -193,20 +130,18 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Attr, P}, ReposeType}, O, D) ->
     end,
 
     % 得到转盘结果
-    % erlang:display({Opcode, Oper, AttackSpec}),
     Outcome = roulette(AttackSpec, O, D),
 
     % 将转盘结果加入玩家context，并按结果计算伤害／技能效果，把结果保存在TransPsn里面
     Psn = ref:who(P, O, D),
     TheTransedOne = trans({Opcode, RefOperand, AttackSpec, Outcome}, {attr, Attr, Psn}),
 
-    {#{attr:=AttrO} = TransO, TransD} = case P of
+    {TransO, TransD} = case P of
         off ->  {TheTransedOne, D};
         def ->  {O, TheTransedOne}
     end,
 
-    repose(TransO#{attr:=AttrO#{outcome:={single, Outcome}}}, TransD, ReposeType).
-
+    {TransO, TransD}.
 
 
 
@@ -217,9 +152,41 @@ trans({{Opcode, Oper, AttackSpec}, {attr, Attr, P}, ReposeType}, O, D) ->
 
 % Accepts cond description
 
+get_player_log(P, Role, Order) ->
+    #{player_name => maps:get(player_name, P),
+      profession  => ref:val({attr, profession, P}),
+      hp          => ref:val({attr, hp, P}),
+      role        => Role,
+      order       => Order
+     }.
+
+get_cast_effect_log(SkillName, CastOutcome) ->
+    #{skill_name => SkillName,
+      outcome    => CastOutcome,
+      attr       => none,
+      dest       =>none,
+      diff       => 0
+     }.
+
+get_effect_log(SkillSpec, _, {O, D}) ->
+    {SkillName, {_, {_, Attr, Who}}} = SkillSpec,
+
+    Dest = case Who of
+        off -> offender;
+        _ -> defender
+    end,
+
+    #{skill_name => SkillName,
+      outcome    => ref:val({attr, outcome, O}),
+      attr       => Attr,
+      dest       => Dest,
+      diff       => ref:val({attr, diff, Who}, O, D)
+     }.
+
+
 log_cast(S, SkillName, IsSuccessful,
-    #{player_id:=OID, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{profession:={single, ClassO}}},
-    #{player_id:=DID, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}, attr:=#{profession:={single, ClassD}}}
+    #{player_id:=OID} = O,
+    #{player_id:=DID} = D
 ) ->
 
     CastOutcome = case IsSuccessful of
@@ -227,43 +194,44 @@ log_cast(S, SkillName, IsSuccessful,
         _ -> failed
     end,
 
-    %erlang:display({NameO, {PosO, PosMoveO}, SkillName, CastOutcome, NameD, {PosD, PosMoveD}}),
-
     #{
-        state => maps:remove(offender, S),
-        effect => #{skill_name=>SkillName, outcome => CastOutcome, attr=> none, dest=>none, diff => 0},
-        OID => #{player_name=>NameO, profession=>ClassO, role=>offender, order=>init, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
-        DID => #{player_name=>NameD, profession=>ClassD, role=>defender, order=>init, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
+        state  => maps:remove(offender, S),
+        effect => get_cast_effect_log(SkillName, CastOutcome),
+        OID    => get_player_log(O, offender, init),
+        DID    => get_player_log(D, defender, init)
     }.
 
 cast(S, #{casts:=Casts}=O, D, Log) ->
     cast(S, O, D, Log, Casts).
 
-cast(_S, #{state:=#{hp:={single, H1}}}=O, #{state:=#{hp:={single, H2}}}=D, Log, _) when (H1 =< 0) or (H2 =< 0) ->
-    {O, D, Log};
+cast(S, O, D, Log, Casts) ->
 
-cast(_S, O, D, Log, []) ->
-    {O, D, Log};
+    #{seq:=Seq} = S,
+    #{state:=#{hp:={single, H1}}}=O,
+    #{state:=#{hp:={single, H2}}}=D,
+    #{attr:=#{cast_disabled:={single, CastDisabled}}}=O,
 
-cast(#{stage:=casting}, #{attr:=#{cast_disabled:={single, CastDisabled}}}=O, D, Log, _) when CastDisabled /= 0 ->
-    {O, D, Log};
+    if H1 =< 0 ->
+           {O, D, Log};
+       H2 =< 0 ->
+           {O, D, Log};
+       Casts == [] ->
+           {O, D, Log};
+       CastDisabled /= 0 ->
+           {O, D, Log};
+       true ->
+           [{SeqIndex, SkillName, IsSuccessful} | Remaining] = Casts,
+           
+           NewLog = if Seq == SeqIndex ->
+                           [log_cast(S, SkillName, IsSuccessful, O, D) | Log];
+                       true -> Log
+                    end,
+           cast(S, O, D, NewLog, Remaining)
+    end.
 
-cast(#{seq:=Seq}=S, #{state:=StateO}=O, #{state:=StateD}=D, Log, [{SeqIndex, SkillName, IsSuccessful} | Remaining]) ->
-
-    StandO = O#{state:=StateO#{pos_move:={single, stand}}},
-    StandD = D#{state:=StateD#{pos_move:={single, stand}}},
-
-    NewLog = case Seq == SeqIndex of
-        true ->
-            [log_cast(S, SkillName, IsSuccessful, StandO, StandD) | Log];
-        _ -> Log
-    end,
-    cast(S, StandO, StandD, NewLog, Remaining).
-
-
-log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Attr, Who}, _}},
-    #{player_id:=OID, player_name:=NameO, state:=#{hp:={_, HPO}, pos:={_, PosO}, pos_move:={_, PosMoveO}}, attr:=#{outcome:={_, Outcome}, profession:={single, ClassO}}} = O,
-    #{player_id:=DID, player_name:=NameD, state:=#{hp:={_, HPD}, pos:={_, PosD}, pos_move:={_, PosMoveD}}, attr:=#{profession:={single, ClassD}}} = D
+log_trans(#{stage:=Stage} = S, SkillSpec,
+    #{player_id:=OID} = O,
+    #{player_id:=DID} = D
 ) ->
 
     InitOrFollow = case Stage of
@@ -271,18 +239,11 @@ log_trans(#{stage:=Stage} = S, {SkillName, {_, {_, Attr, Who}, _}},
         _ -> follow
     end,
 
-    Dest = case Who of
-        off -> offender;
-        _ -> defender
-    end,
-
-    %erlang:display({{NameO, HPO}, {PosO, PosMoveO}, SkillName, Outcome, Attr, Dest, ref:val({attr, diff, Who}, O, D), {NameD, HPD}, {PosD, PosMoveD}}),
-
     #{
         state => maps:remove(offender, S),
-        effect => #{skill_name=>SkillName, outcome => Outcome, attr=> Attr, dest=>Dest, diff => ref:val({attr, diff, Who}, O, D)},
-        OID => #{player_name=>NameO, profession=>ClassO, role=>offender, order=>InitOrFollow, hp=>HPO, pos=>PosO, pos_move=>PosMoveO},
-        DID => #{player_name=>NameD, profession=>ClassD, role=>defender, order=>InitOrFollow, hp=>HPD, pos=>PosD, pos_move=>PosMoveD}
+        effect => get_effect_log(SkillSpec, none, {O, D}),
+        OID => get_player_log(O, offender, InitOrFollow),
+        DID => get_player_log(D, defender, InitOrFollow)
     }.
 
 

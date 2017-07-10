@@ -5,7 +5,6 @@
 add(Conn, Map) ->
 
     Query = list_to_binary([util:add_query(<<"player_obtained_card_skill">>, Map), util:get_query(<<"player_obtained_card_skill">>)]),
-    error_logger:info_report(Query),
     [{ok, _}, {ok, ColumnSpec, Result}] = epgsql:squery(Conn, Query),
     Res = util:get_mapped_records(ColumnSpec, Result),
 

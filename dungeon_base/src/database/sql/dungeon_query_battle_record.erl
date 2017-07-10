@@ -3,13 +3,11 @@
 -export([store/2, fetch_list/2, fetch/2]).
 
 reform_skill(BinarySkills) ->
-	error_logger:info_report({skill, BinarySkills}),
 	% BinarySkills.
 	list_to_binary(["{", string:join(["\""++binary_to_list(Skill)++"\"" || Skill <- BinarySkills], ","), "}"]).
 
 store(Conn, {SelfID, OppoID, SelfCardID, OppoCardID, SelfSelectedSkills, OppoSelectedSkills, SelfWin, BattleRecord}) ->
 
-	% error_logger:info_report([SelfID, OppoID, SelfCardID, OppoCardID, SelfSelectedSkills, OppoSelectedSkills, SelfWin, BattleRecord]).
 	
 	Query = list_to_binary(["
 		insert into player_battle_record( battle_record_id,    self_id,   oppo_id, self_card_id, oppo_card_id,     self_preset_skill, oppo_preset_skill, result, battle_record, last_created)
@@ -20,7 +18,6 @@ store(Conn, {SelfID, OppoID, SelfCardID, OppoCardID, SelfSelectedSkills, OppoSel
 		{ok, _} ->
 			{ok, battle_record_stored};
 		Error ->
-			error_logger:info_report(Error),
 			{error, Error}
 	end.
 
@@ -34,7 +31,6 @@ fetch_list(Conn, {SelfID, OppoID}) ->
 		{ok, ResultColumns, Result} ->
 			{ok, utils:get_mapped_records(ResultColumns, Result)};
 		Error ->
-			error_logger:info_report(Error),
 			{error, Error}
 	end.
 
@@ -48,6 +44,5 @@ fetch(Conn, {BattleRecordID}) ->
 		{ok, ResultColumns, Result} ->
 			{ok, utils:get_mapped_records(ResultColumns, Result)};
 		Error ->
-			error_logger:info_report(Error),
 			{error, Error}
 	end.

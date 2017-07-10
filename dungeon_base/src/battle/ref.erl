@@ -22,14 +22,14 @@ set({attr, Attr, Whose}=Ref, NewVal) when is_number(NewVal) ->
                             Attr:={single, round(NewVal)}
                            },
                    attr:=AttrTypeset#{
-                            diff:={single, round(NewVal-val(Ref))}
+                           diff:={single, round(NewVal-val(Ref))}
                           }
                   };
         #{attr :=#{Attr:=_}=AttrSet} ->
             Whose#{attr:=AttrSet#{
-                            Attr:={single, round(NewVal)},
-                            diff:={single, round(NewVal-val(Ref))}
-                           }
+                           Attr:={single, round(NewVal)},
+                           diff:={single, round(NewVal-val(Ref))}
+                          }
                   }
     end;
 

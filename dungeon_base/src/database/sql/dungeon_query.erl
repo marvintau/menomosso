@@ -18,6 +18,7 @@
 
     update_preset/2,
     update_rate/2,
+    update_rate_both/2,
     update_rank/2,
     update_frag/2,
     update_coin/2,
@@ -66,11 +67,8 @@ connect() ->
     connect("localhost", "yuetao", "asdasdasd", "dungeon_base", 100).
 
 connect(Host, User, Password, Database, Timeout) ->
-    erlang:display(connecting),
-
     case epgsql:connect(Host, User, Password, [{database, Database}, {timeout, Timeout}]) of
         {ok, Conn} ->
-            erlang:display({'DungenBase', connected}),
             {ok, Conn};
         {error, Error} ->
             erlang:display({'DungenBase', connection, failed, Error}),
@@ -211,7 +209,6 @@ update_preset(Conn, {SkillList, SelfCardID, PlayerUUID}) ->
     CondSkill = #{player_id=>PlayerUUID, card_id=>SelfCardID},
     QuerySkill = util:set_query(<<"player_obtained_card">>, SetSkill, CondSkill),
 
-    error_logger:info_report(binary_to_list(QuerySkill)),
 
     {ok, 1} = epgsql:squery(Conn, QuerySkill).
 
@@ -237,16 +234,29 @@ update_frag(Conn, {FragIncre, CardID, PlayerUUID}) ->
     case lists:member(CardID, CardList) of
         false -> player_obtained_card:add(Conn, PlayerUUID, CardID);
         _ ->
-            error_logger:info_report(FragIncre),
             SetExp = #{frags=> {e, list_to_binary(["frags+", FragIncre])}},
             Cond   = #{player_id=>PlayerUUID, card_id=>CardID},
             Query  = util:set_query(<<"player_obtained_card">>, SetExp, Cond),
-            error_logger:info_report(binary_to_list(Query)),
             epgsql:squery(Conn, Query)
     end.
 
 update_rank(Conn, {}) ->
     player:set_rank(Conn, {}).
+
+update_rate_both(Conn, {{IDA, RateA, ResA}, {IDB, RateB, ResB}}) ->
+
+    K = 16,
+
+    ExpectA = 1/(1+math:exp(RateB - RateA)),
+    ExpectB = 1/(1+math:exp(RateA - RateB)),
+
+    NewRateA = round(RateA + K * (ResA - ExpectA)),
+    NewRateB = round(RateB + K * (ResB - ExpectB)),
+
+    {ok, rate_updated} = update_rate(Conn, {NewRateA, IDA}),
+    {ok, rate_updated} = update_rate(Conn, {NewRateB, IDB}),
+
+    {ok, rate_updated, {NewRateA, NewRateB}}. 
 
 %% ------------------------------------------------------------------------
 %% 更新卡牌
